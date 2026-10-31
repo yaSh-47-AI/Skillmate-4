@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#06060a">
+  <meta name="description" content="Discover people who share your interests, skills and ambitions.">
+  <title>SkillMate — Find Your People</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="bg" aria-hidden="true">
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+    <div class="grid"></div>
+  </div>
+  <canvas id="particles" aria-hidden="true"></canvas>
+
+  <nav>
+    <a class="logo" href="#top">Skill<span>Mate.</span></a>
+
+    <div class="nav-center">
+      <a href="#network">Network</a>
+      <a href="#matching">Interests</a>
+      <a href="#communities">Communities</a>
+      <a href="#discover">Discover</a>
+    </div>
+
+    <div class="nav-actions">
+      <button class="nav-chat" onclick="openChat()" aria-label="Open chats">
+        ✉ <span>Chats</span> <span class="chat-count" id="chatCount">0</span>
+      </button>
+
+      <button class="nav-btn" id="joinButton" onclick="openModal('signup')">
+        Join ↗
+      </button>
+
+      <div class="user-menu" id="userMenu" hidden>
+        <button
+          class="nav-avatar-btn"
+          id="navAvatarBtn"
+          type="button"
+          onclick="toggleUserMenu(event)"
+          title="Account menu"
+          aria-label="Account menu"
+        >
+          <div class="nav-avatar" id="navAvatar">👤</div>
+        </button>
+
+        <button
+          class="menu-dots-btn"
+          id="userMenuTrigger"
+          type="button"
+          aria-expanded="false"
+          aria-label="Account options"
+          title="Account menu"
+          onclick="toggleUserMenu(event)"
+        >
+          ⋮
+        </button>
+
+        <div class="user-menu-dropdown" id="userMenuDropdown" hidden>
+          <div class="dropdown-user-header">
+            <div class="dropdown-avatar" id="dropdownAvatar">👤</div>
+            <div class="dropdown-user-details">
+              <strong id="dropdownUserName">Member</strong>
+              <small id="dropdownUserRole">Community member</small>
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+          <button type="button" class="dropdown-action" onclick="openModal('signup'); closeUserMenu();">
+            ✎ <span>Edit profile</span>
+          </button>
+          <button type="button" class="dropdown-action" onclick="openChat(); closeUserMenu();">
+            ✉ <span>Messages</span>
+          </button>
+          <div class="dropdown-divider"></div>
+          <button type="button" class="dropdown-action menu-logout" onclick="logoutUser()">
+            ↪ <span>Logout</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="top">
+    <section class="hero">
+      <div class="floating f1">🤖 AI</div>
+      <div class="floating f2">🎨 DESIGN</div>
+      <div class="floating f3">🚀 STARTUPS</div>
+      <div class="floating f4">🎮 GAMING</div>
+
+      <div class="hero-content">
+        <div class="badge">
+          <span class="live"></span>
+          Your next connection starts here
+        </div>
+
+        <h1 class="hero-wordmark" aria-label="Find your people">
+          <span class="hero-line1" data-word="FIND">FIND</span>
+          <span class="hero-line2" data-word="YOUR">YOUR</span>
+          <span class="hero-line3" data-word="PEOPLE.">PEOPLE<span class="hero-dot">.</span></span>
+        </h1>
+
+        <p class="hero-description">
+          Meet people who get what you're passionate about.
+          Find your community, exchange ideas and build something together.
+        </p>
+
+        <div class="hero-buttons" id="heroButtons">
+          <button class="primary" id="heroJoinButton" onclick="openModal('signup')">
+            ✦ Create your profile
+          </button>
+
+          <button class="secondary" onclick="scrollToDiscover()">
+            Explore the community ↓
+          </button>
+        </div>
+
+        <div class="hero-welcome-card" id="heroWelcome" hidden>
+          <div class="welcome-card-header">
+            <div class="welcome-avatar-wrapper">
+              <div class="welcome-large-avatar" id="welcomeBigAvatar">👤</div>
+              <span class="welcome-live-dot" title="Active now"></span>
+            </div>
+            <div class="welcome-headline-box">
+              <div class="welcome-eyebrow-tag">
+                <span class="sparkle-icon">✦</span> Logged In as Member
+              </div>
+              <h2 class="welcome-big-heading">
+                Welcome, <span class="welcome-name-gradient" id="welcomeUserName">Member</span>! 👋
+              </h2>
+              <p class="welcome-subtext" id="welcomeUserBio">
+                Find collaborators, join circles, and discover people who share your passions.
+              </p>
+            </div>
+          </div>
+
+          <div class="welcome-card-actions">
+            <button class="primary" onclick="scrollToDiscover()">
+              ✦ Explore people matching your interests ↓
+            </button>
+            <button class="secondary" onclick="openChat()">
+              ✉ Open messages
+            </button>
+            <button class="secondary" onclick="openModal('signup')">
+              ✎ Edit profile
+            </button>
+          </div>
+        </div>
+
+        <div class="hero-proof">
+          <span class="proof-avatars"><i>S</i><i>K</i><i>M</i><i>+</i></span>
+          <span>Shared interests. Real connections.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="network">
+      <div class="section-eyebrow">A DIFFERENT KIND OF NETWORK</div>
+      <h2 class="section-title">Your interests can<br>bring people together.</h2>
+
+      <div class="network">
+        <div class="network-center">YOU</div>
+        <div class="node node1">Artificial Intelligence</div>
+        <div class="node node2">Python</div>
+        <div class="node node3">Music</div>
+        <div class="node node4">Startups</div>
+        <div class="node node5">Robotics</div>
+        <div class="node node6">Photography</div>
+
+        <svg class="network-lines" viewBox="0 0 1000 500" preserveAspectRatio="none" aria-hidden="true">
+          <line x1="500" y1="250" x2="190" y2="120"/>
+          <line x1="500" y1="250" x2="810" y2="110"/>
+          <line x1="500" y1="250" x2="180" y2="390"/>
+          <line x1="500" y1="250" x2="820" y2="380"/>
+          <line x1="500" y1="250" x2="500" y2="65"/>
+          <line x1="500" y1="250" x2="500" y2="440"/>
+        </svg>
+      </div>
+    </section>
+
+    <section class="section" id="matching">
+      <div class="section-eyebrow">PERSONALISED DISCOVERY</div>
+      <h2 class="section-title">What are you<br>into these days?</h2>
+      <p class="section-description">
+        Pick a few interests. We'll bring people with similar passions closer to the top.
+      </p>
+
+      <div class="matching-layout">
+        <div class="panel interests-panel">
+          <div class="panel-heading">
+            <div>
+              <h3>Your interests</h3>
+              <p>Select as many as you like.</p>
+            </div>
+            <span class="selection-count" id="interestCount">3 selected</span>
+          </div>
+
+          <div class="interest-grid" id="filterInterests">
+            <label class="interest-option"><input type="checkbox" name="filterInterest" value="AI" checked><span>AI & ML</span></label>
+            <label class="interest-option"><input type="checkbox" name="filterInterest" value="Python" checked><span>Python</span></label>
+            <label class="interest-option"><input type="checkbox" name="filterInterest" value="Web Development" checked><span>Web development</span></label>
+            <label class="interest-option"><input type="checkbox" name="filterInterest" value="Startups"><span>Startups</span></label>
+            <label class="interest-option"><input type="checkbox" name="filterInterest" value="Music"><span>Music</span></label>
+            <label class="interest-option"><input type="checkbox" name="filterInterest" value="Gaming"><span>Gaming</span></label>
+            <label class="interest-option"><input type="checkbox" name="filterInterest" value="Design"><span>Design</span></label>
+            <label class="interest-option"><input type="checkbox" name="filterInterest" value="Robotics"><span>Robotics</span></label>
+            <label class="interest-option"><input type="checkbox" name="filterInterest" value="Psychology"><span>Psychology</span></label>
+            <label class="interest-option"><input type="checkbox" name="filterInterest" value="Photography"><span>Photography</span></label>
+            <label class="interest-option"><input type="checkbox" name="filterInterest" value="Finance"><span>Finance</span></label>
+            <label class="interest-option"><input type="checkbox" name="filterInterest" value="Movies"><span>Movies</span></label>
+            <label class="interest-option"><input type="checkbox" name="filterInterest" value="Data Science"><span>Data science</span></label>
+            <label class="interest-option"><input type="checkbox" name="filterInterest" value="Cybersecurity"><span>Cybersecurity</span></label>
+            <label class="interest-option"><input type="checkbox" name="filterInterest" value="IoT"><span>IoT & electronics</span></label>
+            <label class="interest-option"><input type="checkbox" name="filterInterest" value="Writing"><span>Writing</span></label>
+            <label class="interest-option"><input type="checkbox" name="filterInterest" value="Fitness"><span>Fitness</span></label>
+            <label class="interest-option"><input type="checkbox" name="filterInterest" value="Astronomy"><span>Astronomy</span></label>
+          </div>
+
+          <div class="interest-actions">
+            <button class="text-button" type="button" onclick="clearInterestFilters()">Clear selection</button>
+            <button class="text-button" type="button" onclick="selectRecommendedFilters()">Use recommendations ✦</button>
+          </div>
+        </div>
+
+        <div class="panel match-panel">
+          <div class="match-orbit"><span>✦</span></div>
+          <div class="match-label">YOUR BEST COMMUNITY MATCH</div>
+          <strong id="match">100+</strong>
+          <h3>People to discover</h3>
+          <p id="matchInfo">Choose your interests to personalise your recommendations.</p>
+          <button class="primary small-primary" onclick="scrollToDiscover()">See recommendations ↓</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="communities">
+      <div class="section-eyebrow">YOUR PEOPLE, YOUR CIRCLE</div>
+      <h2 class="section-title">Find your corner<br>of the internet.</h2>
+      <p class="section-description">
+        Every passion has a place. Join the circles that match your interests and meet people who are into the same things.
+      </p>
+
+      <div class="community-toolbar">
+        <div class="community-toolbar-copy">
+          <span class="recommendation-icon">✦</span>
+          <div>
+            <strong>Your interest circles</strong>
+            <span id="communitySummary">Choose your interests and join the communities that fit.</span>
+          </div>
+        </div>
+        <button class="primary community-join-all" id="joinInterestCommunities" type="button" onclick="joinMyInterestCommunities()">Join my interest circles ↗</button>
+      </div>
+
+      <div class="communities-grid" id="communitiesGrid" aria-live="polite"></div>
+      <p class="community-footnote">Preview members help showcase the community experience. Teammate accounts are local demo accounts.</p>
+    </section>
+
+    <section class="section" id="discover">
+      <div class="section-eyebrow">YOUR NEXT CONNECTION</div>
+      <h2 class="section-title">Meet your kind<br>of people.</h2>
+      <p class="section-description">
+        Explore a growing mix of interests, backgrounds and ideas.
+      </p>
+
+      <div class="recommendation-strip">
+        <div class="recommendation-copy">
+          <span class="recommendation-icon">✦</span>
+          <div>
+            <strong>Recommended for you</strong>
+            <span id="discoverySummary">Members ranked by shared interests</span>
+          </div>
+        </div>
+        <button class="filter" id="recommendationToggle" type="button" onclick="toggleRecommendedOnly()">
+          Show best matches
+        </button>
+      </div>
+
+      <div class="search-row">
+        <div class="search-wrap">
+          <span>⌕</span>
+          <input class="search" id="search" placeholder="Search by name, city or interest..." aria-label="Search people">
+        </div>
+        <button class="filter" type="button" onclick="clearSearch()">Clear search</button>
+      </div>
+
+      <div class="people" id="people"></div>
+      <p class="no-results" id="noResults" hidden>No profiles found. Try another search or interest.</p>
+
+      <div class="load-more-wrap">
+        <span id="profileCount">Showing up to 8 relevant profiles</span>
+        <button class="secondary" id="showMoreButton" onclick="showMoreProfiles()" hidden>Load more people ↓</button>
+      </div>
+
+      <p class="demo-note">
+        Curated preview profiles are included for the demo. Connection requests and chat are saved by the local SkillMate backend.
+      </p>
+    </section>
+
+    <section class="section" id="joinCtaSection">
+      <div class="cta">
+        <div class="section-eyebrow">YOUR MOVE</div>
+        <h2>Find someone<br>who gets it.</h2>
+        <p>Your next collaborator, study partner or friend might be closer than you think.</p>
+        <button class="primary" onclick="openModal('signup')">Join SkillMate ✦</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <a class="footer-logo" href="#top">Skill<span>Mate.</span></a>
+    <p>Built for curious minds.</p>
+    <small>SkillMate © 2026</small>
+  </footer>
+
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="SkillMate account">
+    <div class="auth-box">
+      <button class="auth-close" onclick="closeModal()" aria-label="Close dialog">×</button>
+
+      <div class="auth-brand">
+        <div class="auth-logo">S<span>M</span></div>
+        <div>
+          <strong>SkillMate</strong>
+          <small>Find your people.</small>
+        </div>
+      </div>
+
+      <div class="auth-tabs">
+        <button id="loginTab" class="auth-tab active" onclick="switchAuth('login')">Login</button>
+        <button id="signupTab" class="auth-tab" onclick="switchAuth('signup')">Create account</button>
+      </div>
+
+      <div id="loginForm" class="auth-form">
+        <div class="auth-heading">
+          <h2>Welcome back.</h2>
+          <p>Log in to continue building your network.</p>
+        </div>
+
+        <label for="loginEmail">Email address</label>
+        <div class="input-wrap">
+          <span>✉</span>
+          <input id="loginEmail" type="email" placeholder="you@example.com" autocomplete="email">
+        </div>
+
+        <label for="loginPassword">Password</label>
+        <div class="input-wrap">
+          <span>●</span>
+          <input id="loginPassword" type="password" placeholder="Your password" autocomplete="current-password">
+          <button class="eye" type="button" onclick="togglePassword('loginPassword',this)" aria-label="Show password">◉</button>
+        </div>
+
+        <button class="auth-submit" onclick="loginUser()">Login to SkillMate <span>↗</span></button>
+        <p class="switch-text">New here? <button onclick="switchAuth('signup')">Create your account</button></p>
+      </div>
+
+      <div id="signupForm" class="auth-form" style="display:none">
+        <div class="auth-heading">
+          <h2>Let's meet.</h2>
+          <p>A few details help us find people you'll click with.</p>
+        </div>
+
+        <div class="photo-upload-row">
+          <div class="photo-preview" id="photoPreview"><span>👤</span></div>
+          <div class="photo-upload-copy">
+            <strong>Profile photo <span class="optional-label">Optional</span></strong>
+            <small>JPG, PNG or WEBP. Maximum 5 MB.</small>
+            <label class="upload-trigger" for="signupPhoto">＋ Add a photo</label>
+            <input class="file-input" type="file" id="signupPhoto" accept="image/jpeg,image/png,image/webp,image/gif">
+          </div>
+        </div>
+
+        <div class="name-row">
+          <div>
+            <label for="signupName">Your name</label>
+            <div class="input-wrap"><input id="signupName" placeholder="Your name" autocomplete="name"></div>
+          </div>
+          <div>
+            <label for="signupCity">City</label>
+            <div class="input-wrap"><input id="signupCity" placeholder="Your city" autocomplete="address-level2"></div>
+          </div>
+        </div>
+
+        <label for="signupRole">What do you do?</label>
+        <div class="input-wrap"><input id="signupRole" placeholder="Student, designer, developer..."></div>
+
+        <label for="signupEmail">Email address</label>
+        <div class="input-wrap"><input id="signupEmail" type="email" placeholder="you@example.com" autocomplete="email"></div>
+
+        <label for="signupPassword">Password</label>
+        <div class="input-wrap">
+          <input id="signupPassword" type="password" placeholder="At least 8 characters" autocomplete="new-password">
+          <button class="eye" type="button" onclick="togglePassword('signupPassword',this)" aria-label="Show password">◉</button>
+        </div>
+
+        <div class="signup-interest-heading">
+          <div>
+            <label>Your interests</label>
+            <p>Choose a few. No typing or commas needed.</p>
+          </div>
+          <span class="selection-count" id="signupInterestCount">3 selected</span>
+        </div>
+
+        <div class="signup-interest-grid" id="signupInterests">
+          <label class="interest-option"><input type="checkbox" name="signupInterest" value="AI" checked><span>AI & ML</span></label>
+          <label class="interest-option"><input type="checkbox" name="signupInterest" value="Python" checked><span>Python</span></label>
+          <label class="interest-option"><input type="checkbox" name="signupInterest" value="Web Development" checked><span>Web development</span></label>
+          <label class="interest-option"><input type="checkbox" name="signupInterest" value="Startups"><span>Startups</span></label>
+          <label class="interest-option"><input type="checkbox" name="signupInterest" value="Music"><span>Music</span></label>
+          <label class="interest-option"><input type="checkbox" name="signupInterest" value="Gaming"><span>Gaming</span></label>
+          <label class="interest-option"><input type="checkbox" name="signupInterest" value="Design"><span>Design</span></label>
+          <label class="interest-option"><input type="checkbox" name="signupInterest" value="Robotics"><span>Robotics</span></label>
+          <label class="interest-option"><input type="checkbox" name="signupInterest" value="Psychology"><span>Psychology</span></label>
+          <label class="interest-option"><input type="checkbox" name="signupInterest" value="Photography"><span>Photography</span></label>
+          <label class="interest-option"><input type="checkbox" name="signupInterest" value="Finance"><span>Finance</span></label>
+          <label class="interest-option"><input type="checkbox" name="signupInterest" value="Movies"><span>Movies</span></label>
+          <label class="interest-option"><input type="checkbox" name="signupInterest" value="Data Science"><span>Data science</span></label>
+          <label class="interest-option"><input type="checkbox" name="signupInterest" value="Cybersecurity"><span>Cybersecurity</span></label>
+          <label class="interest-option"><input type="checkbox" name="signupInterest" value="IoT"><span>IoT & electronics</span></label>
+          <label class="interest-option"><input type="checkbox" name="signupInterest" value="Writing"><span>Writing</span></label>
+          <label class="interest-option"><input type="checkbox" name="signupInterest" value="Fitness"><span>Fitness</span></label>
+          <label class="interest-option"><input type="checkbox" name="signupInterest" value="Astronomy"><span>Astronomy</span></label>
+        </div>
+
+        <div class="interest-actions signup-interest-actions">
+          <button class="text-button" type="button" onclick="setRecommendedSignupInterests()">Use recommended interests ✦</button>
+        </div>
+
+        <button class="auth-submit signup-submit" onclick="signupUser()">Create my profile <span>↗</span></button>
+        <p class="terms">Your account and interests are stored in the local SkillMate database.</p>
+        <p class="switch-text">Already a member? <button onclick="switchAuth('login')">Log in</button></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-backdrop" id="chatBackdrop" onclick="closeChat()"></div>
+
+  <aside class="chat-drawer" id="chatDrawer" aria-label="Chats" aria-hidden="true">
+    <div class="chat-topbar">
+      <div>
+        <div class="section-eyebrow">YOUR NETWORK</div>
+        <h2>Messages <span class="chat-live-dot"></span></h2>
+      </div>
+      <button class="chat-close" onclick="closeChat()" aria-label="Close chats">×</button>
+    </div>
+
+    <div class="chat-layout">
+      <div class="chat-sidebar">
+        <div class="chat-sidebar-user" id="chatSidebarUser" hidden>
+          <div class="sidebar-user-avatar" id="sidebarUserAvatar">👤</div>
+          <div class="sidebar-user-info">
+            <strong id="sidebarUserName">Member</strong>
+            <span class="sidebar-user-status"><i class="status-dot"></i> Online</span>
+          </div>
+          <button class="sidebar-user-action" type="button" onclick="openModal('signup')" title="Edit profile">✎</button>
+        </div>
+
+        <div class="chat-search-wrap">
+          <span>⌕</span>
+          <input id="chatSearch" placeholder="Find a conversation" aria-label="Find conversations">
+        </div>
+        <div class="chat-filter-label">CONNECTIONS</div>
+        <div id="chatContacts" class="chat-contacts"></div>
+        <div class="chat-sidebar-note">Your accepted connections appear here.</div>
+      </div>
+
+      <div class="chat-main">
+        <div class="chat-conversation-head">
+          <div id="activeChatAvatar" class="chat-avatar">✦</div>
+          <div class="chat-contact-meta">
+            <strong id="activeChatName">Your conversations</strong>
+            <span><i></i> SkillMate member</span>
+          </div>
+          <button class="chat-more" title="Conversation info" onclick="showChatInfo()">···</button>
+        </div>
+
+        <div class="chat-topic">
+          <span>✦</span>
+          <div>
+            <strong>Start with what you have in common</strong>
+            <small id="activeChatTopic">Connect with members to get started</small>
+          </div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages" aria-live="polite"></div>
+
+        <form class="chat-composer" id="chatForm">
+          <button class="composer-attach" type="button" onclick="document.getElementById('chatAttachment').click()" title="Attach an image">＋</button>
+          <input type="file" id="chatAttachment" accept="image/*" hidden>
+          <input id="chatInput" placeholder="Write a message..." autocomplete="off" aria-label="Write a message">
+          <button class="send-button" type="submit" aria-label="Send message">➤</button>
+        </form>
+
+        <div class="chat-footnote">Messages are saved in your local database.</div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/script.js"></script>
+</body>
+</html>
