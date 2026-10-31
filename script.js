@@ -481,12 +481,18 @@ function setAuthenticatedUser(user) {
 }
 
 async function loginUser() {
-  const email = clean($("#loginEmail").value);
-  const password = $("#loginPassword").value || "";
+  const email = clean($("#loginEmail")?.value);
+  const password = $("#loginPassword")?.value || "";
 
   if (!email || !password) {
     showToast("Enter your email and password.");
     return;
+  }
+
+  const submitBtn = $("#loginForm .auth-submit");
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Logging in...";
   }
 
   try {
@@ -497,7 +503,7 @@ async function loginUser() {
 
     setAuthenticatedUser(result.user);
     closeModal();
-    $("#loginPassword").value = "";
+    if ($("#loginPassword")) $("#loginPassword").value = "";
 
     syncFiltersToUser();
     await loadConnections();
@@ -506,21 +512,26 @@ async function loginUser() {
 
     showToast(`Welcome back, ${result.user.name}!`);
   } catch (error) {
-    showToast(error.message);
+    showToast(error.message || "Login failed.");
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = 'Login to SkillMate <span>↗</span>';
+    }
   }
 }
 
 async function signupUser() {
   const isNew = !currentUser;
-  const name = clean($("#signupName").value);
-  const city = clean($("#signupCity").value);
-  const role = clean($("#signupRole").value);
-  const email = clean($("#signupEmail").value);
-  const password = $("#signupPassword").value || "";
+  const name = clean($("#signupName")?.value);
+  const city = clean($("#signupCity")?.value);
+  const role = clean($("#signupRole")?.value);
+  const email = clean($("#signupEmail")?.value);
+  const password = $("#signupPassword")?.value || "";
   const interests = selectedSignupTopics();
 
-  if (!name || !city || !role || !email || interests.length === 0) {
-    showToast("Complete your details and select at least one interest.");
+  if (!name || !email) {
+    showToast("Please enter your name and email.");
     return;
   }
 
@@ -533,7 +544,14 @@ async function signupUser() {
     return;
   }
 
-  const bio = `${role} · ${city}`.slice(0, 500);
+  const finalInterests = interests.length > 0 ? interests : ["AI", "Python", "Web Development"];
+  const bio = [role, city].filter(Boolean).join(" • ") || "SkillMate member";
+
+  const submitBtn = $(".signup-submit");
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Creating profile...";
+  }
 
   try {
     let result;
@@ -541,12 +559,12 @@ async function signupUser() {
     if (currentUser) {
       result = await apiRequest(`${API}/profile`, {
         method:"PUT",
-        body:JSON.stringify({name, bio, interests})
+        body:JSON.stringify({name, bio, interests: finalInterests})
       });
     } else {
       result = await apiRequest(`${API}/auth/register`, {
         method:"POST",
-        body:JSON.stringify({name, email, password, bio, interests})
+        body:JSON.stringify({name, email, password, bio, interests: finalInterests})
       });
     }
 
@@ -579,7 +597,12 @@ async function signupUser() {
 
     showToast(isNew ? `Welcome to SkillMate, ${name}!` : "Profile updated.");
   } catch (error) {
-    showToast(error.message);
+    showToast(error.message || "Failed to create account.");
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = (currentUser ? "Save profile changes" : "Create my profile") + ' <span>↗</span>';
+    }
   }
 }
 

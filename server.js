@@ -22,6 +22,7 @@ const {
 } = require("./db");
 
 const app = express();
+app.set("trust proxy", 1);
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: { origin: false }
@@ -67,7 +68,7 @@ const sessionMiddleware = session({
     maxAge: 30 * 24 * 60 * 60 * 1000,
     httpOnly: true,
     sameSite: "lax",
-    secure: false
+    secure: "auto"
   }
 });
 
@@ -83,7 +84,7 @@ app.use((req, res, next) => {
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 10,
+  max: 100,
   message: { error: "Too many login attempts. Please try again in 15 minutes." },
   standardHeaders: true,
   legacyHeaders: false
@@ -91,7 +92,7 @@ const loginLimiter = rateLimit({
 
 const registerLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
-  max: 5,
+  max: 100,
   message: { error: "Too many accounts created from this IP. Please try again in an hour." },
   standardHeaders: true,
   legacyHeaders: false
