@@ -1,0 +1,6 @@
+node_modules/
+.env
+.session-secret
+*.sqlite*
+uploads/
+test-*.js

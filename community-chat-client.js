@@ -383,78 +383,82 @@
   }
 
 
+  let isSyncing = false;
+
   function syncCommunityButtons() {
+    if (isSyncing) return;
     const grid = $('#communitiesGrid');
 
     if (!grid) return;
+    isSyncing = true;
 
-    const lookup = new Map(
-      communities.map(item => [
-        String(item.topic).trim().toLowerCase(),
-        item
-      ])
-    );
+    try {
+      const lookup = new Map(
+        communities.map(item => [
+          String(item.topic).trim().toLowerCase(),
+          item
+        ])
+      );
 
-    grid.querySelectorAll('.community-card').forEach(card => {
-      const topic = card
-        .querySelector('.community-topic-pill')
-        ?.textContent
-        ?.trim()
-        .toLowerCase();
+      grid.querySelectorAll('.community-card').forEach(card => {
+        const topic = card
+          .querySelector('.community-topic-pill')
+          ?.textContent
+          ?.trim()
+          .toLowerCase();
 
-      const community = lookup.get(topic);
+        const community = lookup.get(topic);
 
-      if (!community) return;
+        if (!community) return;
 
+        let actions = card.querySelector('.community-card-actions');
 
-      let actions = card.querySelector('.community-card-actions');
+        if (!actions) {
+          actions = document.createElement('div');
+          actions.className = 'community-card-actions';
 
-      if (!actions) {
-        actions = document.createElement('div');
-        actions.className = 'community-card-actions';
+          const bottom = card.querySelector('.community-card-bottom');
 
-        const bottom = card.querySelector('.community-card-bottom');
-
-        if (bottom) {
-          bottom.appendChild(actions);
-        } else {
-          card.appendChild(actions);
+          if (bottom) {
+            bottom.appendChild(actions);
+          } else {
+            card.appendChild(actions);
+          }
         }
-      }
 
+        const joinButton = card.querySelector('.community-action');
 
-      const joinButton = card.querySelector('.community-action');
+        if (joinButton && joinButton.parentElement !== actions) {
+          actions.appendChild(joinButton);
+        }
 
-      if (joinButton && joinButton.parentElement !== actions) {
-        actions.appendChild(joinButton);
-      }
+        let button = actions.querySelector('.community-chat-button');
 
+        if (!button) {
+          button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'community-chat-button';
+          actions.appendChild(button);
+        }
 
-      let button = actions.querySelector('.community-chat-button');
+        button.textContent = community.is_member
+          ? 'Open group chat'
+          : 'Join to chat';
 
-      if (!button) {
-        button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'community-chat-button';
-        actions.appendChild(button);
-      }
+        button.disabled = !community.is_member;
 
-      button.textContent = community.is_member
-        ? 'Open group chat'
-        : 'Join to chat';
+        button.onclick = () => openChat(community.id);
 
-      button.disabled = !community.is_member;
-
-      button.onclick = () => openChat(community.id);
-
-
-      if (
-        !community.is_member &&
-        Number(activeCommunityId) === Number(community.id)
-      ) {
-        closeChat();
-      }
-    });
+        if (
+          !community.is_member &&
+          Number(activeCommunityId) === Number(community.id)
+        ) {
+          closeChat();
+        }
+      });
+    } finally {
+      window.setTimeout(() => { isSyncing = false; }, 300);
+    }
   }
 
 
@@ -723,12 +727,10 @@
 
     observer.observe(grid, {
       childList: true,
-      subtree: true
+      subtree: false
     });
 
     loadUser().then(loadCommunities);
-
-    window.setInterval(loadCommunities, 5000);
 
     document.addEventListener('keydown', event => {
       if (event.key === 'Escape') closeChat();
