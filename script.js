@@ -1445,9 +1445,20 @@ $("#modal")?.addEventListener("click", event => {
   if (event.target === $("#modal")) closeModal();
 });
 
+function bindAuthModalListeners() {
+  $("#loginTab")?.addEventListener("click", () => switchAuth("login"));
+  $("#signupTab")?.addEventListener("click", () => switchAuth("signup"));
+  $(".auth-close")?.addEventListener("click", () => closeModal());
+  $(".signup-submit")?.addEventListener("click", () => signupUser());
+  $("#loginForm .auth-submit")?.addEventListener("click", () => loginUser());
+  $("#joinButton")?.addEventListener("click", () => openModal("signup"));
+  $("#heroJoinButton")?.addEventListener("click", () => openModal("signup"));
+}
+
 /* ---------- INITIALISE ---------- */
 
 async function initializeApp() {
+  bindAuthModalListeners();
   updateInterestCounts();
   renderMembers();
 
