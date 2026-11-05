@@ -23,7 +23,11 @@ function formatSql(sql) {
     formatted += ' ON CONFLICT DO NOTHING';
   }
 
-  if (/^\s*INSERT\s+INTO/i.test(formatted) && !/RETURNING/i.test(formatted) && !/\bSELECT\b/i.test(formatted)) {
+  if (
+    /^\s*INSERT\s+INTO\s+(users|interests|connections|messages|communities|community_messages)\b/i.test(formatted) &&
+    !/RETURNING/i.test(formatted) &&
+    !/\bSELECT\b/i.test(formatted)
+  ) {
     formatted += ' RETURNING id';
   }
 

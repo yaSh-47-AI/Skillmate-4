@@ -441,17 +441,30 @@
           actions.appendChild(button);
         }
 
-        button.textContent = community.is_member
+        const isJoinedOnCard = Boolean(
+          card.querySelector('.community-action.joined') ||
+          card.querySelector('.community-action')?.textContent?.includes('Joined')
+        );
+        const isMember = Boolean(community?.is_member || isJoinedOnCard);
+
+        button.textContent = isMember
           ? 'Open group chat'
           : 'Join to chat';
 
-        button.disabled = !community.is_member;
+        button.disabled = false;
 
-        button.onclick = () => openChat(community.id);
+        button.onclick = () => {
+          if (isMember) {
+            openChat(community ? community.id : topic);
+          } else {
+            const joinBtn = card.querySelector('.community-action');
+            if (joinBtn) joinBtn.click();
+          }
+        };
 
         if (
-          !community.is_member &&
-          Number(activeCommunityId) === Number(community.id)
+          !isMember &&
+          Number(activeCommunityId) === Number(community?.id)
         ) {
           closeChat();
         }
@@ -511,13 +524,33 @@
 
     await loadCommunities();
 
-    const community = communities.find(
-      item => Number(item.id) === Number(communityId)
+    let community = communities.find(
+      item => Number(item.id) === Number(communityId) || String(item.topic).trim().toLowerCase() === String(communityId).trim().toLowerCase()
     );
 
-    if (!community || !community.is_member) {
-      toast('Join this community to access its group chat.');
+    if (!community) {
+      await loadCommunities();
+      community = communities.find(
+        item => Number(item.id) === Number(communityId) || String(item.topic).trim().toLowerCase() === String(communityId).trim().toLowerCase()
+      );
+    }
+
+    if (!community) {
+      toast('Community not found.');
       return;
+    }
+
+    if (!community.is_member) {
+      try {
+        await api(`${API}/communities/${community.id}/join`, { method: 'POST' });
+        await loadCommunities();
+        if (typeof window.loadCommunities === 'function') {
+          window.loadCommunities();
+        }
+      } catch (_) {
+        toast('Join this community to access its group chat.');
+        return;
+      }
     }
 
     if (activeCommunityId && socket) {
@@ -731,6 +764,18 @@
     });
 
     loadUser().then(loadCommunities);
+
+    window.addEventListener('community-updated', event => {
+      if (Array.isArray(event.detail)) {
+        communities = event.detail;
+        syncCommunityButtons();
+      }
+    });
+
+    window.addEventListener('auth-updated', event => {
+      currentUser = event.detail;
+      loadCommunities();
+    });
 
     document.addEventListener('keydown', event => {
       if (event.key === 'Escape') closeChat();

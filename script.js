@@ -478,6 +478,8 @@ function setAuthenticatedUser(user) {
       socket = null;
     }
   }
+
+  window.dispatchEvent(new CustomEvent('auth-updated', { detail: currentUser }));
 }
 
 async function loginUser() {
@@ -1014,6 +1016,7 @@ async function loadCommunities() {
     const result = await apiRequest(`${API}/communities`);
     communities = result.communities || [];
     renderCommunities();
+    window.dispatchEvent(new CustomEvent('community-updated', { detail: communities }));
   } catch (error) {
     showToast(`Couldn't load communities: ${error.message}`);
   }
@@ -1453,6 +1456,9 @@ function bindAuthModalListeners() {
   $("#loginForm .auth-submit")?.addEventListener("click", () => loginUser());
   $("#joinButton")?.addEventListener("click", () => openModal("signup"));
   $("#heroJoinButton")?.addEventListener("click", () => openModal("signup"));
+  $(".nav-chat")?.addEventListener("click", () => openChat());
+  $(".chat-close")?.addEventListener("click", () => closeChat());
+  $("#chatBackdrop")?.addEventListener("click", () => closeChat());
 }
 
 /* ---------- INITIALISE ---------- */
