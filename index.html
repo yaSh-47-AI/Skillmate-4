@@ -689,7 +689,7 @@
 
   <!-- ==================== INSTAGRAM-STYLE MOBILE BOTTOM NAVIGATION ==================== -->
   <div class="mobile-bottom-bar" id="mobileBottomBar" role="navigation" aria-label="Mobile Navigation">
-    <a href="#/" class="mobile-tab active" id="mobileTabHome" onclick="navigateTo('home'); return false;" aria-label="Home">
+    <button type="button" class="mobile-tab active" id="mobileTabHome" aria-label="Home">
       <span class="mobile-tab-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
@@ -697,9 +697,9 @@
         </svg>
       </span>
       <span class="mobile-tab-text">Home</span>
-    </a>
+    </button>
 
-    <a href="#/communities" class="mobile-tab" id="mobileTabCommunities" onclick="navigateTo('communities'); return false;" aria-label="Communities">
+    <button type="button" class="mobile-tab" id="mobileTabCommunities" aria-label="Communities">
       <span class="mobile-tab-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -709,7 +709,7 @@
         </svg>
       </span>
       <span class="mobile-tab-text">Circles</span>
-    </a>
+    </button>
 
     <button type="button" class="mobile-tab" id="mobileTabChat" aria-label="Chats">
       <span class="mobile-tab-icon-wrap">
@@ -721,7 +721,7 @@
       <span class="mobile-tab-text">Chats</span>
     </button>
 
-    <a href="#/discover" class="mobile-tab" id="mobileTabDiscover" onclick="navigateTo('discover'); return false;" aria-label="Discover">
+    <button type="button" class="mobile-tab" id="mobileTabDiscover" aria-label="Discover">
       <span class="mobile-tab-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"></circle>
@@ -729,7 +729,7 @@
         </svg>
       </span>
       <span class="mobile-tab-text">Discover</span>
-    </a>
+    </button>
 
     <button type="button" class="mobile-tab" id="mobileTabProfile" aria-label="Profile">
       <span class="mobile-tab-avatar" id="mobileTabAvatar">

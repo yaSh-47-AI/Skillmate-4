@@ -442,9 +442,22 @@ app.post("/api/connections/request/:userId", requireLogin, async (req, res, next
       recipientId
     );
 
+    const connectionId = Number(result.lastInsertRowid);
+
+    // Notify recipient in real-time
+    try {
+      const requesterProfile = await getPublicProfile(requesterId);
+      io.to(`user:${recipientId}`).emit("connection:request", {
+        connectionId,
+        requester: requesterProfile
+      });
+    } catch (socketErr) {
+      console.warn("Socket notification warning:", socketErr.message);
+    }
+
     res.status(201).json({
       message: "Connection request sent.",
-      connectionId: Number(result.lastInsertRowid)
+      connectionId
     });
   } catch (error) {
     next(error);
@@ -486,14 +499,31 @@ app.get("/api/connections", requireLogin, async (req, res, next) => {
 
 app.post("/api/connections/:id/accept", requireLogin, async (req, res, next) => {
   try {
-    const result = await db.run(`
-      UPDATE connections
-      SET status = 'accepted'
-      WHERE id = ? AND recipient_id = ? AND status = 'pending'
-    `, Number(req.params.id), req.session.userId);
+    const connId = Number(req.params.id);
+    const conn = await db.get(
+      "SELECT requester_id, recipient_id FROM connections WHERE id = ? AND recipient_id = ? AND status = 'pending'",
+      connId,
+      req.session.userId
+    );
 
-    if (!result.changes) {
+    if (!conn) {
       return res.status(404).json({ error: "Pending request not found." });
+    }
+
+    await db.run(
+      "UPDATE connections SET status = 'accepted' WHERE id = ?",
+      connId
+    );
+
+    // Notify requester in real-time
+    try {
+      const acceptorProfile = await getPublicProfile(req.session.userId);
+      io.to(`user:${conn.requester_id}`).emit("connection:accepted", {
+        connectionId: connId,
+        user: acceptorProfile
+      });
+    } catch (socketErr) {
+      console.warn("Socket notification warning:", socketErr.message);
     }
 
     res.json({ message: "Connection accepted." });
@@ -504,14 +534,28 @@ app.post("/api/connections/:id/accept", requireLogin, async (req, res, next) => 
 
 app.post("/api/connections/:id/reject", requireLogin, async (req, res, next) => {
   try {
-    const result = await db.run(`
-      UPDATE connections
-      SET status = 'rejected'
-      WHERE id = ? AND recipient_id = ? AND status = 'pending'
-    `, Number(req.params.id), req.session.userId);
+    const connId = Number(req.params.id);
+    const conn = await db.get(
+      "SELECT requester_id, recipient_id FROM connections WHERE id = ? AND recipient_id = ? AND status = 'pending'",
+      connId,
+      req.session.userId
+    );
 
-    if (!result.changes) {
+    if (!conn) {
       return res.status(404).json({ error: "Connection request not found." });
+    }
+
+    await db.run(
+      "UPDATE connections SET status = 'rejected' WHERE id = ?",
+      connId
+    );
+
+    try {
+      io.to(`user:${conn.requester_id}`).emit("connection:rejected", {
+        connectionId: connId
+      });
+    } catch (socketErr) {
+      console.warn("Socket notification warning:", socketErr.message);
     }
 
     res.json({ message: "Connection request declined." });

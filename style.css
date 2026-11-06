@@ -2247,6 +2247,7 @@ footer small { display:block; margin-top:12px; color:#6f6c81; font-size:9px; }
     border-radius: 0;
     border: none;
     transform: translateY(100%);
+    z-index: 100000;
   }
   .chat-drawer.open {
     transform: translateY(0);
@@ -2343,8 +2344,10 @@ footer small { display:block; margin-top:12px; color:#6f6c81; font-size:9px; }
     font-size: 8px;
   }
   .toast {
-    bottom: 15px;
-    font-size: 9px;
+    bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
+    font-size: 11px !important;
+    padding: 10px 18px !important;
+    z-index: 100002 !important;
   }
 }
 
@@ -2676,7 +2679,12 @@ footer small { display:block; margin-top:12px; color:#6f6c81; font-size:9px; }
     cursor: pointer;
     transition: all 0.2s ease;
     user-select: none;
+    touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobile-tab * {
+    pointer-events: none;
   }
 
   .mobile-tab:active {

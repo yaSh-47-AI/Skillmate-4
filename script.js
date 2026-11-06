@@ -1206,6 +1206,25 @@ function initializeSocket() {
       showToast("You received a new message.");
     }
   });
+
+  socket.on("connection:request", async data => {
+    const requesterName = data.requester?.name || "A member";
+    showToast(`✦ New connection request from ${requesterName}!`);
+    await loadConnections();
+    await refreshMembers();
+  });
+
+  socket.on("connection:accepted", async data => {
+    const userName = data.user?.name || "A member";
+    showToast(`🎉 ${userName} accepted your connection request!`);
+    await loadConnections();
+    await refreshMembers();
+  });
+
+  socket.on("connection:rejected", async () => {
+    await loadConnections();
+    await refreshMembers();
+  });
 }
 
 function showContactsMobile() {
@@ -1242,6 +1261,7 @@ function openChat(personId) {
   chatBackdrop?.classList.add("open");
   document.body.classList.add("chat-open");
 
+  updateNavActiveStates("chat");
   renderContacts();
   renderActiveChat();
   if (activeChatId) loadMessages(activeChatId);
@@ -1254,6 +1274,9 @@ function closeChat() {
   chatDrawer?.setAttribute("aria-hidden","true");
   chatBackdrop?.classList.remove("open");
   document.body.classList.remove("chat-open");
+
+  const currentView = $(".app-view.active")?.id?.replace("view-", "") || "home";
+  updateNavActiveStates(currentView);
 }
 
 function renderContacts() {
@@ -1574,31 +1597,49 @@ function bindAuthModalListeners() {
   });
 
   // Instagram-style Mobile Bottom Bar Triggers
-  $("#mobileTabChat")?.addEventListener("click", () => {
+  $("#mobileTabHome")?.addEventListener("click", event => {
+    event.preventDefault();
+    navigateTo("home");
+  });
+
+  $("#mobileTabCommunities")?.addEventListener("click", event => {
+    event.preventDefault();
+    navigateTo("communities");
+  });
+
+  $("#mobileTabChat")?.addEventListener("click", event => {
+    event.preventDefault();
+    closeSidebar();
+    closeModal();
     openChat();
   });
 
-  $("#mobileTabProfile")?.addEventListener("click", () => {
+  $("#mobileTabDiscover")?.addEventListener("click", event => {
+    event.preventDefault();
+    navigateTo("discover");
+  });
+
+  $("#mobileTabProfile")?.addEventListener("click", event => {
+    event.preventDefault();
+    closeChat();
+    closeSidebar();
     if (currentUser) {
       openModal("signup");
     } else {
       openModal("login");
     }
   });
-
-  // Mobile tab active highlight tracking
-  const tabs = $$(".mobile-tab");
-  tabs.forEach(tab => {
-    tab.addEventListener("click", () => {
-      tabs.forEach(t => t.classList.remove("active"));
-      tab.classList.add("active");
-    });
-  });
 }
 
 /* ---------- SPA VIEW NAVIGATION ---------- */
 
 function navigateTo(viewName) {
+  // Always close any active modal, drawer, or backdrop to prevent UI locking
+  closeChat();
+  closeSidebar();
+  closeModal();
+  document.body.classList.remove("chat-open", "sidebar-open", "modal-open");
+
   const validViews = ["home", "communities", "network", "discover"];
   const target = validViews.includes(viewName) ? viewName : "home";
 
@@ -1642,11 +1683,15 @@ function updateNavActiveStates(target) {
   const mobileMap = {
     home: "#mobileTabHome",
     communities: "#mobileTabCommunities",
-    discover: "#mobileTabDiscover"
+    discover: "#mobileTabDiscover",
+    chat: "#mobileTabChat"
   };
   $$(".mobile-tab").forEach(tab => tab.classList.remove("active"));
-  const activeTab = $(mobileMap[target] || "#mobileTabHome");
-  if (activeTab) activeTab.classList.add("active");
+  const activeTabId = mobileMap[target];
+  if (activeTabId) {
+    const activeTab = $(activeTabId);
+    if (activeTab) activeTab.classList.add("active");
+  }
 
   // Left Sidebar
   $$(".sidebar-nav-item").forEach(item => {
