@@ -36,6 +36,14 @@
     </div>
 
     <div class="nav-actions">
+      <button class="nav-bell" id="navNotificationBtn" type="button" onclick="toggleNotifications(event)" aria-label="Notifications" title="Notifications">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        <span class="notification-badge" id="navNotificationBadge" hidden>0</span>
+      </button>
+
       <button class="nav-chat" onclick="openChat()" aria-label="Open chats">
         ✉ <span>Chats</span> <span class="chat-count" id="chatCount">0</span>
       </button>
@@ -576,6 +584,45 @@
     </div>
   </aside>
 
+  <!-- ==================== NOTIFICATIONS DRAWER / PANEL ==================== -->
+  <aside class="notifications-drawer" id="notificationsDrawer" aria-label="Notifications" aria-hidden="true">
+    <div class="notif-header">
+      <div class="notif-header-left">
+        <span class="notif-icon">🔔</span>
+        <h3>Notifications</h3>
+        <span class="notif-badge-pill" id="notifPanelBadge" hidden>0</span>
+      </div>
+      <button class="notif-close-btn" id="notifCloseBtn" type="button" onclick="closeNotifications()" aria-label="Close notifications">✕</button>
+    </div>
+
+    <div class="notif-body" id="notifBody">
+      <!-- Requests Section -->
+      <div class="notif-section" id="notifRequestsSection" hidden>
+        <div class="notif-section-title">
+          <span>CONNECTION REQUESTS</span>
+          <span class="notif-section-count" id="notifRequestsCount">0</span>
+        </div>
+        <div class="notif-list" id="notifRequestsList"></div>
+      </div>
+
+      <!-- Activity Section -->
+      <div class="notif-section" id="notifActivitySection">
+        <div class="notif-section-title">
+          <span>RECENT ACTIVITY</span>
+        </div>
+        <div class="notif-list" id="notifActivityList"></div>
+      </div>
+
+      <!-- Empty State -->
+      <div class="notif-empty" id="notifEmpty">
+        <div class="notif-empty-icon">✨</div>
+        <h4>All caught up!</h4>
+        <p>No new connection requests or notifications right now.</p>
+      </div>
+    </div>
+  </aside>
+  <div class="notifications-backdrop" id="notificationsBackdrop" onclick="closeNotifications()"></div>
+
   <!-- ==================== INSTAGRAM-STYLE LEFT SIDEBAR DRAWER ==================== -->
   <aside class="sidebar-drawer" id="sidebarDrawer" aria-label="Main navigation menu" aria-hidden="true">
     <div class="sidebar-top">
@@ -617,6 +664,17 @@
         <span class="sidebar-nav-text">Communities & Circles</span>
         <span class="sidebar-badge-pill">18 circles</span>
       </a>
+
+      <button type="button" class="sidebar-nav-item" id="sidebarNotificationsAction" onclick="closeSidebar(); toggleNotifications(event);">
+        <span class="sidebar-nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+        </span>
+        <span class="sidebar-nav-text">Notifications</span>
+        <span class="sidebar-badge-pill notification-count" id="sidebarNotificationCount" hidden>0</span>
+      </button>
 
       <button type="button" class="sidebar-nav-item" id="sidebarChatsAction">
         <span class="sidebar-nav-icon">

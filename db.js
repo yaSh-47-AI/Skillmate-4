@@ -193,11 +193,11 @@ async function seedDemoData() {
     let userId;
     if (existing) {
       userId = existing.id;
-      await db.run("UPDATE users SET name = ?, bio = ?, is_demo = 1, password_hash = ? WHERE id = ?",
+      await db.run("UPDATE users SET name = ?, bio = ?, is_demo = 0, password_hash = ? WHERE id = ?",
         demo.name, demo.bio, teamPasswordHash, userId
       );
     } else {
-      const res = await db.run("INSERT INTO users (name, email, password_hash, bio, is_demo) VALUES (?, ?, ?, ?, 1)",
+      const res = await db.run("INSERT INTO users (name, email, password_hash, bio, is_demo) VALUES (?, ?, ?, ?, 0)",
         demo.name, demo.email, teamPasswordHash, demo.bio
       );
       userId = Number(res.lastInsertRowid);

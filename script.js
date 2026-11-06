@@ -78,11 +78,13 @@ let visibleLimit = 8;
 let communities = [];
 const messageCache = new Map();
 
-// Local cache for dummy profile connection requests
+// Local cache for dummy profile connection requests (only preview-xx cards)
 let requestedDemoProfiles = new Set();
 try {
   const saved = JSON.parse(localStorage.getItem("skillmate_demo_requests") || "[]");
-  if (Array.isArray(saved)) requestedDemoProfiles = new Set(saved);
+  if (Array.isArray(saved)) {
+    requestedDemoProfiles = new Set(saved.filter(id => String(id).startsWith("preview-")));
+  }
 } catch (_) {}
 
 /* ---------- HELPERS ---------- */
@@ -480,6 +482,8 @@ function setAuthenticatedUser(user) {
   }
 
   updateSidebarAndMobileNav();
+  updateNotificationBadge();
+  renderNotificationPanel();
   window.dispatchEvent(new CustomEvent('auth-updated', { detail: currentUser }));
 }
 
@@ -726,7 +730,7 @@ function allDisplayProfiles() {
 
 function createProfileCard(profile) {
   const card = document.createElement("article");
-  const demo = Boolean(profile.is_demo || profile.isDemo || String(profile.id).startsWith("preview-"));
+  const demo = Boolean(!Number.isFinite(Number(profile.id)) || String(profile.id).startsWith("preview-"));
   const match = getMatch(profile);
 
   card.className = "person tilt";
@@ -979,6 +983,8 @@ async function loadConnections() {
     connectionRows = [];
     connectionsByUserId = new Map();
     renderContacts();
+    updateNotificationBadge();
+    renderNotificationPanel();
     if ($("#chatCount")) $("#chatCount").textContent = "0";
     if ($("#sidebarChatCount")) $("#sidebarChatCount").textContent = "0";
     if ($("#mobileChatBadge")) $("#mobileChatBadge").hidden = true;
@@ -1010,12 +1016,220 @@ async function loadConnections() {
       mobileChatBadge.hidden = acceptedCount === 0;
     }
 
+    updateNotificationBadge();
+    renderNotificationPanel();
     renderMembers();
     renderContacts();
   } catch (error) {
     showToast(error.message);
   }
 }
+
+function updateNotificationBadge() {
+  if (!currentUser) {
+    const navBadge = $("#navNotificationBadge");
+    const sidebarBadge = $("#sidebarNotificationCount");
+    const panelBadge = $("#notifPanelBadge");
+    if (navBadge) navBadge.hidden = true;
+    if (sidebarBadge) sidebarBadge.hidden = true;
+    if (panelBadge) panelBadge.hidden = true;
+    return;
+  }
+
+  const incomingRequests = connectionRows.filter(
+    row => row.status === "pending" && Number(row.recipient_id) === Number(currentUser.id)
+  );
+  const count = incomingRequests.length;
+
+  const navBadge = $("#navNotificationBadge");
+  if (navBadge) {
+    navBadge.textContent = String(count);
+    navBadge.hidden = count === 0;
+  }
+
+  const sidebarBadge = $("#sidebarNotificationCount");
+  if (sidebarBadge) {
+    sidebarBadge.textContent = String(count);
+    sidebarBadge.hidden = count === 0;
+  }
+
+  const panelBadge = $("#notifPanelBadge");
+  if (panelBadge) {
+    panelBadge.textContent = count > 0 ? `${count} new` : "0";
+    panelBadge.hidden = count === 0;
+  }
+}
+
+function renderNotificationPanel() {
+  const requestsSection = $("#notifRequestsSection");
+  const requestsList = $("#notifRequestsList");
+  const requestsCount = $("#notifRequestsCount");
+  const activityList = $("#notifActivityList");
+  const emptyState = $("#notifEmpty");
+
+  if (!requestsList || !activityList) return;
+
+  const incomingRequests = connectionRows.filter(
+    row => row.status === "pending" && Number(row.recipient_id) === Number(currentUser?.id)
+  );
+
+  const acceptedActivities = connectionRows.filter(
+    row => row.status === "accepted"
+  );
+
+  // 1. Render Incoming Requests
+  requestsList.innerHTML = "";
+  if (incomingRequests.length > 0) {
+    if (requestsSection) requestsSection.hidden = false;
+    if (requestsCount) requestsCount.textContent = `${incomingRequests.length} pending`;
+
+    incomingRequests.forEach(req => {
+      const card = document.createElement("div");
+      card.className = "notif-card";
+
+      const user = req.user || { name: "Member", id: req.requester_id };
+      const avatarEl = makeAvatar(user.name, user.photo_url || "");
+      avatarEl.className = "notif-avatar";
+
+      const details = document.createElement("div");
+      details.className = "notif-details";
+
+      const nameEl = document.createElement("div");
+      nameEl.className = "notif-name";
+      nameEl.textContent = user.name;
+
+      const descEl = document.createElement("div");
+      descEl.className = "notif-desc";
+      descEl.textContent = user.bio ? `wants to connect • "${user.bio.slice(0, 45)}..."` : "Sent you a connection request.";
+
+      const actions = document.createElement("div");
+      actions.className = "notif-actions";
+
+      const acceptBtn = document.createElement("button");
+      acceptBtn.type = "button";
+      acceptBtn.className = "notif-btn accept";
+      acceptBtn.textContent = "✓ Accept";
+      acceptBtn.addEventListener("click", async () => {
+        acceptBtn.disabled = true;
+        acceptBtn.textContent = "Accepting...";
+        await acceptConnection(req.connection_id);
+      });
+
+      const declineBtn = document.createElement("button");
+      declineBtn.type = "button";
+      declineBtn.className = "notif-btn decline";
+      declineBtn.textContent = "✕ Decline";
+      declineBtn.addEventListener("click", async () => {
+        declineBtn.disabled = true;
+        try {
+          await apiRequest(`${API}/connections/${req.connection_id}/reject`, { method: "POST" });
+          showToast("Connection request declined.");
+          await loadConnections();
+          refreshMembers();
+        } catch (err) {
+          showToast(err.message);
+        }
+      });
+
+      actions.append(acceptBtn, declineBtn);
+      details.append(nameEl, descEl, actions);
+      card.append(avatarEl, details);
+      requestsList.appendChild(card);
+    });
+  } else {
+    if (requestsSection) requestsSection.hidden = true;
+  }
+
+  // 2. Render Activity (accepted connections)
+  activityList.innerHTML = "";
+  if (acceptedActivities.length > 0) {
+    acceptedActivities.slice(0, 10).forEach(conn => {
+      const card = document.createElement("div");
+      card.className = "notif-card";
+
+      const user = conn.user || { name: "Member", id: conn.other_user_id };
+      const avatarEl = makeAvatar(user.name, user.photo_url || "");
+      avatarEl.className = "notif-avatar";
+
+      const details = document.createElement("div");
+      details.className = "notif-details";
+
+      const nameEl = document.createElement("div");
+      nameEl.className = "notif-name";
+      nameEl.textContent = user.name;
+
+      const descEl = document.createElement("div");
+      descEl.className = "notif-desc";
+      descEl.textContent = "You are connected! You can now chat anytime.";
+
+      const actions = document.createElement("div");
+      actions.className = "notif-actions";
+
+      const chatBtn = document.createElement("button");
+      chatBtn.type = "button";
+      chatBtn.className = "notif-btn chat";
+      chatBtn.textContent = "✉ Message";
+      chatBtn.addEventListener("click", () => {
+        closeNotifications();
+        openChat(Number(user.id));
+      });
+
+      actions.appendChild(chatBtn);
+      details.append(nameEl, descEl, actions);
+      card.append(avatarEl, details);
+      activityList.appendChild(card);
+    });
+  }
+
+  // 3. Empty state
+  if (emptyState) {
+    emptyState.hidden = (incomingRequests.length > 0 || acceptedActivities.length > 0);
+  }
+}
+
+function toggleNotifications(event) {
+  if (event) event.stopPropagation();
+  if (!currentUser) {
+    showToast("Log in to view notifications.");
+    openModal("login");
+    return;
+  }
+
+  const drawer = $("#notificationsDrawer");
+  if (drawer?.classList.contains("open")) {
+    closeNotifications();
+  } else {
+    openNotifications();
+  }
+}
+window.toggleNotifications = toggleNotifications;
+
+function openNotifications() {
+  closeSidebar();
+  closeChat();
+  closeModal();
+  closeUserMenu();
+
+  const drawer = $("#notificationsDrawer");
+  const backdrop = $("#notificationsBackdrop");
+  drawer?.classList.add("open");
+  drawer?.setAttribute("aria-hidden", "false");
+  backdrop?.classList.add("open");
+  document.body.classList.add("notifications-open");
+
+  renderNotificationPanel();
+}
+window.openNotifications = openNotifications;
+
+function closeNotifications() {
+  const drawer = $("#notificationsDrawer");
+  const backdrop = $("#notificationsBackdrop");
+  drawer?.classList.remove("open");
+  drawer?.setAttribute("aria-hidden", "true");
+  backdrop?.classList.remove("open");
+  document.body.classList.remove("notifications-open");
+}
+window.closeNotifications = closeNotifications;
 
 async function connectMember(profile) {
   if (!currentUser) {
@@ -1024,7 +1238,7 @@ async function connectMember(profile) {
     return;
   }
 
-  if (profile.is_demo || !Number.isFinite(Number(profile.id))) {
+  if (!Number.isFinite(Number(profile.id)) || String(profile.id).startsWith("preview-")) {
     showToast("This profile is for preview only. Try connecting with a teammate account.");
     return;
   }
@@ -1047,6 +1261,7 @@ async function acceptConnection(connectionId) {
   try {
     await apiRequest(`${API}/connections/${connectionId}/accept`, {method:"POST"});
     await loadConnections();
+    refreshMembers();
     showToast("Connection accepted. You can now chat.");
   } catch (error) {
     showToast(error.message);
@@ -1545,6 +1760,7 @@ document.addEventListener("keydown", event => {
     closeChat();
     closeSidebar();
     closeUserMenu();
+    closeNotifications();
   }
 
   if (event.key === "Enter" && $("#modal")?.style.display === "flex") {
@@ -1643,7 +1859,8 @@ function navigateTo(viewName) {
   closeChat();
   closeSidebar();
   closeModal();
-  document.body.classList.remove("chat-open", "sidebar-open", "modal-open");
+  closeNotifications();
+  document.body.classList.remove("chat-open", "sidebar-open", "modal-open", "notifications-open");
 
   const validViews = ["home", "communities", "network", "discover"];
   const target = validViews.includes(viewName) ? viewName : "home";
