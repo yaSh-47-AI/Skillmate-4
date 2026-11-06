@@ -969,7 +969,7 @@ $("#search")?.addEventListener("input", () => {
 });
 
 function scrollToDiscover() {
-  $("#discover")?.scrollIntoView({behavior:"smooth"});
+  navigateTo("discover");
 }
 
 /* ---------- CONNECTIONS ---------- */
@@ -1574,10 +1574,86 @@ function bindAuthModalListeners() {
   });
 }
 
+/* ---------- SPA VIEW NAVIGATION ---------- */
+
+function navigateTo(viewName) {
+  const validViews = ["home", "communities", "network", "discover"];
+  const target = validViews.includes(viewName) ? viewName : "home";
+
+  $$(".app-view").forEach(view => {
+    view.classList.remove("active");
+  });
+
+  const activeView = $(`#view-${target}`);
+  if (activeView) {
+    activeView.classList.add("active");
+  }
+
+  // Smooth scroll to top of page
+  window.scrollTo({ top: 0, behavior: "smooth" });
+
+  // Update URL hash
+  const newHash = target === "home" ? "#/" : `#/${target}`;
+  if (window.location.hash !== newHash) {
+    history.pushState(null, "", newHash);
+  }
+
+  updateNavActiveStates(target);
+
+  // If navigating to network view, resize canvas
+  if (target === "network") {
+    setTimeout(() => {
+      window.dispatchEvent(new Event("resize"));
+    }, 150);
+  }
+}
+
+function updateNavActiveStates(target) {
+  // Top Navigation Center
+  $$(".nav-center a").forEach(link => {
+    const href = link.getAttribute("href") || "";
+    const isActive = href.includes(target) || (target === "home" && href === "#/");
+    link.classList.toggle("active", isActive);
+  });
+
+  // Mobile Bottom Bar
+  const mobileMap = {
+    home: "#mobileTabHome",
+    communities: "#mobileTabCommunities",
+    discover: "#mobileTabDiscover"
+  };
+  $$(".mobile-tab").forEach(tab => tab.classList.remove("active"));
+  const activeTab = $(mobileMap[target] || "#mobileTabHome");
+  if (activeTab) activeTab.classList.add("active");
+
+  // Left Sidebar
+  $$(".sidebar-nav-item").forEach(item => {
+    const href = item.getAttribute("href") || "";
+    const isActive = href.includes(target) || (target === "home" && href.includes("#/"));
+    item.classList.toggle("active", isActive);
+  });
+}
+
+function handleHashChange() {
+  const rawHash = (window.location.hash || "").replace(/^#\/?/, "").toLowerCase();
+  if (rawHash === "communities" || rawHash === "circles") {
+    navigateTo("communities");
+  } else if (rawHash === "network" || rawHash === "matching") {
+    navigateTo("network");
+  } else if (rawHash === "discover" || rawHash === "people") {
+    navigateTo("discover");
+  } else {
+    navigateTo("home");
+  }
+}
+
+window.addEventListener("hashchange", handleHashChange);
+
 /* ---------- INITIALISE ---------- */
 
 async function initializeApp() {
   bindAuthModalListeners();
+  handleHashChange();
   updateInterestCounts();
   renderMembers();
 

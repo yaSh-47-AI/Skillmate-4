@@ -25,14 +25,14 @@
         <span></span>
         <span></span>
       </button>
-      <a class="logo" href="#top">Skill<span>Mate.</span></a>
+      <a class="logo" href="#/" onclick="navigateTo('home'); return false;">Skill<span>Mate.</span></a>
     </div>
 
     <div class="nav-center">
-      <a href="#network">Network</a>
-      <a href="#matching">Interests</a>
-      <a href="#communities">Communities</a>
-      <a href="#discover">Discover</a>
+      <a href="#/network" onclick="navigateTo('network'); return false;">Network</a>
+      <a href="#/network" onclick="navigateTo('network'); return false;">Interests</a>
+      <a href="#/communities" onclick="navigateTo('communities'); return false;">Communities</a>
+      <a href="#/discover" onclick="navigateTo('discover'); return false;">Discover</a>
     </div>
 
     <div class="nav-actions">
@@ -93,228 +93,285 @@
   </nav>
 
   <main id="top">
-    <section class="hero">
-      <div class="floating f1">🤖 AI</div>
-      <div class="floating f2">🎨 DESIGN</div>
-      <div class="floating f3">🚀 STARTUPS</div>
-      <div class="floating f4">🎮 GAMING</div>
+    <!-- ==================== VIEW 1: HOME (COMPACT & PRECISE) ==================== -->
+    <div class="app-view active" id="view-home">
+      <section class="hero">
+        <div class="floating f1">🤖 AI</div>
+        <div class="floating f2">🎨 DESIGN</div>
+        <div class="floating f3">🚀 STARTUPS</div>
+        <div class="floating f4">🎮 GAMING</div>
 
-      <div class="hero-content">
-        <div class="badge">
-          <span class="live"></span>
-          Your next connection starts here
+        <div class="hero-content">
+          <div class="badge">
+            <span class="live"></span>
+            Your next connection starts here
+          </div>
+
+          <h1 class="hero-wordmark" aria-label="Find your people">
+            <span class="hero-line1" data-word="FIND">FIND</span>
+            <span class="hero-line2" data-word="YOUR">YOUR</span>
+            <span class="hero-line3" data-word="PEOPLE.">PEOPLE<span class="hero-dot">.</span></span>
+          </h1>
+
+          <p class="hero-description">
+            Meet people who get what you're passionate about.
+            Find your community, exchange ideas and build something together.
+          </p>
+
+          <div class="hero-buttons" id="heroButtons">
+            <button class="primary" id="heroJoinButton" onclick="openModal('signup')">
+              ✦ Create your profile
+            </button>
+
+            <button class="secondary" onclick="navigateTo('discover')">
+              Explore the community →
+            </button>
+          </div>
+
+          <div class="hero-welcome-card" id="heroWelcome" hidden>
+            <div class="welcome-card-header">
+              <div class="welcome-avatar-wrapper">
+                <div class="welcome-large-avatar" id="welcomeBigAvatar">👤</div>
+                <span class="welcome-live-dot" title="Active now"></span>
+              </div>
+              <div class="welcome-headline-box">
+                <div class="welcome-eyebrow-tag">
+                  <span class="sparkle-icon">✦</span> Logged In as Member
+                </div>
+                <h2 class="welcome-big-heading">
+                  Welcome, <span class="welcome-name-gradient" id="welcomeUserName">Member</span>! 👋
+                </h2>
+                <p class="welcome-subtext" id="welcomeUserBio">
+                  Find collaborators, join circles, and discover people who share your passions.
+                </p>
+              </div>
+            </div>
+
+            <div class="welcome-card-actions">
+              <button class="primary" onclick="navigateTo('discover')">
+                ✦ Explore people matching your interests →
+              </button>
+              <button class="secondary" onclick="openChat()">
+                ✉ Open messages
+              </button>
+              <button class="secondary" onclick="openModal('signup')">
+                ✎ Edit profile
+              </button>
+            </div>
+          </div>
+
+          <!-- QUICK ACCESS DASHBOARD HUB -->
+          <div class="home-hub-cards">
+            <div class="hub-card" onclick="navigateTo('communities')">
+              <div class="hub-card-icon">✦</div>
+              <div class="hub-card-info">
+                <strong>Communities & Circles</strong>
+                <p>18 interest circles with live group chats</p>
+              </div>
+              <span class="hub-card-arrow">→</span>
+            </div>
+
+            <div class="hub-card" onclick="navigateTo('network')">
+              <div class="hub-card-icon">🌐</div>
+              <div class="hub-card-info">
+                <strong>Network & Matching</strong>
+                <p>Visual connection lattice & smart interest matches</p>
+              </div>
+              <span class="hub-card-arrow">→</span>
+            </div>
+
+            <div class="hub-card" onclick="navigateTo('discover')">
+              <div class="hub-card-icon">👥</div>
+              <div class="hub-card-info">
+                <strong>Discover Peers</strong>
+                <p>Browse creators, devs & designers to connect</p>
+              </div>
+              <span class="hub-card-arrow">→</span>
+            </div>
+          </div>
+
+          <div class="hero-proof">
+            <span class="proof-avatars"><i>S</i><i>K</i><i>M</i><i>+</i></span>
+            <span>Shared interests. Real connections.</span>
+          </div>
         </div>
+      </section>
+    </div>
 
-        <h1 class="hero-wordmark" aria-label="Find your people">
-          <span class="hero-line1" data-word="FIND">FIND</span>
-          <span class="hero-line2" data-word="YOUR">YOUR</span>
-          <span class="hero-line3" data-word="PEOPLE.">PEOPLE<span class="hero-dot">.</span></span>
-        </h1>
+    <!-- ==================== VIEW 2: COMMUNITIES ==================== -->
+    <div class="app-view" id="view-communities">
+      <div class="view-header">
+        <button class="view-back-btn" type="button" onclick="navigateTo('home')">← Back to Home</button>
+        <span class="view-tag">COMMUNITIES & GROUP CHATS</span>
+      </div>
 
-        <p class="hero-description">
-          Meet people who get what you're passionate about.
-          Find your community, exchange ideas and build something together.
+      <section class="section" id="communities">
+        <div class="section-eyebrow">YOUR PEOPLE, YOUR CIRCLE</div>
+        <h2 class="section-title">Find your corner<br>of the internet.</h2>
+        <p class="section-description">
+          Every passion has a place. Join the circles that match your interests and meet people who are into the same things.
         </p>
 
-        <div class="hero-buttons" id="heroButtons">
-          <button class="primary" id="heroJoinButton" onclick="openModal('signup')">
-            ✦ Create your profile
-          </button>
-
-          <button class="secondary" onclick="scrollToDiscover()">
-            Explore the community ↓
-          </button>
-        </div>
-
-        <div class="hero-welcome-card" id="heroWelcome" hidden>
-          <div class="welcome-card-header">
-            <div class="welcome-avatar-wrapper">
-              <div class="welcome-large-avatar" id="welcomeBigAvatar">👤</div>
-              <span class="welcome-live-dot" title="Active now"></span>
-            </div>
-            <div class="welcome-headline-box">
-              <div class="welcome-eyebrow-tag">
-                <span class="sparkle-icon">✦</span> Logged In as Member
-              </div>
-              <h2 class="welcome-big-heading">
-                Welcome, <span class="welcome-name-gradient" id="welcomeUserName">Member</span>! 👋
-              </h2>
-              <p class="welcome-subtext" id="welcomeUserBio">
-                Find collaborators, join circles, and discover people who share your passions.
-              </p>
-            </div>
-          </div>
-
-          <div class="welcome-card-actions">
-            <button class="primary" onclick="scrollToDiscover()">
-              ✦ Explore people matching your interests ↓
-            </button>
-            <button class="secondary" onclick="openChat()">
-              ✉ Open messages
-            </button>
-            <button class="secondary" onclick="openModal('signup')">
-              ✎ Edit profile
-            </button>
-          </div>
-        </div>
-
-        <div class="hero-proof">
-          <span class="proof-avatars"><i>S</i><i>K</i><i>M</i><i>+</i></span>
-          <span>Shared interests. Real connections.</span>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="network">
-      <div class="section-eyebrow">A DIFFERENT KIND OF NETWORK</div>
-      <h2 class="section-title">Your interests can<br>bring people together.</h2>
-
-      <div class="network">
-        <div class="network-center">YOU</div>
-        <div class="node node1">Artificial Intelligence</div>
-        <div class="node node2">Python</div>
-        <div class="node node3">Music</div>
-        <div class="node node4">Startups</div>
-        <div class="node node5">Robotics</div>
-        <div class="node node6">Photography</div>
-
-        <svg class="network-lines" viewBox="0 0 1000 500" preserveAspectRatio="none" aria-hidden="true">
-          <line x1="500" y1="250" x2="190" y2="120"/>
-          <line x1="500" y1="250" x2="810" y2="110"/>
-          <line x1="500" y1="250" x2="180" y2="390"/>
-          <line x1="500" y1="250" x2="820" y2="380"/>
-          <line x1="500" y1="250" x2="500" y2="65"/>
-          <line x1="500" y1="250" x2="500" y2="440"/>
-        </svg>
-      </div>
-    </section>
-
-    <section class="section" id="matching">
-      <div class="section-eyebrow">PERSONALISED DISCOVERY</div>
-      <h2 class="section-title">What are you<br>into these days?</h2>
-      <p class="section-description">
-        Pick a few interests. We'll bring people with similar passions closer to the top.
-      </p>
-
-      <div class="matching-layout">
-        <div class="panel interests-panel">
-          <div class="panel-heading">
+        <div class="community-toolbar">
+          <div class="community-toolbar-copy">
+            <span class="recommendation-icon">✦</span>
             <div>
-              <h3>Your interests</h3>
-              <p>Select as many as you like.</p>
+              <strong>Your interest circles</strong>
+              <span id="communitySummary">Choose your interests and join the communities that fit.</span>
             </div>
-            <span class="selection-count" id="interestCount">3 selected</span>
           </div>
-
-          <div class="interest-grid" id="filterInterests">
-            <label class="interest-option"><input type="checkbox" name="filterInterest" value="AI" checked><span>AI & ML</span></label>
-            <label class="interest-option"><input type="checkbox" name="filterInterest" value="Python" checked><span>Python</span></label>
-            <label class="interest-option"><input type="checkbox" name="filterInterest" value="Web Development" checked><span>Web development</span></label>
-            <label class="interest-option"><input type="checkbox" name="filterInterest" value="Startups"><span>Startups</span></label>
-            <label class="interest-option"><input type="checkbox" name="filterInterest" value="Music"><span>Music</span></label>
-            <label class="interest-option"><input type="checkbox" name="filterInterest" value="Gaming"><span>Gaming</span></label>
-            <label class="interest-option"><input type="checkbox" name="filterInterest" value="Design"><span>Design</span></label>
-            <label class="interest-option"><input type="checkbox" name="filterInterest" value="Robotics"><span>Robotics</span></label>
-            <label class="interest-option"><input type="checkbox" name="filterInterest" value="Psychology"><span>Psychology</span></label>
-            <label class="interest-option"><input type="checkbox" name="filterInterest" value="Photography"><span>Photography</span></label>
-            <label class="interest-option"><input type="checkbox" name="filterInterest" value="Finance"><span>Finance</span></label>
-            <label class="interest-option"><input type="checkbox" name="filterInterest" value="Movies"><span>Movies</span></label>
-            <label class="interest-option"><input type="checkbox" name="filterInterest" value="Data Science"><span>Data science</span></label>
-            <label class="interest-option"><input type="checkbox" name="filterInterest" value="Cybersecurity"><span>Cybersecurity</span></label>
-            <label class="interest-option"><input type="checkbox" name="filterInterest" value="IoT"><span>IoT & electronics</span></label>
-            <label class="interest-option"><input type="checkbox" name="filterInterest" value="Writing"><span>Writing</span></label>
-            <label class="interest-option"><input type="checkbox" name="filterInterest" value="Fitness"><span>Fitness</span></label>
-            <label class="interest-option"><input type="checkbox" name="filterInterest" value="Astronomy"><span>Astronomy</span></label>
-          </div>
-
-          <div class="interest-actions">
-            <button class="text-button" type="button" onclick="clearInterestFilters()">Clear selection</button>
-            <button class="text-button" type="button" onclick="selectRecommendedFilters()">Use recommendations ✦</button>
-          </div>
+          <button class="primary community-join-all" id="joinInterestCommunities" type="button" onclick="joinMyInterestCommunities()">Join my interest circles ↗</button>
         </div>
 
-        <div class="panel match-panel">
-          <div class="match-orbit"><span>✦</span></div>
-          <div class="match-label">YOUR BEST COMMUNITY MATCH</div>
-          <strong id="match">100+</strong>
-          <h3>People to discover</h3>
-          <p id="matchInfo">Choose your interests to personalise your recommendations.</p>
-          <button class="primary small-primary" onclick="scrollToDiscover()">See recommendations ↓</button>
-        </div>
+        <div class="communities-grid" id="communitiesGrid" aria-live="polite"></div>
+        <p class="community-footnote">Preview members help showcase the community experience. Teammate accounts are local demo accounts.</p>
+      </section>
+    </div>
+
+    <!-- ==================== VIEW 3: NETWORK & MATCHING ==================== -->
+    <div class="app-view" id="view-network">
+      <div class="view-header">
+        <button class="view-back-btn" type="button" onclick="navigateTo('home')">← Back to Home</button>
+        <span class="view-tag">INTERACTIVE NETWORK & MATCHING</span>
       </div>
-    </section>
 
-    <section class="section" id="communities">
-      <div class="section-eyebrow">YOUR PEOPLE, YOUR CIRCLE</div>
-      <h2 class="section-title">Find your corner<br>of the internet.</h2>
-      <p class="section-description">
-        Every passion has a place. Join the circles that match your interests and meet people who are into the same things.
-      </p>
+      <section class="section" id="network">
+        <div class="section-eyebrow">A DIFFERENT KIND OF NETWORK</div>
+        <h2 class="section-title">Your interests can<br>bring people together.</h2>
 
-      <div class="community-toolbar">
-        <div class="community-toolbar-copy">
-          <span class="recommendation-icon">✦</span>
-          <div>
-            <strong>Your interest circles</strong>
-            <span id="communitySummary">Choose your interests and join the communities that fit.</span>
+        <div class="network">
+          <div class="network-center">YOU</div>
+          <div class="node node1">Artificial Intelligence</div>
+          <div class="node node2">Python</div>
+          <div class="node node3">Music</div>
+          <div class="node node4">Startups</div>
+          <div class="node node5">Robotics</div>
+          <div class="node node6">Photography</div>
+
+          <svg class="network-lines" viewBox="0 0 1000 500" preserveAspectRatio="none" aria-hidden="true">
+            <line x1="500" y1="250" x2="190" y2="120"/>
+            <line x1="500" y1="250" x2="810" y2="110"/>
+            <line x1="500" y1="250" x2="180" y2="390"/>
+            <line x1="500" y1="250" x2="820" y2="380"/>
+            <line x1="500" y1="250" x2="500" y2="65"/>
+            <line x1="500" y1="250" x2="500" y2="440"/>
+          </svg>
+        </div>
+      </section>
+
+      <section class="section" id="matching">
+        <div class="section-eyebrow">PERSONALISED DISCOVERY</div>
+        <h2 class="section-title">What are you<br>into these days?</h2>
+        <p class="section-description">
+          Pick a few interests. We'll bring people with similar passions closer to the top.
+        </p>
+
+        <div class="matching-layout">
+          <div class="panel interests-panel">
+            <div class="panel-heading">
+              <div>
+                <h3>Your interests</h3>
+                <p>Select as many as you like.</p>
+              </div>
+              <span class="selection-count" id="interestCount">3 selected</span>
+            </div>
+
+            <div class="interest-grid" id="filterInterests">
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="AI" checked><span>AI & ML</span></label>
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="Python" checked><span>Python</span></label>
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="Web Development" checked><span>Web development</span></label>
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="Startups"><span>Startups</span></label>
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="Music"><span>Music</span></label>
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="Gaming"><span>Gaming</span></label>
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="Design"><span>Design</span></label>
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="Robotics"><span>Robotics</span></label>
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="Psychology"><span>Psychology</span></label>
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="Photography"><span>Photography</span></label>
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="Finance"><span>Finance</span></label>
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="Movies"><span>Movies</span></label>
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="Data Science"><span>Data science</span></label>
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="Cybersecurity"><span>Cybersecurity</span></label>
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="IoT"><span>IoT & electronics</span></label>
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="Writing"><span>Writing</span></label>
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="Fitness"><span>Fitness</span></label>
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="Astronomy"><span>Astronomy</span></label>
+            </div>
+
+            <div class="interest-actions">
+              <button class="text-button" type="button" onclick="clearInterestFilters()">Clear selection</button>
+              <button class="text-button" type="button" onclick="selectRecommendedFilters()">Use recommendations ✦</button>
+            </div>
+          </div>
+
+          <div class="panel match-panel">
+            <div class="match-orbit"><span>✦</span></div>
+            <div class="match-label">YOUR BEST COMMUNITY MATCH</div>
+            <strong id="match">100+</strong>
+            <h3>People to discover</h3>
+            <p id="matchInfo">Choose your interests to personalise your recommendations.</p>
+            <button class="primary small-primary" onclick="navigateTo('discover')">See recommendations →</button>
           </div>
         </div>
-        <button class="primary community-join-all" id="joinInterestCommunities" type="button" onclick="joinMyInterestCommunities()">Join my interest circles ↗</button>
+      </section>
+    </div>
+
+    <!-- ==================== VIEW 4: DISCOVER PEERS ==================== -->
+    <div class="app-view" id="view-discover">
+      <div class="view-header">
+        <button class="view-back-btn" type="button" onclick="navigateTo('home')">← Back to Home</button>
+        <span class="view-tag">DISCOVER MEMBERS</span>
       </div>
 
-      <div class="communities-grid" id="communitiesGrid" aria-live="polite"></div>
-      <p class="community-footnote">Preview members help showcase the community experience. Teammate accounts are local demo accounts.</p>
-    </section>
+      <section class="section" id="discover">
+        <div class="section-eyebrow">YOUR NEXT CONNECTION</div>
+        <h2 class="section-title">Meet your kind<br>of people.</h2>
+        <p class="section-description">
+          Explore a growing mix of interests, backgrounds and ideas.
+        </p>
 
-    <section class="section" id="discover">
-      <div class="section-eyebrow">YOUR NEXT CONNECTION</div>
-      <h2 class="section-title">Meet your kind<br>of people.</h2>
-      <p class="section-description">
-        Explore a growing mix of interests, backgrounds and ideas.
-      </p>
-
-      <div class="recommendation-strip">
-        <div class="recommendation-copy">
-          <span class="recommendation-icon">✦</span>
-          <div>
-            <strong>Recommended for you</strong>
-            <span id="discoverySummary">Members ranked by shared interests</span>
+        <div class="recommendation-strip">
+          <div class="recommendation-copy">
+            <span class="recommendation-icon">✦</span>
+            <div>
+              <strong>Recommended for you</strong>
+              <span id="discoverySummary">Members ranked by shared interests</span>
+            </div>
           </div>
+          <button class="filter" id="recommendationToggle" type="button" onclick="toggleRecommendedOnly()">
+            Show best matches
+          </button>
         </div>
-        <button class="filter" id="recommendationToggle" type="button" onclick="toggleRecommendedOnly()">
-          Show best matches
-        </button>
-      </div>
 
-      <div class="search-row">
-        <div class="search-wrap">
-          <span>⌕</span>
-          <input class="search" id="search" placeholder="Search by name, city or interest..." aria-label="Search people">
+        <div class="search-row">
+          <div class="search-wrap">
+            <span>⌕</span>
+            <input class="search" id="search" placeholder="Search by name, city or interest..." aria-label="Search people">
+          </div>
+          <button class="filter" type="button" onclick="clearSearch()">Clear search</button>
         </div>
-        <button class="filter" type="button" onclick="clearSearch()">Clear search</button>
-      </div>
 
-      <div class="people" id="people"></div>
-      <p class="no-results" id="noResults" hidden>No profiles found. Try another search or interest.</p>
+        <div class="people" id="people"></div>
+        <p class="no-results" id="noResults" hidden>No profiles found. Try another search or interest.</p>
 
-      <div class="load-more-wrap">
-        <span id="profileCount">Showing up to 8 relevant profiles</span>
-        <button class="secondary" id="showMoreButton" onclick="showMoreProfiles()" hidden>Load more people ↓</button>
-      </div>
+        <div class="load-more-wrap">
+          <span id="profileCount">Showing up to 8 relevant profiles</span>
+          <button class="secondary" id="showMoreButton" onclick="showMoreProfiles()" hidden>Load more people ↓</button>
+        </div>
 
-      <p class="demo-note">
-        Curated preview profiles are included for the demo. Connection requests and chat are saved by the local SkillMate backend.
-      </p>
-    </section>
+        <p class="demo-note">
+          Curated preview profiles are included for the demo. Connection requests and chat are saved by the local SkillMate backend.
+        </p>
+      </section>
 
-    <section class="section" id="joinCtaSection">
-      <div class="cta">
-        <div class="section-eyebrow">YOUR MOVE</div>
-        <h2>Find someone<br>who gets it.</h2>
-        <p>Your next collaborator, study partner or friend might be closer than you think.</p>
-        <button class="primary" onclick="openModal('signup')">Join SkillMate ✦</button>
-      </div>
-    </section>
+      <section class="section" id="joinCtaSection">
+        <div class="cta">
+          <div class="section-eyebrow">YOUR MOVE</div>
+          <h2>Find someone<br>who gets it.</h2>
+          <p>Your next collaborator, study partner or friend might be closer than you think.</p>
+          <button class="primary" onclick="openModal('signup')">Join SkillMate ✦</button>
+        </div>
+      </section>
+    </div>
   </main>
 
   <footer>
@@ -524,7 +581,7 @@
     </div>
 
     <div class="sidebar-nav-list">
-      <a href="#top" class="sidebar-nav-item" data-action="close">
+      <a href="#/" class="sidebar-nav-item" onclick="navigateTo('home'); closeSidebar(); return false;">
         <span class="sidebar-nav-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
@@ -534,7 +591,7 @@
         <span class="sidebar-nav-text">Home Feed</span>
       </a>
 
-      <a href="#communities" class="sidebar-nav-item" data-action="close">
+      <a href="#/communities" class="sidebar-nav-item" onclick="navigateTo('communities'); closeSidebar(); return false;">
         <span class="sidebar-nav-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -557,7 +614,7 @@
         <span class="sidebar-badge-pill chat-count" id="sidebarChatCount">0</span>
       </button>
 
-      <a href="#network" class="sidebar-nav-item" data-action="close">
+      <a href="#/network" class="sidebar-nav-item" onclick="navigateTo('network'); closeSidebar(); return false;">
         <span class="sidebar-nav-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="3"></circle>
@@ -567,7 +624,7 @@
         <span class="sidebar-nav-text">Interactive Network</span>
       </a>
 
-      <a href="#discover" class="sidebar-nav-item" data-action="close">
+      <a href="#/discover" class="sidebar-nav-item" onclick="navigateTo('discover'); closeSidebar(); return false;">
         <span class="sidebar-nav-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8"></circle>
@@ -577,7 +634,7 @@
         <span class="sidebar-nav-text">Discover Peers</span>
       </a>
 
-      <a href="#matching" class="sidebar-nav-item" data-action="close">
+      <a href="#/network" class="sidebar-nav-item" onclick="navigateTo('network'); closeSidebar(); return false;">
         <span class="sidebar-nav-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
@@ -618,7 +675,7 @@
 
   <!-- ==================== INSTAGRAM-STYLE MOBILE BOTTOM NAVIGATION ==================== -->
   <div class="mobile-bottom-bar" id="mobileBottomBar" role="navigation" aria-label="Mobile Navigation">
-    <a href="#top" class="mobile-tab active" id="mobileTabHome" aria-label="Home">
+    <a href="#/" class="mobile-tab active" id="mobileTabHome" onclick="navigateTo('home'); return false;" aria-label="Home">
       <span class="mobile-tab-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
@@ -628,7 +685,7 @@
       <span class="mobile-tab-text">Home</span>
     </a>
 
-    <a href="#communities" class="mobile-tab" id="mobileTabCommunities" aria-label="Communities">
+    <a href="#/communities" class="mobile-tab" id="mobileTabCommunities" onclick="navigateTo('communities'); return false;" aria-label="Communities">
       <span class="mobile-tab-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -650,7 +707,7 @@
       <span class="mobile-tab-text">Chats</span>
     </button>
 
-    <a href="#discover" class="mobile-tab" id="mobileTabDiscover" aria-label="Discover">
+    <a href="#/discover" class="mobile-tab" id="mobileTabDiscover" onclick="navigateTo('discover'); return false;" aria-label="Discover">
       <span class="mobile-tab-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"></circle>

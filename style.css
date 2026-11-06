@@ -2178,3 +2178,157 @@ footer small { display:block; margin-top:12px; color:#6f6c81; font-size:9px; }
     letter-spacing: 0.2px;
   }
 }
+
+/* ==========================================================
+   SPA MULTI-VIEW ARCHITECTURE & HOME DASHBOARD HUB
+========================================================== */
+
+.app-view {
+  display: none;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1), transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.app-view.active {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.view-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: min(92%, 1240px);
+  margin: 110px auto 10px;
+  padding: 12px 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.view-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  color: #c9c6e3;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.view-back-btn:hover {
+  background: rgba(55, 204, 231, 0.12);
+  border-color: rgba(55, 204, 231, 0.35);
+  color: #55e6fa;
+  transform: translateX(-3px);
+}
+
+.view-tag {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.8px;
+  color: #7b7897;
+}
+
+.app-view > .section {
+  margin-top: 30px !important;
+}
+
+/* Home Quick Hub Cards */
+.home-hub-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  width: 100%;
+  max-width: 860px;
+  margin: 28px auto 8px;
+}
+
+.hub-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: left;
+}
+
+.hub-card:hover {
+  background: rgba(55, 204, 231, 0.08);
+  border-color: rgba(55, 204, 231, 0.35);
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px rgba(55, 204, 231, 0.12);
+}
+
+.hub-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(55, 204, 231, 0.2));
+  border: 1px solid rgba(55, 204, 231, 0.25);
+  color: #72ecff;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.hub-card-info {
+  flex: 1;
+  overflow: hidden;
+}
+
+.hub-card-info strong {
+  display: block;
+  color: #f7f6fd;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hub-card-info p {
+  margin: 2px 0 0;
+  color: #8b88a8;
+  font-size: 10px;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hub-card-arrow {
+  color: #8b88a8;
+  font-size: 15px;
+  font-weight: 800;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.hub-card:hover .hub-card-arrow {
+  color: #55e6fa;
+  transform: translateX(3px);
+}
+
+@media (max-width: 768px) {
+  .home-hub-cards {
+    grid-template-columns: 1fr;
+    gap: 9px;
+    margin: 20px auto 5px;
+  }
+  
+  .view-header {
+    margin-top: 75px;
+  }
+}
