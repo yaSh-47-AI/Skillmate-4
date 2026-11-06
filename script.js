@@ -479,7 +479,39 @@ function setAuthenticatedUser(user) {
     }
   }
 
+  updateSidebarAndMobileNav();
   window.dispatchEvent(new CustomEvent('auth-updated', { detail: currentUser }));
+}
+
+function updateSidebarAndMobileNav() {
+  const drawerName = $("#sidebarDrawerName");
+  const drawerRole = $("#sidebarDrawerRole");
+  const drawerAvatar = $("#sidebarDrawerAvatar");
+  const authLabel = $("#sidebarAuthLabel");
+  const profileLabel = $("#sidebarProfileLabel");
+  const mobileAvatar = $("#mobileTabAvatar");
+  const mobileProfileLabel = $("#mobileTabProfileLabel");
+
+  if (currentUser) {
+    if (drawerName) drawerName.textContent = currentUser.name || "Member";
+    if (drawerRole) {
+      const {role, city} = splitBio(currentUser.bio);
+      drawerRole.textContent = [role, city].filter(Boolean).join(" · ") || currentUser.email || "SkillMate member";
+    }
+    if (authLabel) authLabel.textContent = "Log out";
+    if (profileLabel) profileLabel.textContent = "Edit My Profile";
+    if (mobileProfileLabel) mobileProfileLabel.textContent = "Profile";
+    renderUserAvatar(drawerAvatar, currentUser);
+    renderUserAvatar(mobileAvatar, currentUser);
+  } else {
+    if (drawerName) drawerName.textContent = "Guest Explorer";
+    if (drawerRole) drawerRole.textContent = "Join to connect with peers";
+    if (authLabel) authLabel.textContent = "Log in / Join";
+    if (profileLabel) profileLabel.textContent = "Create Profile";
+    if (mobileProfileLabel) mobileProfileLabel.textContent = "Log in";
+    if (drawerAvatar) drawerAvatar.innerHTML = "<span>👤</span>";
+    if (mobileAvatar) mobileAvatar.innerHTML = "<span>👤</span>";
+  }
 }
 
 async function loginUser() {
@@ -948,6 +980,8 @@ async function loadConnections() {
     connectionsByUserId = new Map();
     renderContacts();
     if ($("#chatCount")) $("#chatCount").textContent = "0";
+    if ($("#sidebarChatCount")) $("#sidebarChatCount").textContent = "0";
+    if ($("#mobileChatBadge")) $("#mobileChatBadge").hidden = true;
     return;
   }
 
@@ -960,9 +994,17 @@ async function loadConnections() {
       if (row.user) connectionsByUserId.set(Number(row.user.id), row);
     });
 
+    const acceptedCount = connectionRows.filter(row => row.status === "accepted").length;
     const count = $("#chatCount");
-    if (count) {
-      count.textContent = String(connectionRows.filter(row => row.status === "accepted").length);
+    if (count) count.textContent = String(acceptedCount);
+
+    const sidebarChatCount = $("#sidebarChatCount");
+    if (sidebarChatCount) sidebarChatCount.textContent = String(acceptedCount);
+
+    const mobileChatBadge = $("#mobileChatBadge");
+    if (mobileChatBadge) {
+      mobileChatBadge.textContent = String(acceptedCount);
+      mobileChatBadge.hidden = acceptedCount === 0;
     }
 
     renderMembers();
@@ -1427,12 +1469,33 @@ function showChatInfo() {
   showToast(`${activeChatUser.name} · ${(activeChatUser.interests || []).join(", ")}`);
 }
 
+/* ---------- SIDEBAR (INSTAGRAM WEB DRAWER) ---------- */
+
+function openSidebar() {
+  const sidebar = $("#sidebarDrawer");
+  const backdrop = $("#sidebarBackdrop");
+  sidebar?.classList.add("open");
+  sidebar?.setAttribute("aria-hidden", "false");
+  backdrop?.classList.add("open");
+  document.body.classList.add("sidebar-open");
+}
+
+function closeSidebar() {
+  const sidebar = $("#sidebarDrawer");
+  const backdrop = $("#sidebarBackdrop");
+  sidebar?.classList.remove("open");
+  sidebar?.setAttribute("aria-hidden", "true");
+  backdrop?.classList.remove("open");
+  document.body.classList.remove("sidebar-open");
+}
+
 /* ---------- MODAL KEYBOARD AND PHOTO SAFETY ---------- */
 
 document.addEventListener("keydown", event => {
   if (event.key === "Escape") {
     closeModal();
     closeChat();
+    closeSidebar();
     closeUserMenu();
   }
 
@@ -1459,6 +1522,56 @@ function bindAuthModalListeners() {
   $(".nav-chat")?.addEventListener("click", () => openChat());
   $(".chat-close")?.addEventListener("click", () => closeChat());
   $("#chatBackdrop")?.addEventListener("click", () => closeChat());
+
+  // Instagram-style Left Sidebar Triggers
+  $("#sidebarTrigger")?.addEventListener("click", () => openSidebar());
+  $("#sidebarCloseBtn")?.addEventListener("click", () => closeSidebar());
+  $("#sidebarBackdrop")?.addEventListener("click", () => closeSidebar());
+
+  $$("#sidebarDrawer [data-action='close']").forEach(link => {
+    link.addEventListener("click", () => closeSidebar());
+  });
+
+  $("#sidebarChatsAction")?.addEventListener("click", () => {
+    closeSidebar();
+    openChat();
+  });
+
+  $("#sidebarProfileBtn")?.addEventListener("click", () => {
+    closeSidebar();
+    openModal("signup");
+  });
+
+  $("#sidebarAuthAction")?.addEventListener("click", () => {
+    closeSidebar();
+    if (currentUser) {
+      logoutUser();
+    } else {
+      openModal("login");
+    }
+  });
+
+  // Instagram-style Mobile Bottom Bar Triggers
+  $("#mobileTabChat")?.addEventListener("click", () => {
+    openChat();
+  });
+
+  $("#mobileTabProfile")?.addEventListener("click", () => {
+    if (currentUser) {
+      openModal("signup");
+    } else {
+      openModal("login");
+    }
+  });
+
+  // Mobile tab active highlight tracking
+  const tabs = $$(".mobile-tab");
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      tabs.forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+    });
+  });
 }
 
 /* ---------- INITIALISE ---------- */
