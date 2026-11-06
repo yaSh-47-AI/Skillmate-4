@@ -511,18 +511,17 @@
 
   <aside class="chat-drawer" id="chatDrawer" aria-label="Chats" aria-hidden="true">
     <div class="chat-topbar">
-      <div class="chat-window-dots">
-        <span class="chat-dot dot-red" onclick="closeChat()" title="Close"></span>
-        <span class="chat-dot dot-yellow" title="Minimize"></span>
-        <span class="chat-dot dot-green" title="Expand"></span>
+      <div class="chat-top-brand">
+        <span class="chat-brand-logo">Skill<span>Mate.</span></span>
       </div>
       <div class="chat-top-nav">
+        <button type="button" class="chat-nav-pill" onclick="navigateTo('discover'); closeChat();">Designer</button>
         <button type="button" class="chat-nav-pill" onclick="navigateTo('discover'); closeChat();">Explore</button>
-        <button type="button" class="chat-nav-pill" onclick="navigateTo('communities'); closeChat();">Circles</button>
-        <button type="button" class="chat-nav-pill active" id="chatPillMessages">Messenger</button>
+        <button type="button" class="chat-nav-pill" onclick="navigateTo('communities'); closeChat();">Blog</button>
+        <button type="button" class="chat-nav-pill active" id="chatPillMessages">Chats</button>
       </div>
       <div class="chat-topbar-right">
-        <button type="button" class="chat-new-btn" onclick="navigateTo('discover'); closeChat();">＋ New connect</button>
+        <button type="button" class="chat-new-btn" onclick="navigateTo('discover'); closeChat();">＋ New recruitment</button>
         <div class="chat-top-avatar" id="chatTopUserAvatar">👤</div>
         <button class="chat-close" onclick="closeChat()" aria-label="Close chats">✕</button>
       </div>
@@ -537,8 +536,7 @@
             <span class="chat-title-heading">Chat</span>
           </div>
           <div class="chat-sidebar-actions">
-            <button type="button" class="sidebar-icon-btn" title="Communities" onclick="navigateTo('communities'); closeChat();">💬</button>
-            <button type="button" class="sidebar-icon-btn" title="Edit Profile" onclick="openModal('signup'); closeChat();">✎</button>
+            <button type="button" class="sidebar-icon-btn" title="Circles" onclick="navigateTo('communities'); closeChat();">💬</button>
           </div>
         </div>
 
@@ -567,14 +565,6 @@
             <button class="chat-action-btn phone-btn" type="button" title="Audio call" onclick="showToast('Voice calls coming soon!')">📞</button>
             <button class="chat-action-btn video-btn" type="button" title="Video call" onclick="showToast('Video calls coming soon!')">📹</button>
             <button class="chat-more" title="Conversation info" onclick="toggleDetailsPanel()">···</button>
-          </div>
-        </div>
-
-        <div class="chat-topic" id="chatTopicBanner">
-          <span>✦</span>
-          <div>
-            <strong>Direct Messaging</strong>
-            <small id="activeChatTopic">Connect with members to get started</small>
           </div>
         </div>
 
@@ -765,7 +755,7 @@
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
           </svg>
         </span>
-        <span class="sidebar-nav-text">Direct Messages</span>
+        <span class="sidebar-nav-text">Chats</span>
         <span class="sidebar-badge-pill chat-count" id="sidebarChatCount">0</span>
       </button>
 

@@ -1655,14 +1655,8 @@ function renderActiveChat() {
 }
 
 function toggleDetailsPanel() {
-  const panel = $("#chatDetailsPanel");
-  if (!panel) return;
-  panel.classList.toggle("panel-expanded");
-  if (panel.classList.contains("panel-expanded")) {
-    panel.style.display = "flex";
-  } else {
-    panel.style.display = "";
-  }
+  const drawer = $("#chatDrawer");
+  if (drawer) drawer.classList.toggle("hide-details");
 }
 window.toggleDetailsPanel = toggleDetailsPanel;
 

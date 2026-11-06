@@ -1479,9 +1479,13 @@ footer small { display:block; margin-top:12px; color:#6f6c81; font-size:9px; }
   inset: 0;
   z-index: 4000;
   visibility: hidden;
-  background: rgba(3, 2, 8, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: 
+    radial-gradient(ellipse at 30% 20%, rgba(168, 85, 247, 0.35) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(217, 70, 239, 0.28) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 50%, rgba(99, 102, 241, 0.22) 0%, transparent 60%),
+    rgba(8, 7, 14, 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   opacity: 0;
   transition: opacity .25s ease, visibility .25s ease;
 }
@@ -1500,14 +1504,21 @@ footer small { display:block; margin-top:12px; color:#6f6c81; font-size:9px; }
   z-index: 4001;
   display: flex;
   flex-direction: column;
-  width: min(1160px, 95vw);
-  height: min(780px, 88vh);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  width: min(1180px, 95vw);
+  height: min(760px, 88vh);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 28px;
-  background: rgba(18, 14, 28, 0.82);
-  backdrop-filter: blur(50px) saturate(190%);
-  -webkit-backdrop-filter: blur(50px) saturate(190%);
-  box-shadow: 0 35px 120px rgba(0, 0, 0, 0.88), 0 0 80px rgba(168, 85, 247, 0.22);
+  background: 
+    radial-gradient(ellipse at 20% 15%, rgba(168, 85, 247, 0.25) 0%, transparent 45%),
+    radial-gradient(ellipse at 85% 85%, rgba(217, 70, 239, 0.2) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(124, 58, 237, 0.12) 0%, transparent 60%),
+    rgba(20, 16, 31, 0.74);
+  backdrop-filter: blur(50px) saturate(200%);
+  -webkit-backdrop-filter: blur(50px) saturate(200%);
+  box-shadow: 
+    0 35px 120px rgba(0, 0, 0, 0.9), 
+    0 0 90px rgba(168, 85, 247, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
   overflow: hidden;
   transition: transform .28s cubic-bezier(0.16, 1, 0.3, 1), opacity .28s ease, visibility .28s ease;
 }
@@ -1518,56 +1529,37 @@ footer small { display:block; margin-top:12px; color:#6f6c81; font-size:9px; }
   visibility: visible;
 }
 
-/* TOPBAR: macOS Traffic Lights & Tabs */
+/* TOPBAR: Brand, Nav Tabs, Actions */
 .chat-topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 15px;
-  padding: 14px 22px;
+  padding: 14px 24px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.02);
 }
 
-.chat-window-dots {
+.chat-top-brand {
   display: flex;
   align-items: center;
-  gap: 8px;
+  font-weight: 800;
+  font-size: 15px;
+  color: #fff;
+  letter-spacing: -0.02em;
 }
-
-.chat-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  display: inline-block;
-  cursor: pointer;
-  transition: transform .15s ease, opacity .15s ease;
-}
-.chat-dot:hover {
-  transform: scale(1.15);
-}
-.chat-dot.dot-red {
-  background: #ff5f56;
-  border: 1px solid #e0443e;
-  box-shadow: 0 0 8px rgba(255, 95, 86, 0.4);
-}
-.chat-dot.dot-yellow {
-  background: #ffbd2e;
-  border: 1px solid #dea123;
-}
-.chat-dot.dot-green {
-  background: #27c93f;
-  border: 1px solid #1aab29;
+.chat-brand-logo span {
+  color: #c084fc;
 }
 
 .chat-top-nav {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 24px;
 }
 
 .chat-nav-pill {
-  padding: 6px 4px;
+  padding: 6px 2px;
   border: 0;
   color: #94a3b8;
   background: transparent;
@@ -1610,8 +1602,8 @@ footer small { display:block; margin-top:12px; color:#6f6c81; font-size:9px; }
 }
 
 .chat-top-avatar {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   background: linear-gradient(135deg, #a855f7, #ec4899);
   color: #fff;
@@ -1621,6 +1613,7 @@ footer small { display:block; margin-top:12px; color:#6f6c81; font-size:9px; }
   font-size: 11px;
   font-weight: 700;
   overflow: hidden;
+  box-shadow: 0 2px 8px rgba(168, 85, 247, 0.35);
 }
 .chat-top-avatar img {
   width: 100%;
@@ -1648,24 +1641,30 @@ footer small { display:block; margin-top:12px; color:#6f6c81; font-size:9px; }
   border-color: rgba(255, 255, 255, 0.2);
 }
 
-/* LAYOUT: 3 COLUMNS (Sidebar + Main + Details Panel) */
+/* LAYOUT: 3 COLUMNS LOCKED (Sidebar: 1, Main: 2, Details: 3) */
 .chat-layout {
   display: grid;
-  grid-template-columns: 275px minmax(0, 1fr) 280px;
+  grid-template-columns: 260px 1fr 280px;
+  grid-template-rows: 1fr;
   flex: 1;
   min-height: 0;
+  height: calc(100% - 58px);
   overflow: hidden;
 }
 
-/* LEFT SIDEBAR: Contacts */
+/* COLUMN 1: Contacts */
 .chat-sidebar {
+  grid-column: 1;
+  grid-row: 1;
   display: flex;
   flex-direction: column;
   min-width: 0;
   min-height: 0;
+  height: 100%;
   padding: 16px 14px;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.015);
+  overflow: hidden;
 }
 
 .chat-sidebar-header {
@@ -2167,10 +2166,22 @@ footer small { display:block; margin-top:12px; color:#6f6c81; font-size:9px; }
   text-align: center;
 }
 
-/* RIGHT DETAILS PANEL: Active Contact & Shared Files */
+.chat-drawer.hide-details .chat-layout {
+  grid-template-columns: 260px minmax(0, 1fr) !important;
+}
+.chat-drawer.hide-details .chat-details-panel {
+  display: none !important;
+}
+
+/* RIGHT DETAILS PANEL: Active Contact & Shared Files (LOCKED IN COLUMN 3 ON THE RIGHT) */
 .chat-details-panel {
-  display: flex;
+  grid-column: 3;
+  grid-row: 1;
+  display: flex !important;
   flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
   padding: 22px 18px;
   border-left: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.015);
@@ -2386,15 +2397,12 @@ footer small { display:block; margin-top:12px; color:#6f6c81; font-size:9px; }
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.45), rgba(14, 165, 233, 0.45));
 }
 
-@media (max-width: 1100px) {
-  .chat-drawer {
-    width: min(940px, 94vw);
-  }
+@media (max-width: 1050px) and (min-width: 769px) {
   .chat-layout {
-    grid-template-columns: 260px minmax(0, 1fr);
+    grid-template-columns: 220px 1fr 240px;
   }
   .chat-details-panel {
-    display: none;
+    padding: 16px 12px;
   }
 }
 
