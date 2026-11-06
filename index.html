@@ -503,15 +503,20 @@
 
   <aside class="chat-drawer" id="chatDrawer" aria-label="Chats" aria-hidden="true">
     <div class="chat-topbar">
-      <div>
-        <div class="section-eyebrow">YOUR NETWORK</div>
-        <h2>Messages <span class="chat-live-dot"></span></h2>
+      <div class="chat-window-dots">
+        <span class="chat-dot dot-red" onclick="closeChat()" title="Close"></span>
+        <span class="chat-dot dot-yellow" title="Minimize"></span>
+        <span class="chat-dot dot-green" title="Expand"></span>
       </div>
-      <button class="chat-close" onclick="closeChat()" aria-label="Close chats">×</button>
+      <div class="chat-top-nav">
+        <button type="button" class="chat-nav-pill active" id="chatPillMessages">Messages</button>
+        <button type="button" class="chat-nav-pill" id="chatPillConnections" onclick="navigateTo('network'); closeChat();">Network</button>
+      </div>
+      <button class="chat-close" onclick="closeChat()" aria-label="Close chats">✕</button>
     </div>
 
-    <div class="chat-layout">
-      <div class="chat-sidebar">
+    <div class="chat-layout" id="chatLayout">
+      <div class="chat-sidebar" id="chatSidebar">
         <div class="chat-sidebar-user" id="chatSidebarUser" hidden>
           <div class="sidebar-user-avatar" id="sidebarUserAvatar">👤</div>
           <div class="sidebar-user-info">
@@ -523,27 +528,36 @@
 
         <div class="chat-search-wrap">
           <span>⌕</span>
-          <input id="chatSearch" placeholder="Find a conversation" aria-label="Find conversations">
+          <input id="chatSearch" placeholder="Search conversations..." aria-label="Find conversations">
         </div>
-        <div class="chat-filter-label">CONNECTIONS</div>
+
+        <div class="chat-filter-header">
+          <span class="chat-filter-label">CONVERSATIONS</span>
+          <span class="chat-count-tag" id="chatSidebarBadge">0</span>
+        </div>
         <div id="chatContacts" class="chat-contacts"></div>
-        <div class="chat-sidebar-note">Your accepted connections appear here.</div>
+        <div class="chat-sidebar-note">Connected members you can message appear here.</div>
       </div>
 
-      <div class="chat-main">
+      <div class="chat-main" id="chatMain">
         <div class="chat-conversation-head">
+          <button class="chat-back-mobile" id="chatMobileBack" type="button" onclick="showContactsMobile()" aria-label="Back to contacts">←</button>
           <div id="activeChatAvatar" class="chat-avatar">✦</div>
           <div class="chat-contact-meta">
             <strong id="activeChatName">Your conversations</strong>
-            <span><i></i> SkillMate member</span>
+            <span id="activeChatStatus"><i class="status-dot"></i> Active now</span>
           </div>
-          <button class="chat-more" title="Conversation info" onclick="showChatInfo()">···</button>
+          <div class="chat-head-actions">
+            <button class="chat-action-btn" type="button" title="Audio call" onclick="showToast('Voice calls coming soon!')">📞</button>
+            <button class="chat-action-btn" type="button" title="Video call" onclick="showToast('Video calls coming soon!')">📹</button>
+            <button class="chat-more" title="Conversation info" onclick="showChatInfo()">···</button>
+          </div>
         </div>
 
-        <div class="chat-topic">
+        <div class="chat-topic" id="chatTopicBanner">
           <span>✦</span>
           <div>
-            <strong>Start with what you have in common</strong>
+            <strong>Direct Messaging</strong>
             <small id="activeChatTopic">Connect with members to get started</small>
           </div>
         </div>
@@ -553,11 +567,11 @@
         <form class="chat-composer" id="chatForm">
           <button class="composer-attach" type="button" onclick="document.getElementById('chatAttachment').click()" title="Attach an image">＋</button>
           <input type="file" id="chatAttachment" accept="image/*" hidden>
-          <input id="chatInput" placeholder="Write a message..." autocomplete="off" aria-label="Write a message">
+          <input id="chatInput" placeholder="Type something to send..." autocomplete="off" aria-label="Write a message">
           <button class="send-button" type="submit" aria-label="Send message">➤</button>
         </form>
 
-        <div class="chat-footnote">Messages are saved in your local database.</div>
+        <div class="chat-footnote">End-to-end connected on SkillMate.</div>
       </div>
     </div>
   </aside>

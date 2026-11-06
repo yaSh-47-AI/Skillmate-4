@@ -1001,6 +1001,9 @@ async function loadConnections() {
     const sidebarChatCount = $("#sidebarChatCount");
     if (sidebarChatCount) sidebarChatCount.textContent = String(acceptedCount);
 
+    const chatSidebarBadge = $("#chatSidebarBadge");
+    if (chatSidebarBadge) chatSidebarBadge.textContent = String(acceptedCount);
+
     const mobileChatBadge = $("#mobileChatBadge");
     if (mobileChatBadge) {
       mobileChatBadge.textContent = String(acceptedCount);
@@ -1205,6 +1208,11 @@ function initializeSocket() {
   });
 }
 
+function showContactsMobile() {
+  chatDrawer?.classList.remove("mobile-view-chat");
+}
+window.showContactsMobile = showContactsMobile;
+
 function openChat(personId) {
   if (!currentUser) {
     showToast("Log in to view your connections and messages.");
@@ -1221,6 +1229,7 @@ function openChat(personId) {
       showToast("This member is not an accepted connection yet.");
       return;
     }
+    chatDrawer?.classList.add("mobile-view-chat");
   } else if (!activeChatId || !contacts.some(user => Number(user.id) === activeChatId)) {
     activeChatUser = contacts[0] || null;
     activeChatId = activeChatUser ? Number(activeChatUser.id) : null;
@@ -1241,6 +1250,7 @@ function openChat(personId) {
 
 function closeChat() {
   chatDrawer?.classList.remove("open");
+  chatDrawer?.classList.remove("mobile-view-chat");
   chatDrawer?.setAttribute("aria-hidden","true");
   chatBackdrop?.classList.remove("open");
   document.body.classList.remove("chat-open");
@@ -1254,6 +1264,9 @@ function renderContacts() {
   const contacts = connectedProfiles().filter(user =>
     normalize(`${user.name} ${(user.interests || []).join(" ")}`).includes(query)
   );
+
+  const sidebarBadge = $("#chatSidebarBadge");
+  if (sidebarBadge) sidebarBadge.textContent = String(contacts.length);
 
   if (!currentUser || !contacts.length) {
     const empty = document.createElement("div");
@@ -1270,6 +1283,7 @@ function renderContacts() {
     item.addEventListener("click", () => {
       activeChatId = Number(user.id);
       activeChatUser = user;
+      chatDrawer?.classList.add("mobile-view-chat");
       renderContacts();
       renderActiveChat();
       loadMessages(activeChatId);
@@ -1332,7 +1346,13 @@ function renderActiveChat() {
   }
 
   if ($("#activeChatName")) {
-    $("#activeChatName").textContent = user?.name || "Your conversations";
+    $("#activeChatName").textContent = user?.name || "Select a member";
+  }
+
+  if ($("#activeChatStatus")) {
+    $("#activeChatStatus").innerHTML = user
+      ? '<i class="status-dot"></i> Active now'
+      : '<span style="color:#807c93;">No chat active</span>';
   }
 
   if ($("#activeChatTopic")) {
@@ -1521,6 +1541,8 @@ function bindAuthModalListeners() {
   $("#heroJoinButton")?.addEventListener("click", () => openModal("signup"));
   $(".nav-chat")?.addEventListener("click", () => openChat());
   $(".chat-close")?.addEventListener("click", () => closeChat());
+  $(".dot-red")?.addEventListener("click", () => closeChat());
+  $("#chatMobileBack")?.addEventListener("click", () => showContactsMobile());
   $("#chatBackdrop")?.addEventListener("click", () => closeChat());
 
   // Instagram-style Left Sidebar Triggers
