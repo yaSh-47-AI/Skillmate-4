@@ -421,6 +421,7 @@ app.post("/api/connections/request/:userId", requireLogin, async (req, res, next
       return res.status(404).json({ error: "User not found." });
     }
 
+    // Check for ANY existing connection between the two users (both directions)
     const existing = await db.get(`
       SELECT *
       FROM connections
@@ -428,12 +429,52 @@ app.post("/api/connections/request/:userId", requireLogin, async (req, res, next
          OR (requester_id = ? AND recipient_id = ?)
     `, requesterId, recipientId, recipientId, requesterId);
 
-    if (existing && existing.status !== "rejected") {
-      return res.status(409).json({ error: "A connection request or connection already exists." });
-    }
-
     if (existing) {
-      await db.run("DELETE FROM connections WHERE id = ?", existing.id);
+      // Already connected — no action needed
+      if (existing.status === "accepted") {
+        return res.status(409).json({ error: "You are already connected." });
+      }
+
+      // MUTUAL INTEREST: The OTHER person already sent a pending request to ME
+      // Auto-accept it instead of creating a duplicate!
+      if (existing.status === "pending" && existing.requester_id === recipientId) {
+        await db.run(
+          "UPDATE connections SET status = 'accepted' WHERE id = ?",
+          existing.id
+        );
+
+        // Notify BOTH users in real-time that connection is now accepted
+        try {
+          const requesterProfile = await getPublicProfile(requesterId);
+          const recipientProfile = await getPublicProfile(recipientId);
+          io.to(`user:${requesterId}`).emit("connection:accepted", {
+            connectionId: existing.id,
+            user: recipientProfile
+          });
+          io.to(`user:${recipientId}`).emit("connection:accepted", {
+            connectionId: existing.id,
+            user: requesterProfile
+          });
+        } catch (socketErr) {
+          console.warn("Socket notification warning:", socketErr.message);
+        }
+
+        return res.json({
+          message: "Connection accepted! You both wanted to connect. 🎉",
+          connectionId: existing.id,
+          auto_accepted: true
+        });
+      }
+
+      // I already sent a pending request to them — duplicate request
+      if (existing.status === "pending" && existing.requester_id === requesterId) {
+        return res.status(409).json({ error: "You already sent a connection request." });
+      }
+
+      // Previously rejected — delete old record and allow a fresh request
+      if (existing.status === "rejected") {
+        await db.run("DELETE FROM connections WHERE id = ?", existing.id);
+      }
     }
 
     const result = await db.run(
@@ -906,6 +947,24 @@ app.use((error, req, res, next) => {
 async function startServer() {
   try {
     await initDb();
+
+    // One-time cleanup: remove duplicate connection rows for the same user pair
+    // Keeps only the row with the smallest id for each unique pair
+    try {
+      const dupeResult = await db.run(`
+        DELETE FROM connections
+        WHERE id NOT IN (
+          SELECT MIN(id) FROM connections
+          GROUP BY LEAST(requester_id, recipient_id), GREATEST(requester_id, recipient_id)
+        )
+      `);
+      if (dupeResult.changes > 0) {
+        console.log(`[startup] Cleaned up ${dupeResult.changes} duplicate connection row(s).`);
+      }
+    } catch (cleanupErr) {
+      console.warn("[startup] Connection cleanup warning:", cleanupErr.message);
+    }
+
     server.listen(PORT, "0.0.0.0", () => {
       console.log("");
       console.log("SkillMate backend is running!");

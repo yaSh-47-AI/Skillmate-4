@@ -1030,9 +1030,14 @@ async function connectMember(profile) {
   }
 
   try {
-    await apiRequest(`${API}/connections/request/${profile.id}`, {method:"POST"});
+    const result = await apiRequest(`${API}/connections/request/${profile.id}`, {method:"POST"});
     await loadConnections();
-    showToast(`Connection request sent to ${profile.name}.`);
+    if (result && result.auto_accepted) {
+      showToast(`🎉 Connected with ${profile.name}! You both wanted to connect.`);
+    } else {
+      showToast(`Connection request sent to ${profile.name}.`);
+    }
+    refreshMembers();
   } catch (error) {
     showToast(error.message);
   }
