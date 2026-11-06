@@ -517,21 +517,29 @@
         <span class="chat-dot dot-green" title="Expand"></span>
       </div>
       <div class="chat-top-nav">
-        <button type="button" class="chat-nav-pill active" id="chatPillMessages">Messages</button>
-        <button type="button" class="chat-nav-pill" id="chatPillConnections" onclick="navigateTo('network'); closeChat();">Network</button>
+        <button type="button" class="chat-nav-pill" onclick="navigateTo('discover'); closeChat();">Explore</button>
+        <button type="button" class="chat-nav-pill" onclick="navigateTo('communities'); closeChat();">Circles</button>
+        <button type="button" class="chat-nav-pill active" id="chatPillMessages">Messenger</button>
       </div>
-      <button class="chat-close" onclick="closeChat()" aria-label="Close chats">✕</button>
+      <div class="chat-topbar-right">
+        <button type="button" class="chat-new-btn" onclick="navigateTo('discover'); closeChat();">＋ New connect</button>
+        <div class="chat-top-avatar" id="chatTopUserAvatar">👤</div>
+        <button class="chat-close" onclick="closeChat()" aria-label="Close chats">✕</button>
+      </div>
     </div>
 
     <div class="chat-layout" id="chatLayout">
+      <!-- LEFT SIDEBAR: Contacts & Search -->
       <div class="chat-sidebar" id="chatSidebar">
-        <div class="chat-sidebar-user" id="chatSidebarUser" hidden>
-          <div class="sidebar-user-avatar" id="sidebarUserAvatar">👤</div>
-          <div class="sidebar-user-info">
-            <strong id="sidebarUserName">Member</strong>
-            <span class="sidebar-user-status"><i class="status-dot"></i> Online</span>
+        <div class="chat-sidebar-header">
+          <div class="chat-sidebar-me">
+            <div class="sidebar-user-avatar" id="sidebarUserAvatar">👤</div>
+            <span class="chat-title-heading">Chat</span>
           </div>
-          <button class="sidebar-user-action" type="button" onclick="openModal('signup')" title="Edit profile">✎</button>
+          <div class="chat-sidebar-actions">
+            <button type="button" class="sidebar-icon-btn" title="Communities" onclick="navigateTo('communities'); closeChat();">💬</button>
+            <button type="button" class="sidebar-icon-btn" title="Edit Profile" onclick="openModal('signup'); closeChat();">✎</button>
+          </div>
         </div>
 
         <div class="chat-search-wrap">
@@ -539,26 +547,26 @@
           <input id="chatSearch" placeholder="Search conversations..." aria-label="Find conversations">
         </div>
 
-        <div class="chat-filter-header">
-          <span class="chat-filter-label">CONVERSATIONS</span>
-          <span class="chat-count-tag" id="chatSidebarBadge">0</span>
+        <div class="chat-section-divider">
+          <span>Personal</span>
         </div>
         <div id="chatContacts" class="chat-contacts"></div>
         <div class="chat-sidebar-note">Connected members you can message appear here.</div>
       </div>
 
+      <!-- CENTER: Conversation Stream -->
       <div class="chat-main" id="chatMain">
         <div class="chat-conversation-head">
           <button class="chat-back-mobile" id="chatMobileBack" type="button" onclick="showContactsMobile()" aria-label="Back to contacts">←</button>
           <div id="activeChatAvatar" class="chat-avatar">✦</div>
           <div class="chat-contact-meta">
-            <strong id="activeChatName">Your conversations</strong>
+            <strong id="activeChatName">Select a conversation</strong>
             <span id="activeChatStatus"><i class="status-dot"></i> Active now</span>
           </div>
           <div class="chat-head-actions">
-            <button class="chat-action-btn" type="button" title="Audio call" onclick="showToast('Voice calls coming soon!')">📞</button>
-            <button class="chat-action-btn" type="button" title="Video call" onclick="showToast('Video calls coming soon!')">📹</button>
-            <button class="chat-more" title="Conversation info" onclick="showChatInfo()">···</button>
+            <button class="chat-action-btn phone-btn" type="button" title="Audio call" onclick="showToast('Voice calls coming soon!')">📞</button>
+            <button class="chat-action-btn video-btn" type="button" title="Video call" onclick="showToast('Video calls coming soon!')">📹</button>
+            <button class="chat-more" title="Conversation info" onclick="toggleDetailsPanel()">···</button>
           </div>
         </div>
 
@@ -575,11 +583,86 @@
         <form class="chat-composer" id="chatForm">
           <button class="composer-attach" type="button" onclick="document.getElementById('chatAttachment').click()" title="Attach an image">＋</button>
           <input type="file" id="chatAttachment" accept="image/*" hidden>
-          <input id="chatInput" placeholder="Type something to send..." autocomplete="off" aria-label="Write a message">
+          <input id="chatInput" placeholder="Type something for sent..." autocomplete="off" aria-label="Write a message">
+          <button class="composer-mic" type="button" title="Voice note" onclick="showToast('Voice messages coming soon!')">🎙</button>
           <button class="send-button" type="submit" aria-label="Send message">➤</button>
         </form>
 
         <div class="chat-footnote">End-to-end connected on SkillMate.</div>
+      </div>
+
+      <!-- RIGHT PANEL: Contact Details & Media (matches reference image) -->
+      <div class="chat-details-panel" id="chatDetailsPanel">
+        <div class="details-user-section">
+          <div class="details-avatar-wrap">
+            <div class="details-avatar" id="detailsAvatar">👤</div>
+          </div>
+          <strong class="details-name" id="detailsName">Member</strong>
+          <span class="details-role" id="detailsRole">Community Member</span>
+          <div class="details-socials">
+            <span class="social-circle" title="Google verified">G</span>
+            <span class="social-circle" title="LinkedIn / Network">in</span>
+            <span class="social-circle" title="Portfolio">✦</span>
+          </div>
+        </div>
+
+        <div class="details-tabs">
+          <button type="button" class="details-tab active">Product</button>
+          <button type="button" class="details-tab">Files</button>
+        </div>
+
+        <div class="details-section">
+          <div class="details-section-head">
+            <span>SHARED INTERESTS</span>
+          </div>
+          <div class="details-tags" id="detailsInterests">
+            <span class="detail-tag">AI</span>
+            <span class="detail-tag">Python</span>
+            <span class="detail-tag">Web Development</span>
+          </div>
+        </div>
+
+        <div class="details-section">
+          <div class="details-section-head">
+            <span>Uploaded Files</span>
+            <small>View all</small>
+          </div>
+          <div class="details-files-list">
+            <div class="detail-file-item">
+              <span class="file-icon folder">📁</span>
+              <div class="file-info">
+                <strong>Case study Outline file</strong>
+                <small>Shared workspace</small>
+              </div>
+            </div>
+            <div class="detail-file-item">
+              <span class="file-icon doc">📄</span>
+              <div class="file-info">
+                <strong>Design portfolio review pdf</strong>
+                <small>PDF • 1.4 MB</small>
+              </div>
+            </div>
+            <div class="detail-file-item">
+              <span class="file-icon img">🖼</span>
+              <div class="file-info">
+                <strong>Photo's file</strong>
+                <small>3 items</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="details-section">
+          <div class="details-section-head">
+            <span>Attachment's</span>
+            <small>View all</small>
+          </div>
+          <div class="details-attachments-row">
+            <div class="attach-thumb thumb-1"><span>✦</span><small>Share skills</small></div>
+            <div class="attach-thumb thumb-2"><span>⚡</span><small>Live chat</small></div>
+            <div class="attach-thumb thumb-3"><span>💎</span><small>Build together</small></div>
+          </div>
+        </div>
       </div>
     </div>
   </aside>

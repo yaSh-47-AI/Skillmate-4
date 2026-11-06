@@ -1608,8 +1608,63 @@ function renderActiveChat() {
   if ($(".send-button")) $(".send-button").disabled = !user;
   if ($(".composer-attach")) $(".composer-attach").disabled = !user;
 
+  // Update Right Details Panel (matching Dribbble reference)
+  if (user) {
+    if ($("#detailsName")) $("#detailsName").textContent = user.name;
+    if ($("#detailsRole")) $("#detailsRole").textContent = user.bio || "SkillMate member";
+    if ($("#detailsAvatar")) {
+      const avatarEl = $("#detailsAvatar");
+      avatarEl.innerHTML = "";
+      if (user.photo_url) {
+        const img = document.createElement("img");
+        img.src = user.photo_url;
+        img.alt = user.name;
+        avatarEl.appendChild(img);
+      } else {
+        avatarEl.textContent = initials(user.name);
+      }
+    }
+    if ($("#detailsInterests")) {
+      const wrap = $("#detailsInterests");
+      wrap.innerHTML = "";
+      const interests = user.interests && user.interests.length ? user.interests : ["AI", "Python", "Web Development"];
+      interests.slice(0, 5).forEach(topic => {
+        const chip = document.createElement("span");
+        chip.className = "detail-tag";
+        chip.textContent = topic;
+        wrap.appendChild(chip);
+      });
+    }
+  }
+
+  // Update top bar user avatar
+  if (currentUser && $("#chatTopUserAvatar")) {
+    const topAvatar = $("#chatTopUserAvatar");
+    topAvatar.innerHTML = "";
+    if (currentUser.photo_url) {
+      const img = document.createElement("img");
+      img.src = currentUser.photo_url;
+      img.alt = currentUser.name;
+      topAvatar.appendChild(img);
+    } else {
+      topAvatar.textContent = initials(currentUser.name);
+    }
+  }
+
   renderMessages();
 }
+
+function toggleDetailsPanel() {
+  const panel = $("#chatDetailsPanel");
+  if (!panel) return;
+  panel.classList.toggle("panel-expanded");
+  if (panel.classList.contains("panel-expanded")) {
+    panel.style.display = "flex";
+  } else {
+    panel.style.display = "";
+  }
+}
+window.toggleDetailsPanel = toggleDetailsPanel;
 
 async function loadMessages(userId) {
   if (!currentUser || !userId) return;
@@ -1682,6 +1737,14 @@ function renderMessages() {
 
     bubble.appendChild(time);
     row.appendChild(bubble);
+
+    if (mine) {
+      const mini = document.createElement("div");
+      mini.className = "message-mini-avatar mine-mini";
+      mini.textContent = initials(currentUser.name);
+      row.appendChild(mini);
+    }
+
     chatMessages.appendChild(row);
   });
 
