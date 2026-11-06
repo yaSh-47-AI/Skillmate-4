@@ -18,7 +18,7 @@
   </div>
   <canvas id="particles" aria-hidden="true"></canvas>
 
-  <nav>
+  <nav class="top-nav" id="topNav">
     <div class="nav-left">
       <button class="nav-hamburger" id="sidebarTrigger" type="button" aria-label="Open menu" title="Menu">
         <span></span>
@@ -617,7 +617,7 @@
   <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
   <!-- ==================== INSTAGRAM-STYLE MOBILE BOTTOM NAVIGATION ==================== -->
-  <nav class="mobile-bottom-bar" id="mobileBottomBar" aria-label="Mobile Navigation">
+  <div class="mobile-bottom-bar" id="mobileBottomBar" role="navigation" aria-label="Mobile Navigation">
     <a href="#top" class="mobile-tab active" id="mobileTabHome" aria-label="Home">
       <span class="mobile-tab-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -666,7 +666,7 @@
       </span>
       <span class="mobile-tab-text" id="mobileTabProfileLabel">Profile</span>
     </button>
-  </nav>
+  </div>
 
   <div class="toast" id="toast" role="status"></div>
 
