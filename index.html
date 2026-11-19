@@ -45,8 +45,8 @@
         <span class="notification-badge" id="navNotificationBadge" hidden>0</span>
       </button>
 
-      <button class="nav-chat" onclick="openChat()" aria-label="Open chats">
-        ✉ <span>Chats</span> <span class="chat-count" id="chatCount">0</span>
+      <button class="nav-chat" onclick="window.DiscordClient ? window.DiscordClient.openDiscord() : openChat()" aria-label="Open Discord Chats" style="background:rgba(88,101,242,0.15);border-color:rgba(88,101,242,0.4);color:#c084fc;">
+        💬 <span>Discord Hub</span> <span class="chat-count" id="chatCount">PRO</span>
       </button>
 
       <button class="nav-btn" id="joinButton" onclick="openModal('signup')">
@@ -874,7 +874,14 @@
 
   <div class="toast" id="toast" role="status"></div>
 
+  <!-- Floating Discord Chat Launcher -->
+  <button id="floatingDiscordBtn" onclick="window.DiscordClient ? window.DiscordClient.openDiscord() : openChat()" title="Open Discord Community Hub" style="position:fixed;bottom:24px;right:24px;z-index:9999;background:#5865F2;color:#fff;border:none;border-radius:28px;padding:12px 20px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;box-shadow:0 8px 24px rgba(88,101,242,0.45);cursor:pointer;transition:transform 0.2s cubic-bezier(0.4,0,0.2,1);" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+    <span style="font-size:18px;">💬</span>
+    <span>Discord Hub</span>
+  </button>
+
   <script src="/socket.io/socket.io.js"></script>
   <script src="/script.js"></script>
+  <script src="/community-chat-client.js"></script>
 </body>
 </html>

@@ -850,7 +850,7 @@ app.post("/api/communities/:id/messages", requireLogin, async (req, res, next) =
       return res.status(400).json({ error: "Message cannot be empty." });
     }
 
-    if (body.length > 2000) {
+    if (body.length > 10000) {
       return res.status(400).json({ error: "Message is too long." });
     }
 
@@ -871,6 +871,31 @@ app.post("/api/communities/:id/messages", requireLogin, async (req, res, next) =
   } catch (error) {
     next(error);
   }
+});
+
+// Discord Uploads (File attachments, voice audio notes, media up to 50MB)
+const discordStorage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadDir),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname).slice(0, 10) || ".bin";
+    const unique = `${Date.now()}-${crypto.randomBytes(8).toString("hex")}${ext}`;
+    cb(null, unique);
+  }
+});
+const discordUpload = multer({
+  storage: discordStorage,
+  limits: { fileSize: 50 * 1024 * 1024 }
+});
+
+app.post("/api/discord/upload", requireLogin, discordUpload.single("file"), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: "No file selected." });
+  const fileUrl = `/uploads/${req.file.filename}`;
+  res.json({
+    url: fileUrl,
+    filename: req.file.originalname,
+    mimetype: req.file.mimetype,
+    size: req.file.size
+  });
 });
 
 // Socket.io Real-Time
@@ -917,6 +942,109 @@ io.on("connection", async socket => {
     const communityId = Number(rawCommunityId);
     if (!Number.isSafeInteger(communityId) || communityId <= 0) return;
     socket.leave(`community:${communityId}`);
+  });
+
+  // Discord Real-Time Signaling & Interactive Events
+  socket.on("discord:typing", data => {
+    if (!data?.channelId) return;
+    socket.to(`community:${data.channelId}`).emit("discord:typing", {
+      userId,
+      username: data.username || "Someone",
+      channelId: data.channelId,
+      isTyping: Boolean(data.isTyping)
+    });
+  });
+
+  socket.on("discord:reaction", data => {
+    if (!data?.channelId || !data?.messageId) return;
+    io.to(`community:${data.channelId}`).emit("discord:reaction", {
+      userId,
+      messageId: data.messageId,
+      emoji: data.emoji,
+      isSuper: Boolean(data.isSuper)
+    });
+  });
+
+  socket.on("discord:poll_vote", data => {
+    if (!data?.channelId || !data?.messageId) return;
+    io.to(`community:${data.channelId}`).emit("discord:poll_vote", {
+      userId,
+      messageId: data.messageId,
+      optionIndex: data.optionIndex
+    });
+  });
+
+  socket.on("discord:pin", data => {
+    if (!data?.channelId || !data?.messageId) return;
+    io.to(`community:${data.channelId}`).emit("discord:pin", {
+      userId,
+      messageId: data.messageId,
+      isPinned: Boolean(data.isPinned)
+    });
+  });
+
+  socket.on("discord:thread", data => {
+    if (!data?.channelId) return;
+    io.to(`community:${data.channelId}`).emit("discord:thread", data);
+  });
+
+  socket.on("discord:moderation", data => {
+    if (!data?.channelId || !data?.messageId) return;
+    io.to(`community:${data.channelId}`).emit("discord:moderation", {
+      userId,
+      messageId: data.messageId,
+      action: data.action,
+      reason: data.reason
+    });
+  });
+
+  // WebRTC Video/Voice Signaling
+  socket.on("discord:call:join", data => {
+    const roomId = data?.roomId || `voice:${data?.channelId || 'main'}`;
+    socket.join(roomId);
+    socket.to(roomId).emit("discord:call:user_joined", {
+      userId,
+      socketId: socket.id,
+      userName: data?.userName || `User ${userId}`,
+      hasVideo: Boolean(data?.hasVideo),
+      isMuted: Boolean(data?.isMuted)
+    });
+  });
+
+  socket.on("discord:call:signal", data => {
+    if (data?.targetSocketId) {
+      io.to(data.targetSocketId).emit("discord:call:signal", {
+        senderSocketId: socket.id,
+        senderUserId: userId,
+        signal: data.signal
+      });
+    } else if (data?.roomId) {
+      socket.to(data.roomId).emit("discord:call:signal", {
+        senderSocketId: socket.id,
+        senderUserId: userId,
+        signal: data.signal
+      });
+    }
+  });
+
+  socket.on("discord:call:state", data => {
+    const roomId = data?.roomId || `voice:${data?.channelId || 'main'}`;
+    socket.to(roomId).emit("discord:call:state", {
+      userId,
+      socketId: socket.id,
+      hasVideo: Boolean(data?.hasVideo),
+      isMuted: Boolean(data?.isMuted),
+      isScreenSharing: Boolean(data?.isScreenSharing)
+    });
+  });
+
+  socket.on("discord:call:leave", data => {
+    const roomId = data?.roomId || `voice:${data?.channelId || 'main'}`;
+    socket.leave(roomId);
+    socket.to(roomId).emit("discord:call:user_left", {
+      userId,
+      socketId: socket.id
+    });
   });
 });
 
