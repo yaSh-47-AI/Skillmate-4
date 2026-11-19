@@ -45,8 +45,8 @@
         <span class="notification-badge" id="navNotificationBadge" hidden>0</span>
       </button>
 
-      <button class="nav-chat" onclick="window.DiscordClient ? window.DiscordClient.openDiscord() : openChat()" aria-label="Open Discord Chats" style="background:rgba(88,101,242,0.15);border-color:rgba(88,101,242,0.4);color:#c084fc;">
-        💬 <span>Discord Hub</span> <span class="chat-count" id="chatCount">PRO</span>
+      <button class="nav-chat" onclick="window.GlassChat ? window.GlassChat.open() : openChat()" aria-label="Open Messenger" style="background:rgba(168,85,247,0.15);border-color:rgba(168,85,247,0.4);color:#e9d5ff;">
+        ✉ <span>Messenger</span> <span class="chat-count" id="chatCount">PRO</span>
       </button>
 
       <button class="nav-btn" id="joinButton" onclick="openModal('signup')">
@@ -874,14 +874,15 @@
 
   <div class="toast" id="toast" role="status"></div>
 
-  <!-- Floating Discord Chat Launcher -->
-  <button id="floatingDiscordBtn" onclick="window.DiscordClient ? window.DiscordClient.openDiscord() : openChat()" title="Open Discord Community Hub" style="position:fixed;bottom:24px;right:24px;z-index:9999;background:#5865F2;color:#fff;border:none;border-radius:28px;padding:12px 20px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;box-shadow:0 8px 24px rgba(88,101,242,0.45);cursor:pointer;transition:transform 0.2s cubic-bezier(0.4,0,0.2,1);" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-    <span style="font-size:18px;">💬</span>
-    <span>Discord Hub</span>
+  <!-- Floating Dark Glassmorphism Messenger Launcher -->
+  <button id="floatingDiscordBtn" onclick="window.GlassChat ? window.GlassChat.open() : openChat()" title="Open Dark Glassmorphism Messenger" style="position:fixed;bottom:24px;right:24px;z-index:9999;background:linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%);color:#fff;border:none;border-radius:28px;padding:12px 20px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;box-shadow:0 8px 25px rgba(168,85,247,0.5);cursor:pointer;transition:transform 0.2s cubic-bezier(0.4,0,0.2,1);" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+    <span style="font-size:18px;">✉</span>
+    <span>Messenger</span>
   </button>
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="/script.js"></script>
+  <script src="/glass-chat-client.js"></script>
   <script src="/community-chat-client.js"></script>
 </body>
 </html>

@@ -27,6 +27,7 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: { origin: false }
 });
+app.set("io", io);
 
 const PORT = Number(process.env.PORT) || 3000;
 const ROOT = __dirname;
@@ -183,6 +184,10 @@ app.get("/", (req, res, next) => {
 
 app.get("/community-chat-client.js", (req, res) => {
   res.sendFile(path.join(ROOT, "community-chat-client.js"));
+});
+
+app.get("/glass-chat-client.js", (req, res) => {
+  res.sendFile(path.join(ROOT, "glass-chat-client.js"));
 });
 
 app.get("/style.css", (req, res) => {
@@ -1048,6 +1053,12 @@ io.on("connection", async socket => {
   });
 });
 
+// Mount Glassmorphic Chat Module & WebSockets
+const chatRouter = require("./chat-routes");
+const { setupChatSockets } = require("./chat-sockets");
+app.use("/api/chat", chatRouter);
+setupChatSockets(io);
+
 app.use("/api", (req, res) => {
   res.status(404).json({ error: "API endpoint not found." });
 });
@@ -1075,6 +1086,12 @@ app.use((error, req, res, next) => {
 async function startServer() {
   try {
     await initDb();
+    try {
+      const { initChatDb } = require("./chat-db");
+      await initChatDb();
+    } catch (chatDbErr) {
+      console.warn("[startup] Chat DB initialization warning:", chatDbErr.message);
+    }
 
     // One-time cleanup: remove duplicate connection rows for the same user pair
     // Keeps only the row with the smallest id for each unique pair
