@@ -24,7 +24,7 @@ function formatSql(sql) {
   }
 
   if (
-    /^\s*INSERT\s+INTO\s+(users|interests|connections|messages|communities|community_messages|chat_conversations|chat_members|chat_messages|chat_reactions|chat_attachments|chat_polls|chat_poll_votes)\b/i.test(formatted) &&
+    /^\s*INSERT\s+INTO\s+(users|interests|connections|messages|communities|community_messages|chat_conversations|chat_messages|chat_reactions|chat_attachments|chat_polls)\b/i.test(formatted) &&
     !/RETURNING/i.test(formatted) &&
     !/\bSELECT\b/i.test(formatted)
   ) {

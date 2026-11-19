@@ -173,8 +173,8 @@ async function getCommunityMessage(messageId) {
 app.get("/", (req, res, next) => {
   fs.readFile(path.join(ROOT, "index.html"), "utf8", (err, html) => {
     if (err) return next(err);
-    const chatScript = '<script src="/community-chat-client.js"></script>';
-    const page = html.includes("/community-chat-client.js")
+    const chatScript = '<script src="/glass-chat-client.js"></script>';
+    const page = html.includes("/glass-chat-client.js")
       ? html
       : html.replace("</body>", `  ${chatScript}\n</body>`);
     res.setHeader("Content-Type", "text/html; charset=utf-8");
@@ -183,7 +183,7 @@ app.get("/", (req, res, next) => {
 });
 
 app.get("/community-chat-client.js", (req, res) => {
-  res.sendFile(path.join(ROOT, "community-chat-client.js"));
+  res.sendFile(path.join(ROOT, "glass-chat-client.js"));
 });
 
 app.get("/glass-chat-client.js", (req, res) => {
