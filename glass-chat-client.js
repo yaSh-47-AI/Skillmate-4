@@ -164,7 +164,9 @@
       display: flex;
       flex-direction: column;
       flex-shrink: 0;
-      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: hidden;
+      box-sizing: border-box;
     }
     .gc-sidebar-header {
       padding: 18px 18px 12px;
@@ -272,10 +274,12 @@
     .gc-conversations-scroll {
       flex: 1;
       overflow-y: auto;
+      overflow-x: hidden;
       padding: 0 10px 16px;
       display: flex;
       flex-direction: column;
       gap: 4px;
+      box-sizing: border-box;
     }
     .gc-conversations-scroll::-webkit-scrollbar { width: 4px; }
     .gc-conversations-scroll::-webkit-scrollbar-thumb {
@@ -306,6 +310,9 @@
       cursor: pointer;
       transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
+      width: 100%;
+      box-sizing: border-box;
+      overflow: hidden;
     }
     .gc-conv-item:hover {
       background: var(--gc-bg-card-hover);
@@ -329,13 +336,21 @@
 
     .gc-conv-avatar-wrap {
       position: relative;
-      width: 42px;
-      height: 42px;
+      width: 40px;
+      height: 40px;
+      min-width: 40px;
+      max-width: 40px;
       flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .gc-conv-avatar {
-      width: 100%;
-      height: 100%;
+      width: 40px;
+      height: 40px;
+      min-width: 40px;
+      max-width: 40px;
+      flex-shrink: 0;
       border-radius: 50%;
       object-fit: cover;
       background: rgba(168, 85, 247, 0.2);
@@ -346,13 +361,14 @@
       font-weight: 700;
       font-size: 15px;
       color: #e9d5ff;
+      box-sizing: border-box;
     }
     .gc-conv-avatar.channel-hash {
       border-radius: 12px;
       background: rgba(168, 85, 247, 0.14);
       color: var(--gc-purple-primary);
-      font-size: 19px;
-      font-weight: 900;
+      font-size: 18px;
+      font-weight: 800;
     }
 
     .gc-conv-meta {
@@ -366,6 +382,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 8px;
     }
     .gc-conv-name {
       font-size: 13.5px;
@@ -374,10 +391,14 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      flex: 1;
+      min-width: 0;
     }
     .gc-conv-time {
       font-size: 11px;
       color: #64748b;
+      flex-shrink: 0;
+      white-space: nowrap;
     }
     .gc-conv-snippet {
       font-size: 12px;
@@ -402,8 +423,14 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      background: rgba(10, 8, 16, 0.45);
+      background-color: rgba(10, 8, 16, 0.55);
+      background-image: 
+        radial-gradient(circle at 30% 75%, rgba(139, 92, 246, 0.28), transparent 55%),
+        radial-gradient(circle at 75% 25%, rgba(217, 70, 239, 0.18), transparent 50%),
+        radial-gradient(circle at 50% 90%, rgba(168, 85, 247, 0.12), transparent 60%);
       position: relative;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
     }
 
     /* Header */
@@ -685,9 +712,14 @@
       border-left: 1px solid var(--gc-border);
       display: flex;
       flex-direction: column;
+      justify-content: flex-start;
+      align-items: stretch;
       flex-shrink: 0;
       overflow-y: auto;
+      overflow-x: hidden;
       padding: 24px 18px;
+      padding-top: 24px;
+      box-sizing: border-box;
       transition: all 0.25s ease;
     }
     .gc-col-inspector.collapsed { display: none !important; }
@@ -696,12 +728,17 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: flex-start;
       text-align: center;
       margin-bottom: 20px;
+      width: 100%;
+      flex-shrink: 0;
     }
     .gc-inspector-avatar {
       width: 82px;
       height: 82px;
+      min-width: 82px;
+      min-height: 82px;
       border-radius: 50%;
       object-fit: cover;
       background: var(--gc-purple-gradient);
@@ -714,6 +751,7 @@
       font-weight: 800;
       color: #fff;
       margin-bottom: 12px;
+      flex-shrink: 0;
     }
     .gc-inspector-name {
       font-size: 18px;
@@ -837,6 +875,48 @@
     }
     .gc-grid-thumb:hover img { transform: scale(1.08); }
 
+    /* Empty State for Chat Stream */
+    .gc-empty-chat-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--gc-text-muted);
+      user-select: none;
+    }
+    .gc-empty-icon-box {
+      width: 68px;
+      height: 68px;
+      border-radius: 20px;
+      background: rgba(168, 85, 247, 0.12);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #c084fc;
+      margin-bottom: 16px;
+      box-shadow: 0 0 30px rgba(168, 85, 247, 0.2);
+    }
+    .gc-empty-icon-box svg {
+      width: 32px;
+      height: 32px;
+    }
+    .gc-empty-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #f1f5f9;
+      margin-bottom: 6px;
+    }
+    .gc-empty-subtitle {
+      font-size: 13px;
+      color: #64748b;
+      max-width: 320px;
+      line-height: 1.5;
+    }
+
     /* Modals */
     .gc-modal-backdrop {
       position: fixed;
@@ -888,18 +968,13 @@
     container.innerHTML = `
       <header class="gc-topbar">
         <div class="gc-topbar-left">
-          <div class="gc-brand">Skill<span>Mate.</span> <span style="font-size:12px;opacity:0.7;">Messenger</span></div>
-          <nav class="gc-nav-links">
-            <button class="gc-nav-link active" type="button">Chat</button>
-            <button class="gc-nav-link" type="button" onclick="window.GlassChat.openCreateChannelModal()">+ New Channel</button>
-            <button class="gc-nav-link" type="button" onclick="window.GlassChat.openNewDMModal()">+ New DM</button>
-          </nav>
+          <div class="gc-brand">Skill<span>Mate.</span> <span style="font-size:13px;opacity:0.75;font-weight:600;margin-left:6px;letter-spacing:0.02em;">Messenger</span></div>
         </div>
         <div class="gc-topbar-right">
-          <button class="gc-btn-new-recruitment" type="button" onclick="window.GlassChat.openNewDMModal()">
+          <button class="gc-btn-new-recruitment" type="button" onclick="window.GlassChat.openNewDMModal()" title="Start New Direct Message">
             ${ICONS.plus} <span>New Chat</span>
           </button>
-          <button class="gc-close-btn" type="button" onclick="window.GlassChat.close()" title="Return to SkillMate">${ICONS.close}</button>
+          <button class="gc-close-btn" type="button" onclick="window.GlassChat.close()" title="Close Messenger">${ICONS.close}</button>
         </div>
       </header>
 
@@ -916,7 +991,6 @@
             </div>
             <div class="gc-sidebar-actions">
               <button class="gc-action-icon-btn" onclick="window.GlassChat.openCreateChannelModal()" title="New Channel">${ICONS.plus}</button>
-              <button class="gc-action-icon-btn" onclick="window.GlassChat.startHuddle(true)" title="Video Call">${ICONS.video}</button>
               <button class="gc-action-icon-btn" onclick="window.GlassChat.openNewDMModal()" title="New DM">${ICONS.pencil}</button>
             </div>
           </div>
@@ -972,7 +1046,7 @@
             <button class="gc-pill-btn" type="button" onclick="document.getElementById('gcFileInput').click()" title="Attach File">${ICONS.paperclip}</button>
             <input type="file" id="gcFileInput" style="display:none;" onchange="window.GlassChat.handleFileUpload(this.files[0])">
 
-            <input type="text" class="gc-pill-input" id="gcMessageInput" placeholder="Type something for sent..." autocomplete="off">
+            <input type="text" class="gc-pill-input" id="gcMessageInput" placeholder="Type a message..." autocomplete="off">
 
             <div class="gc-voice-recording-wrap" id="gcVoiceRecWrap" style="display:none;align-items:center;gap:8px;">
               <div style="width:8px;height:8px;border-radius:50%;background:#ef4444;animation:pulse 1s infinite alternate;"></div>
@@ -1345,7 +1419,11 @@
 
         let avatarHtml = '';
         if (c.type === 'team') {
-          avatarHtml = `<div class="gc-conv-avatar channel-hash">#</div>`;
+          avatarHtml = `
+            <div class="gc-conv-avatar-wrap">
+              <div class="gc-conv-avatar channel-hash">#</div>
+            </div>
+          `;
         } else {
           avatarHtml = `
             <div class="gc-conv-avatar-wrap">
@@ -1414,6 +1492,22 @@
       if (!container) return;
       container.innerHTML = '';
 
+      if (!currentMessages || currentMessages.length === 0) {
+        const rawName = activeConv?.name || 'this conversation';
+        const displayName = activeConv?.type === 'team' ? (rawName.startsWith('#') ? rawName : `#${rawName}`) : rawName;
+        const emptyEl = document.createElement('div');
+        emptyEl.className = 'gc-empty-chat-state';
+        emptyEl.innerHTML = `
+          <div class="gc-empty-icon-box">
+            ${activeConv?.type === 'team' ? '<span style="font-size:30px;font-weight:900;color:#c084fc;">#</span>' : ICONS.smile}
+          </div>
+          <div class="gc-empty-title">Start the conversation in ${escapeText(displayName)}</div>
+          <div class="gc-empty-subtitle">Send a message, share code or files, or start an audio huddle to get things rolling.</div>
+        `;
+        container.appendChild(emptyEl);
+        return;
+      }
+
       currentMessages.forEach(m => this.appendMessage(m));
       container.scrollTop = container.scrollHeight;
     },
@@ -1421,6 +1515,9 @@
     appendMessage(msg) {
       const container = document.getElementById('gcChatMessages');
       if (!container) return;
+
+      const emptyState = container.querySelector('.gc-empty-chat-state');
+      if (emptyState) emptyState.remove();
 
       const isMe = (msg.sender_id === 1) || (msg.sender_name === 'You');
       const row = document.createElement('div');
