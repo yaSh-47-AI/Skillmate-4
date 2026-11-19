@@ -74,7 +74,7 @@ let socket = null;
 let toastTimer = null;
 let selectedPhoto = null;
 let recommendedOnly = false;
-let visibleLimit = 8;
+let visibleLimit = 6;
 let communities = [];
 const messageCache = new Map();
 
@@ -752,6 +752,13 @@ function createProfileCard(profile) {
   name.textContent = profile.name || "SkillMate member";
   card.appendChild(name);
 
+  const uname = profile.username || String(profile.email || 'user').split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '');
+  const handleEl = document.createElement("div");
+  handleEl.className = "profile-card-handle";
+  handleEl.style.cssText = "font-size:12px;color:#c084fc;font-weight:600;margin-top:-6px;margin-bottom:8px;";
+  handleEl.textContent = `@${uname}`;
+  card.appendChild(handleEl);
+
   const role = document.createElement("div");
   role.className = "role";
   role.textContent = profile.bio || "Student and community member";
@@ -815,12 +822,11 @@ function createProfileCard(profile) {
     }
 
     messageButton.addEventListener("click", () => {
-      if (!currentUser) {
-        showToast("Log in to view your connections and messages.");
-        openModal("login");
-        return;
+      if (window.GlassChat) {
+        window.GlassChat.openDM(Number(profile.id));
+      } else {
+        openChat(Number(profile.id));
       }
-      showToast(`Connection pending. You can chat once ${profile.name} accepts.`);
     });
   } else {
     const relation = connectionsByUserId.get(Number(profile.id));
@@ -843,11 +849,11 @@ function createProfileCard(profile) {
     }
 
     messageButton.addEventListener("click", () => {
-      if (relation?.status !== "accepted") {
-        showToast("Accept the connection before messaging.");
-        return;
+      if (window.GlassChat) {
+        window.GlassChat.openDM(Number(profile.id));
+      } else {
+        openChat(Number(profile.id));
       }
-      openChat(Number(profile.id));
     });
   }
 
@@ -871,6 +877,20 @@ function enableTilt(card) {
   card.addEventListener("mouseleave", () => card.style.transform = "");
 }
 
+// Discover Filter Pills State
+let activeDiscoverFilter = 'all';
+
+window.selectDiscoverFilter = function(filterKey) {
+  activeDiscoverFilter = filterKey;
+  visibleLimit = 6;
+
+  document.querySelectorAll('#discoverFilterPills .filter-pill').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('onclick').includes(`'${filterKey}'`));
+  });
+
+  renderMembers();
+};
+
 function renderMembers() {
   const people = $("#people");
   if (!people) return;
@@ -881,15 +901,27 @@ function renderMembers() {
   let profiles = allDisplayProfiles()
     .filter(profile => !currentUser || Number(profile.id) !== Number(currentUser.id))
     .map(profile => ({profile, match:getMatch(profile)}))
-    .filter(item => !query || profileSearchText(item.profile).includes(query))
-    .sort((a,b) =>
-      b.match.score - a.match.score ||
-      String(a.profile.name).localeCompare(String(b.profile.name))
-    );
+    .filter(item => !query || profileSearchText(item.profile).includes(query));
 
-  if (recommendedOnly && topics.length) {
+  // Filter Pills (All, Top Matches 70%+, Connected, Topic)
+  if (activeDiscoverFilter === 'top') {
+    profiles = profiles.filter(item => item.match.score >= 70 || (item.match.score > 0 && profiles.length <= 6));
+  } else if (activeDiscoverFilter === 'connected') {
+    profiles = profiles.filter(item => connectionsByUserId.get(Number(item.profile.id))?.status === 'accepted');
+  } else if (activeDiscoverFilter !== 'all') {
+    profiles = profiles.filter(item =>
+      (item.profile.interests || []).some(t => t.toLowerCase() === activeDiscoverFilter.toLowerCase())
+    );
+  }
+
+  if (recommendedOnly && topics.length && activeDiscoverFilter === 'all') {
     profiles = profiles.filter(item => item.match.score > 0);
   }
+
+  profiles.sort((a,b) =>
+    b.match.score - a.match.score ||
+    String(a.profile.name).localeCompare(String(b.profile.name))
+  );
 
   const total = profiles.length;
   const visible = profiles.slice(0, visibleLimit);
@@ -913,7 +945,8 @@ function renderMembers() {
   const more = $("#showMoreButton");
   if (more) {
     more.hidden = total <= visibleLimit;
-    more.textContent = "Load more people ↓";
+    const remaining = total - visibleLimit;
+    more.textContent = `Load more people ↓ (${remaining > 0 ? remaining : 0} remaining)`;
   }
 
   const summary = $("#discoverySummary");
@@ -1287,20 +1320,92 @@ async function loadCommunities() {
   }
 }
 
+// Communities State: Tabs, Search, Category Filter, and Pagination
+let activeCommunityTab = 'joined';
+let activeCommunityCategory = 'all';
+let communitySearchQuery = '';
+let communityVisibleLimit = 6;
+
+window.switchCommunityTab = function(tab) {
+  activeCommunityTab = tab;
+  communityVisibleLimit = 6;
+
+  const btnJoined = $("#commTabBtnJoined");
+  const btnExplore = $("#commTabBtnExplore");
+  if (btnJoined && btnExplore) {
+    btnJoined.classList.toggle("active", tab === "joined");
+    btnExplore.classList.toggle("active", tab === "explore");
+  }
+
+  const toolbarTitle = $("#communityToolbarTitle");
+  if (toolbarTitle) {
+    toolbarTitle.textContent = tab === "joined" ? "My Joined Circles" : "Explore Community Circles";
+  }
+
+  renderCommunities();
+};
+
+window.selectCommunityCategory = function(cat) {
+  activeCommunityCategory = cat;
+  communityVisibleLimit = 6;
+
+  document.querySelectorAll("#communityChipsBar .community-chip").forEach(chip => {
+    chip.classList.toggle("active", chip.getAttribute("onclick").includes(`'${cat}'`));
+  });
+
+  renderCommunities();
+};
+
+window.handleCommunitySearch = function(val) {
+  communitySearchQuery = normalize(val);
+  communityVisibleLimit = 6;
+  renderCommunities();
+};
+
+window.clearCommunitySearch = function() {
+  const input = $("#communitySearch");
+  if (input) input.value = "";
+  communitySearchQuery = "";
+  communityVisibleLimit = 6;
+  renderCommunities();
+};
+
+window.showMoreCommunities = function() {
+  communityVisibleLimit += 6;
+  renderCommunities();
+};
+
 function renderCommunities() {
   const grid = $("#communitiesGrid");
   if (!grid) return;
 
-  const chosen = selectedFilterTopics().map(normalize);
-  const ranked = [...communities].sort((a,b) => {
-    const aMatch = chosen.includes(normalize(a.topic)) ? 1 : 0;
-    const bMatch = chosen.includes(normalize(b.topic)) ? 1 : 0;
-    return bMatch - aMatch || String(a.name).localeCompare(String(b.name));
+  const joinedCount = communities.filter(c => c.is_member).length;
+  const countEl = $("#myCirclesCount");
+  if (countEl) countEl.textContent = String(joinedCount);
+
+  // Filter by Tab (Joined vs Explore)
+  let list = communities.filter(c => {
+    if (activeCommunityTab === 'joined') return Boolean(c.is_member);
+    return !c.is_member;
   });
 
+  // Filter by Category Chip
+  if (activeCommunityCategory !== 'all') {
+    list = list.filter(c => normalize(c.topic) === normalize(activeCommunityCategory));
+  }
+
+  // Filter by Search Query
+  if (communitySearchQuery) {
+    list = list.filter(c =>
+      normalize(`${c.name || ''} ${c.topic || ''} ${c.description || ''}`).includes(communitySearchQuery)
+    );
+  }
+
+  const total = list.length;
+  const visible = list.slice(0, communityVisibleLimit);
   grid.replaceChildren();
 
-  ranked.forEach(community => {
+  visible.forEach(community => {
     const card = document.createElement("article");
     card.className = "community-card";
 
@@ -1331,25 +1436,70 @@ function renderCommunities() {
     const memberCount = Number(community.member_count || 0);
     count.textContent = `${memberCount} ${memberCount === 1 ? "member" : "members"}`;
 
-    const action = document.createElement("button");
-    action.type = "button";
-    action.className = `community-action${community.is_member ? " joined" : ""}`;
-    action.textContent = community.is_member ? "✓ Joined" : "Join circle";
-    action.addEventListener("click", () =>
-      community.is_member ? leaveCommunity(community.id) : joinCommunity(community.id)
-    );
+    const actionWrap = document.createElement("div");
+    actionWrap.style.cssText = "display:flex;align-items:center;gap:6px;";
 
-    bottom.append(count, action);
+    if (community.is_member) {
+      const openChatBtn = document.createElement("button");
+      openChatBtn.type = "button";
+      openChatBtn.className = "primary";
+      openChatBtn.style.cssText = "padding:6px 12px;font-size:12px;font-weight:700;";
+      openChatBtn.textContent = "💬 Open Chat";
+      openChatBtn.onclick = (e) => {
+        e.stopPropagation();
+        if (window.GlassChat) {
+          window.GlassChat.open();
+        } else {
+          openChat();
+        }
+      };
+
+      const leaveBtn = document.createElement("button");
+      leaveBtn.type = "button";
+      leaveBtn.className = "secondary";
+      leaveBtn.style.cssText = "padding:6px 10px;font-size:12px;";
+      leaveBtn.textContent = "Leave";
+      leaveBtn.onclick = (e) => {
+        e.stopPropagation();
+        leaveCommunity(community.id);
+      };
+
+      actionWrap.append(openChatBtn, leaveBtn);
+    } else {
+      const joinBtn = document.createElement("button");
+      joinBtn.type = "button";
+      joinBtn.className = "primary";
+      joinBtn.style.cssText = "padding:6px 14px;font-size:12px;font-weight:700;";
+      joinBtn.textContent = "+ Join Circle";
+      joinBtn.onclick = (e) => {
+        e.stopPropagation();
+        joinCommunity(community.id);
+      };
+      actionWrap.appendChild(joinBtn);
+    }
+
+    bottom.append(count, actionWrap);
     card.append(top, title, description, bottom);
     grid.appendChild(card);
   });
 
-  const summary = $("#communitySummary");
-  if (summary) {
-    const joined = communities.filter(item => item.is_member).length;
-    summary.textContent = currentUser
-      ? `${joined} circles joined · ${communities.length} communities available`
-      : `${communities.length} interest circles · log in to join`;
+  const noMsg = $("#noCommunitiesMsg");
+  if (noMsg) {
+    noMsg.hidden = total > 0;
+    noMsg.textContent = activeCommunityTab === 'joined'
+      ? "You haven't joined any circles yet. Switch to 'Explore Circles' to join!"
+      : "No explore circles match your search.";
+  }
+
+  const pagCount = $("#communityPaginationCount");
+  if (pagCount) {
+    pagCount.textContent = `Showing ${Math.min(communityVisibleLimit, total)} of ${total} circles`;
+  }
+
+  const moreBtn = $("#showMoreCommunitiesBtn");
+  if (moreBtn) {
+    moreBtn.style.display = total > communityVisibleLimit ? "inline-block" : "none";
+    moreBtn.textContent = `Show More Circles ↓ (${total - communityVisibleLimit} remaining)`;
   }
 }
 
@@ -2018,3 +2168,154 @@ async function initializeApp() {
 }
 
 initializeApp();
+
+// ==================== NETWORK TABS & TEAM CHANNELS ====================
+window.switchNetworkTab = function(tabName) {
+  const btnConn = document.getElementById("netTabBtnConnections");
+  const btnChan = document.getElementById("netTabBtnChannels");
+  const contentConn = document.getElementById("netTabContentConnections");
+  const contentChan = document.getElementById("netTabContentChannels");
+
+  if (tabName === "connections") {
+    btnConn?.classList.add("active");
+    btnChan?.classList.remove("active");
+    if (contentConn) contentConn.style.display = "block";
+    if (contentChan) contentChan.style.display = "none";
+    renderConnectedMembers();
+  } else {
+    btnConn?.classList.remove("active");
+    btnChan?.classList.add("active");
+    if (contentConn) contentConn.style.display = "none";
+    if (contentChan) contentChan.style.display = "block";
+    loadNetworkChannels();
+  }
+};
+
+window.renderConnectedMembers = function() {
+  const grid = document.getElementById("connectedMembersGrid");
+  const noMsg = document.getElementById("noConnectionsMsg");
+  if (!grid) return;
+
+  const connected = connectedProfiles();
+  grid.replaceChildren();
+
+  if (connected.length === 0) {
+    if (noMsg) noMsg.style.display = "block";
+  } else {
+    if (noMsg) noMsg.style.display = "none";
+    connected.forEach(profile => {
+      grid.appendChild(createProfileCard(profile));
+    });
+  }
+};
+
+window.loadNetworkChannels = async function() {
+  try {
+    const res = await apiRequest("/api/chat/channels");
+    const joined = res.joined || [];
+    const explore = res.explore || [];
+
+    const badge = document.getElementById("netJoinedChannelsCount");
+    if (badge) badge.textContent = String(joined.length);
+
+    const joinedBadge = document.getElementById("joinedChannelsBadge");
+    if (joinedBadge) joinedBadge.textContent = `${joined.length} joined`;
+
+    // Render Joined Channels
+    const joinedGrid = document.getElementById("joinedChannelsGrid");
+    const noJoined = document.getElementById("noJoinedChannelsMsg");
+    if (joinedGrid) {
+      joinedGrid.replaceChildren();
+      if (joined.length === 0) {
+        if (noJoined) noJoined.style.display = "block";
+      } else {
+        if (noJoined) noJoined.style.display = "none";
+        joined.forEach(c => {
+          const card = document.createElement("div");
+          card.className = "channel-card";
+          const isOwner = c.role === 'owner';
+          card.innerHTML = `
+            <div class="channel-card-top">
+              <div class="channel-hash-tag">
+                <span class="channel-hash-icon">#</span>
+                <span>${escapeHtml(c.name)}</span>
+              </div>
+              <span class="channel-badge ${c.visibility || 'public'}">${(c.visibility||'public').toUpperCase()}</span>
+            </div>
+            <p class="channel-card-desc">${escapeHtml(c.description || 'General team discussion & collaboration.')}</p>
+            <div class="channel-card-bottom">
+              <span class="channel-members-count">👥 ${c.member_count || 1} members ${isOwner ? '• (Owner)' : ''}</span>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <button class="primary" style="padding:6px 14px;font-size:12px;font-weight:700;" onclick="window.GlassChat ? window.GlassChat.openChannel(${c.id}) : null">
+                  Open Channel →
+                </button>
+                <button class="secondary" style="padding:6px 10px;font-size:12px;" onclick="leaveNetworkChannel(${c.id}, '${escapeHtml(c.name)}')">
+                  Leave
+                </button>
+              </div>
+            </div>
+          `;
+          joinedGrid.appendChild(card);
+        });
+      }
+    }
+
+    // Render Explore Channels
+    const exploreGrid = document.getElementById("exploreChannelsGrid");
+    const noExplore = document.getElementById("noExploreChannelsMsg");
+    if (exploreGrid) {
+      exploreGrid.replaceChildren();
+      if (explore.length === 0) {
+        if (noExplore) noExplore.style.display = "block";
+      } else {
+        if (noExplore) noExplore.style.display = "none";
+        explore.forEach(c => {
+          const card = document.createElement("div");
+          card.className = "channel-card";
+          card.innerHTML = `
+            <div class="channel-card-top">
+              <div class="channel-hash-tag">
+                <span class="channel-hash-icon">#</span>
+                <span>${escapeHtml(c.name)}</span>
+              </div>
+              <span class="channel-badge public">PUBLIC</span>
+            </div>
+            <p class="channel-card-desc">${escapeHtml(c.description || 'Public collaboration channel.')}</p>
+            <div class="channel-card-bottom">
+              <span class="channel-members-count">👥 ${c.member_count || 0} members</span>
+              <button class="primary" style="padding:6px 16px;font-size:12px;font-weight:700;" onclick="joinNetworkChannel(${c.id})">
+                + Join Channel
+              </button>
+            </div>
+          `;
+          exploreGrid.appendChild(card);
+        });
+      }
+    }
+  } catch (err) {
+    console.error("Error loading channels:", err);
+  }
+};
+
+window.joinNetworkChannel = async function(channelId) {
+  try {
+    await apiRequest(`/api/chat/conversations/${channelId}/join`, { method: "POST" });
+    showToast("Joined channel successfully!");
+    if (window.GlassChat) {
+      window.GlassChat.openChannel(channelId);
+    }
+    loadNetworkChannels();
+  } catch (err) {
+    showToast(err.message);
+  }
+};
+
+window.leaveNetworkChannel = async function(channelId, name) {
+  try {
+    await apiRequest(`/api/chat/conversations/${channelId}/leave`, { method: "POST" });
+    showToast(`Left #${name}.`);
+    loadNetworkChannels();
+  } catch (err) {
+    showToast(err.message);
+  }
+};

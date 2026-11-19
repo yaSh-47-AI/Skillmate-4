@@ -5,9 +5,17 @@ const multer = require("multer");
 const {
   isMember,
   getUserConversations,
+  getChannelsForUser,
   getConversationDetails,
   getMessages,
   postMessage,
+  editMessage,
+  deleteMessage,
+  addMemberToChannel,
+  removeMemberFromChannel,
+  joinChannel,
+  leaveChannel,
+  deleteChannel,
   togglePin,
   toggleReaction,
   votePoll,
@@ -44,20 +52,46 @@ function requireLogin(req, res, next) {
 
 router.use(requireLogin);
 
-// 1. Get all conversations for current user
+// 1. Get conversations (filter by ?type=personal or ?type=team if provided)
 router.get("/conversations", async (req, res, next) => {
   try {
-    const conversations = await getUserConversations(req.session.userId);
+    const filterType = req.query.type || null;
+    const conversations = await getUserConversations(req.session.userId, filterType);
     res.json({ conversations });
   } catch (err) {
     next(err);
   }
 });
 
-// 2. Create or Find Conversation
+// 2. Get Channels for Network section (Joined + Explore public channels)
+router.get("/channels", async (req, res, next) => {
+  try {
+    const data = await getChannelsForUser(req.session.userId);
+    res.json(data);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// 3. Quick DM Endpoint: Find or create personal DM with target user
+router.post("/dm/:userId", async (req, res, next) => {
+  try {
+    const targetUserId = Number(req.params.userId);
+    if (!targetUserId || targetUserId === Number(req.session.userId)) {
+      return res.status(400).json({ error: "Cannot create DM with yourself or invalid user." });
+    }
+    const convId = await findOrCreatePersonalConversation(req.session.userId, targetUserId);
+    const details = await getConversationDetails(convId, req.session.userId);
+    res.status(200).json({ conversation: details });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// 4. Create Channel or Personal Conversation
 router.post("/conversations", async (req, res, next) => {
   try {
-    const { type, name, description, recipientId, memberIds } = req.body;
+    const { type, name, description, visibility, recipientId, memberIds } = req.body;
 
     if (type === "personal") {
       if (!recipientId || Number(recipientId) === Number(req.session.userId)) {
@@ -69,12 +103,13 @@ router.post("/conversations", async (req, res, next) => {
     }
 
     if (type === "team") {
-      const cleanName = String(name || "").trim().toLowerCase().replace(/\s+/g, "-");
+      const cleanName = String(name || "").trim().toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9_-]/g, "");
       if (!cleanName) return res.status(400).json({ error: "Channel name is required." });
 
+      const vis = visibility === 'private' ? 'private' : 'public';
       const createRes = await db.run(
-        "INSERT INTO chat_conversations (type, name, description, created_by) VALUES ('team', ?, ?, ?)",
-        cleanName, description || "", req.session.userId
+        "INSERT INTO chat_conversations (type, name, description, visibility, created_by) VALUES ('team', ?, ?, ?, ?)",
+        cleanName, description || "", vis, req.session.userId
       );
       const convId = Number(createRes.lastInsertRowid);
       await db.run("INSERT INTO chat_members (conversation_id, user_id, role) VALUES (?, ?, 'owner')", convId, req.session.userId);
@@ -88,6 +123,13 @@ router.post("/conversations", async (req, res, next) => {
       }
 
       const details = await getConversationDetails(convId, req.session.userId);
+
+      // Broadcast to channels list
+      const io = req.app.get("io");
+      if (io) {
+        io.emit("chat:channel:created", details);
+      }
+
       return res.status(201).json({ conversation: details });
     }
 
@@ -97,7 +139,7 @@ router.post("/conversations", async (req, res, next) => {
   }
 });
 
-// 3. Get Conversation Details (with strict access control)
+// 5. Get Conversation Details
 router.get("/conversations/:id", async (req, res, next) => {
   try {
     const convId = Number(req.params.id);
@@ -112,7 +154,124 @@ router.get("/conversations/:id", async (req, res, next) => {
   }
 });
 
-// 4. Get Messages (with cursor-based pagination for infinite scroll)
+// 6. Join Channel
+router.post("/conversations/:id/join", async (req, res, next) => {
+  try {
+    const convId = Number(req.params.id);
+    const details = await joinChannel(convId, req.session.userId);
+
+    const io = req.app.get("io");
+    if (io) {
+      io.to(`conversation:${convId}`).emit("chat:member:joined", {
+        conversationId: convId,
+        userId: req.session.userId
+      });
+      io.emit("chat:channel:updated", { conversationId: convId });
+    }
+
+    res.json({ conversation: details });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// 7. Leave Channel
+router.post("/conversations/:id/leave", async (req, res, next) => {
+  try {
+    const convId = Number(req.params.id);
+    await leaveChannel(convId, req.session.userId);
+
+    const io = req.app.get("io");
+    if (io) {
+      io.to(`conversation:${convId}`).emit("chat:member:left", {
+        conversationId: convId,
+        userId: req.session.userId
+      });
+      io.emit("chat:channel:updated", { conversationId: convId });
+    }
+
+    res.json({ success: true, conversationId: convId });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// 8. Delete Channel (Owner only)
+router.delete("/conversations/:id", async (req, res, next) => {
+  try {
+    const convId = Number(req.params.id);
+    await deleteChannel(convId, req.session.userId);
+
+    const io = req.app.get("io");
+    if (io) {
+      io.to(`conversation:${convId}`).emit("chat:conversation:deleted", { conversationId: convId });
+      io.emit("chat:channel:deleted", { conversationId: convId });
+    }
+
+    res.json({ success: true, conversationId: convId });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// 9. Add Member to Channel
+router.post("/conversations/:id/members", async (req, res, next) => {
+  try {
+    const convId = Number(req.params.id);
+    if (!(await isMember(convId, req.session.userId))) {
+      return res.status(403).json({ error: "Access denied." });
+    }
+
+    const { userId, role } = req.body;
+    if (!userId) return res.status(400).json({ error: "Target userId is required." });
+
+    const member = await addMemberToChannel(convId, Number(userId), role || 'member');
+
+    const io = req.app.get("io");
+    if (io) {
+      io.to(`conversation:${convId}`).emit("chat:member:added", {
+        conversationId: convId,
+        member
+      });
+      io.emit("chat:channel:updated", { conversationId: convId });
+    }
+
+    res.status(201).json({ member });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// 10. Remove Member from Channel (Owner/Admin control)
+router.delete("/conversations/:id/members/:targetUserId", async (req, res, next) => {
+  try {
+    const convId = Number(req.params.id);
+    const targetUserId = Number(req.params.targetUserId);
+
+    // Check requester role
+    const requesterMem = await db.get("SELECT role FROM chat_members WHERE conversation_id = ? AND user_id = ?", convId, req.session.userId);
+    if (!requesterMem || (requesterMem.role !== 'owner' && requesterMem.role !== 'admin')) {
+      return res.status(403).json({ error: "Only channel owners and admins can remove members." });
+    }
+
+    await removeMemberFromChannel(convId, targetUserId);
+
+    const io = req.app.get("io");
+    if (io) {
+      io.to(`conversation:${convId}`).emit("chat:member:removed", {
+        conversationId: convId,
+        userId: targetUserId
+      });
+      io.emit("chat:channel:updated", { conversationId: convId });
+    }
+
+    res.json({ success: true, conversationId: convId, userId: targetUserId });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// 11. Get Messages (with cursor pagination)
 router.get("/conversations/:id/messages", async (req, res, next) => {
   try {
     const convId = Number(req.params.id);
@@ -130,7 +289,7 @@ router.get("/conversations/:id/messages", async (req, res, next) => {
   }
 });
 
-// 5. Send Message
+// 12. Send Message
 router.post("/conversations/:id/messages", async (req, res, next) => {
   try {
     const convId = Number(req.params.id);
@@ -155,7 +314,6 @@ router.post("/conversations/:id/messages", async (req, res, next) => {
       metadata: metadata || {}
     });
 
-    // Real-time broadcast
     const io = req.app.get("io");
     if (io) {
       io.to(`conversation:${convId}`).emit("chat:message:new", message);
@@ -167,7 +325,45 @@ router.post("/conversations/:id/messages", async (req, res, next) => {
   }
 });
 
-// 6. Pin / Unpin Message
+// 13. Edit Message
+router.put("/messages/:id", async (req, res, next) => {
+  try {
+    const messageId = Number(req.params.id);
+    const { content } = req.body;
+    const cleanContent = String(content || "").trim();
+    if (!cleanContent) return res.status(400).json({ error: "Message cannot be empty." });
+
+    const updated = await editMessage(messageId, req.session.userId, cleanContent);
+
+    const io = req.app.get("io");
+    if (io && updated) {
+      io.to(`conversation:${updated.conversation_id}`).emit("chat:message:edited", updated);
+    }
+
+    res.json(updated);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// 14. Delete Message
+router.delete("/messages/:id", async (req, res, next) => {
+  try {
+    const messageId = Number(req.params.id);
+    const result = await deleteMessage(messageId, req.session.userId);
+
+    const io = req.app.get("io");
+    if (io && result) {
+      io.to(`conversation:${result.conversation_id}`).emit("chat:message:deleted", result);
+    }
+
+    res.json({ success: true, messageId });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// 15. Pin / Unpin Message
 router.post("/messages/:id/pin", async (req, res, next) => {
   try {
     const messageId = Number(req.params.id);
@@ -194,7 +390,7 @@ router.post("/messages/:id/pin", async (req, res, next) => {
   }
 });
 
-// 7. Toggle Reaction
+// 16. Toggle Reaction
 router.post("/messages/:id/react", async (req, res, next) => {
   try {
     const messageId = Number(req.params.id);
@@ -225,7 +421,7 @@ router.post("/messages/:id/react", async (req, res, next) => {
   }
 });
 
-// 8. Vote on Poll
+// 17. Vote on Poll
 router.post("/polls/:id/vote", async (req, res, next) => {
   try {
     const pollId = Number(req.params.id);
@@ -255,7 +451,7 @@ router.post("/polls/:id/vote", async (req, res, next) => {
   }
 });
 
-// 9. Right Sidebar [Files] & Attachments Inspector
+// 18. Right Sidebar [Files] Inspector
 router.get("/conversations/:id/files", async (req, res, next) => {
   try {
     const convId = Number(req.params.id);
@@ -269,7 +465,7 @@ router.get("/conversations/:id/files", async (req, res, next) => {
   }
 });
 
-// 10. Search Registered Users (for starting new Personal DMs)
+// 19. Search Real Registered Users (for New DM modal & Channel invite)
 router.get("/users/search", async (req, res, next) => {
   try {
     const users = await searchUsers(req.query.q, req.session.userId);
@@ -279,7 +475,7 @@ router.get("/users/search", async (req, res, next) => {
   }
 });
 
-// 11. File & Voice Audio Upload
+// 20. File Upload
 router.post("/upload", upload.single("file"), (req, res) => {
   if (!req.file) return res.status(400).json({ error: "No file uploaded." });
 

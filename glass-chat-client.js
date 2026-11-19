@@ -1,13 +1,13 @@
 (() => {
   'use strict';
 
-  // 1. INJECT DARK GLASSMORPHISM STYLES (Strictly inspired by Reference Design)
+  // 1. INJECT SLEEK DARK GLASSMORPHISM STYLES
   const styleEl = document.createElement('style');
   styleEl.id = 'glass-messenger-styles';
   styleEl.textContent = `
     :root {
       --gc-bg-base: #090810;
-      --gc-bg-glass: rgba(16, 13, 26, 0.82);
+      --gc-bg-glass: rgba(16, 13, 26, 0.78);
       --gc-bg-sidebar: rgba(12, 10, 20, 0.75);
       --gc-bg-input: rgba(22, 18, 36, 0.88);
       --gc-bg-card-hover: rgba(255, 255, 255, 0.06);
@@ -30,9 +30,9 @@
       z-index: 99999;
       background: var(--gc-bg-base);
       background-image: 
-        radial-gradient(circle at 18% 22%, rgba(139, 92, 246, 0.28) 0%, transparent 48%),
-        radial-gradient(circle at 82% 78%, rgba(217, 70, 239, 0.22) 0%, transparent 50%),
-        radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.1) 0%, transparent 65%);
+        radial-gradient(circle at 18% 22%, rgba(139, 92, 246, 0.32) 0%, transparent 48%),
+        radial-gradient(circle at 82% 78%, rgba(217, 70, 239, 0.25) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.12) 0%, transparent 65%);
       color: var(--gc-text-main);
       font-family: var(--gc-font);
       display: flex;
@@ -50,7 +50,7 @@
     /* Top Messenger Header */
     .gc-topbar {
       height: 54px;
-      background: rgba(14, 12, 22, 0.7);
+      background: rgba(14, 12, 22, 0.75);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--gc-border);
@@ -78,26 +78,6 @@
       background: var(--gc-purple-gradient);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-    }
-    .gc-nav-links {
-      display: flex;
-      gap: 6px;
-      margin-left: 20px;
-    }
-    .gc-nav-link {
-      background: transparent;
-      border: none;
-      color: var(--gc-text-muted);
-      font-size: 13px;
-      font-weight: 600;
-      padding: 6px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    .gc-nav-link:hover, .gc-nav-link.active {
-      color: #fff;
-      background: rgba(255, 255, 255, 0.08);
     }
     .gc-topbar-right {
       display: flex;
@@ -153,7 +133,7 @@
       backdrop-filter: blur(24px);
       -webkit-backdrop-filter: blur(24px);
       border: 1px solid var(--gc-border);
-      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.65), 0 0 80px rgba(139, 92, 246, 0.14);
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.75), 0 0 90px rgba(139, 92, 246, 0.16);
     }
 
     /* COLUMN 1: LEFT SIDEBAR */
@@ -214,7 +194,7 @@
     .gc-status-dot.offline { background: #64748b; }
 
     .gc-header-title {
-      font-size: 19px;
+      font-size: 18px;
       font-weight: 800;
       color: #fff;
       letter-spacing: -0.01em;
@@ -288,15 +268,16 @@
     }
 
     .gc-section-title {
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 700;
       color: var(--gc-text-muted);
-      padding: 10px 10px 4px;
+      padding: 8px 10px 4px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       user-select: none;
-      letter-spacing: 0.02em;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
     }
 
     .gc-conv-item {
@@ -384,6 +365,14 @@
       justify-content: space-between;
       gap: 8px;
     }
+    .gc-conv-name-wrap {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+    }
     .gc-conv-name {
       font-size: 13.5px;
       font-weight: 700;
@@ -391,8 +380,14 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      flex: 1;
-      min-width: 0;
+    }
+    .gc-conv-handle {
+      font-size: 11.5px;
+      color: #94a3b8;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .gc-conv-time {
       font-size: 11px;
@@ -406,15 +401,6 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-    }
-    .gc-conv-badge {
-      background: var(--gc-purple-gradient);
-      color: #fff;
-      font-size: 10px;
-      font-weight: 800;
-      border-radius: 10px;
-      padding: 1px 6px;
-      margin-left: 6px;
     }
 
     /* COLUMN 2: CENTER ACTIVE CHAT */
@@ -441,7 +427,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: rgba(18, 14, 28, 0.5);
+      background: rgba(18, 14, 28, 0.55);
       flex-shrink: 0;
     }
     .gc-chat-header-user {
@@ -449,11 +435,21 @@
       align-items: center;
       gap: 12px;
     }
+    .gc-active-title-wrap {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
     .gc-active-title {
       font-size: 16px;
       font-weight: 800;
       color: #fff;
       line-height: 1.2;
+    }
+    .gc-active-handle {
+      font-size: 13px;
+      color: #c084fc;
+      font-weight: 600;
     }
     .gc-active-status {
       font-size: 12px;
@@ -461,6 +457,7 @@
       display: flex;
       align-items: center;
       gap: 5px;
+      margin-top: 2px;
     }
     .gc-active-status-pulse {
       width: 7px;
@@ -541,6 +538,21 @@
     }
     .gc-message-row.outgoing .gc-bubble-wrap { align-items: flex-end; }
 
+    .gc-bubble-sender {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #c084fc;
+      margin-bottom: 2px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .gc-bubble-sender span {
+      color: #94a3b8;
+      font-weight: 500;
+      font-size: 10.5px;
+    }
+
     .gc-bubble {
       padding: 12px 18px;
       font-size: 13.5px;
@@ -567,7 +579,20 @@
       font-weight: 500;
     }
 
-    .gc-msg-time {
+    .gc-reply-preview-in-msg {
+      background: rgba(0, 0, 0, 0.25);
+      border-left: 3px solid var(--gc-purple-primary);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 11.5px;
+      margin-bottom: 6px;
+      color: #cbd5e1;
+    }
+
+    .gc-msg-bottom-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
       font-size: 10px;
       color: #64748b;
       padding: 0 4px;
@@ -595,7 +620,7 @@
       background: transparent;
       border: none;
       color: var(--gc-text-muted);
-      font-size: 13px;
+      font-size: 12px;
       padding: 3px 6px;
       border-radius: 4px;
       cursor: pointer;
@@ -641,9 +666,23 @@
       overflow-x: auto;
     }
 
+    /* Reply Staging Bar above input */
+    .gc-reply-staging-bar {
+      margin: 0 18px 4px;
+      background: rgba(22, 18, 36, 0.95);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      border-radius: 12px;
+      padding: 6px 14px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #e2e8f0;
+    }
+
     /* Floating Bottom Pill Input Bar */
     .gc-floating-input-bar {
-      margin: 8px 18px 18px;
+      margin: 4px 18px 18px;
       background: var(--gc-bg-input);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
@@ -757,12 +796,19 @@
       font-size: 18px;
       font-weight: 800;
       color: #fff;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
+    }
+    .gc-inspector-handle {
+      font-size: 13px;
+      color: #c084fc;
+      font-weight: 600;
+      margin-bottom: 6px;
     }
     .gc-inspector-role {
-      font-size: 13px;
+      font-size: 12.5px;
       color: var(--gc-text-muted);
       margin-bottom: 14px;
+      line-height: 1.4;
     }
     .gc-inspector-socials { display: flex; gap: 10px; }
     .gc-social-btn {
@@ -938,10 +984,21 @@
       padding: 24px;
       box-shadow: 0 20px 60px rgba(0,0,0,0.7);
     }
+
+    /* Tag pills */
+    .gc-tag-pill {
+      background: rgba(168, 85, 247, 0.15);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      color: #e9d5ff;
+      border-radius: 12px;
+      padding: 3px 10px;
+      font-size: 11px;
+      font-weight: 600;
+    }
   `;
   document.head.appendChild(styleEl);
 
-  // 2. INLINE SVG ICONS (Clean Lucide / Feather Style)
+  // 2. INLINE SVG ICONS
   const ICONS = {
     search: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>',
     phone: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>',
@@ -955,10 +1012,59 @@
     mic: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>',
     send: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>',
     close: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>',
-    settings: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>'
+    settings: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>',
+    reply: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 17 4 12 9 7"></polyline><path d="M20 18v-2a4 4 0 0 0-4-4H4"></path></svg>',
+    trash: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>',
+    edit: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>',
+    userPlus: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7.5" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>'
   };
 
-  // 3. BUILD DOM CONTAINER
+  function showGlassToast(msg) {
+    let toast = document.getElementById('gcToast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'gcToast';
+      toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(20,16,32,0.95);border:1px solid rgba(168,85,247,0.4);border-radius:12px;padding:10px 20px;color:#fff;font-size:13px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,0.6);z-index:999999;transition:opacity 0.2s ease;';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.style.display = 'block';
+    toast.style.opacity = '1';
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(() => {
+      toast.style.opacity = '0';
+      setTimeout(() => { toast.style.display = 'none'; }, 250);
+    }, 3000);
+  }
+
+  function escapeText(text) {
+    const div = document.createElement('div');
+    div.textContent = text || '';
+    return div.innerHTML;
+  }
+
+  // 3. STATE
+  let currentUser = null;
+  let conversations = [];
+  let activeConvId = null;
+  let activeConv = null;
+  let currentMessages = [];
+  let socket = null;
+  let stagedReply = null; // { id, senderName, content }
+
+  async function api(endpoint, options = {}) {
+    const res = await fetch(endpoint, {
+      headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+      ...options
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
+    return res.json();
+  }
+
+  // 4. BUILD DOM CONTAINER
   function ensureDOM() {
     let container = document.getElementById('glassChatContainer');
     if (container) return container;
@@ -979,52 +1085,48 @@
       </header>
 
       <div class="gc-layout" id="gcLayout">
-        <!-- COLUMN 1: LEFT SIDEBAR -->
+        <!-- COLUMN 1: LEFT SIDEBAR (1-on-1 Direct Messages Only) -->
         <aside class="gc-col-sidebar" id="gcColSidebar">
           <div class="gc-sidebar-header">
             <div class="gc-user-profile-badge" onclick="window.GlassChat.openStatusModal()" title="Status & Settings">
               <div class="gc-user-avatar-wrap">
-                <div class="gc-user-avatar" id="gcMyAvatar">P</div>
+                <div class="gc-user-avatar" id="gcMyAvatar">✦</div>
                 <div class="gc-status-dot" id="gcMyStatusDot"></div>
               </div>
-              <span class="gc-header-title">Chat</span>
+              <span class="gc-header-title">Chats</span>
             </div>
             <div class="gc-sidebar-actions">
-              <button class="gc-action-icon-btn" onclick="window.GlassChat.openCreateChannelModal()" title="New Channel">${ICONS.plus}</button>
-              <button class="gc-action-icon-btn" onclick="window.GlassChat.openNewDMModal()" title="New DM">${ICONS.pencil}</button>
+              <button class="gc-action-icon-btn" onclick="window.GlassChat.openNewDMModal()" title="Start New Direct Message">${ICONS.pencil}</button>
             </div>
           </div>
 
           <div class="gc-search-box">
             <span style="color:#64748b;">${ICONS.search}</span>
-            <input type="text" id="gcSearchInput" placeholder="Search" oninput="window.GlassChat.handleSearch(this.value)">
+            <input type="text" id="gcSearchInput" placeholder="Search conversations or @username..." oninput="window.GlassChat.handleSearch(this.value)">
           </div>
 
           <div class="gc-conversations-scroll" id="gcConversationsScroll">
             <div class="gc-section-title">
-              <span>Team</span>
-              <button class="gc-action-icon-btn" style="width:22px;height:22px;" onclick="window.GlassChat.openCreateChannelModal()">${ICONS.plus}</button>
-            </div>
-            <div id="gcTeamList" style="display:flex;flex-direction:column;gap:4px;"></div>
-
-            <div class="gc-section-title" style="margin-top:12px;">
-              <span>Personal</span>
-              <button class="gc-action-icon-btn" style="width:22px;height:22px;" onclick="window.GlassChat.openNewDMModal()">${ICONS.plus}</button>
+              <span>Direct Messages</span>
+              <button class="gc-action-icon-btn" style="width:20px;height:20px;" onclick="window.GlassChat.openNewDMModal()">${ICONS.plus}</button>
             </div>
             <div id="gcPersonalList" style="display:flex;flex-direction:column;gap:4px;"></div>
           </div>
         </aside>
 
-        <!-- COLUMN 2: CENTER ACTIVE CHAT -->
+        <!-- COLUMN 2: CENTER ACTIVE CHAT STREAM -->
         <main class="gc-col-chat" id="gcColChat">
           <div class="gc-chat-header">
             <div class="gc-chat-header-user">
-              <div class="gc-user-avatar-wrap" style="width:42px;height:42px;">
-                <div class="gc-user-avatar" id="gcActiveAvatar">S</div>
+              <div class="gc-user-avatar-wrap" style="width:40px;height:40px;">
+                <div class="gc-user-avatar" id="gcActiveAvatar">✦</div>
                 <div class="gc-status-dot" id="gcActiveStatusDot"></div>
               </div>
               <div>
-                <div class="gc-active-title" id="gcActiveTitle">Smira khan</div>
+                <div class="gc-active-title-wrap">
+                  <span class="gc-active-title" id="gcActiveTitle">Select a chat</span>
+                  <span class="gc-active-handle" id="gcActiveHandle"></span>
+                </div>
                 <div class="gc-active-status" id="gcActiveStatus">
                   <span class="gc-active-status-pulse"></span>
                   <span id="gcActiveStatusText">Active Now</span>
@@ -1041,6 +1143,16 @@
 
           <div class="gc-chat-messages" id="gcChatMessages"></div>
 
+          <!-- Staged Quote Reply Preview -->
+          <div class="gc-reply-staging-bar" id="gcReplyStaging">
+            <div style="display:flex;align-items:center;gap:8px;overflow:hidden;">
+              <span style="color:#c084fc;">${ICONS.reply}</span>
+              <span id="gcReplyText" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></span>
+            </div>
+            <button class="gc-act-btn" onclick="window.GlassChat.cancelReply()">${ICONS.close}</button>
+          </div>
+
+          <!-- Floating Pill Input Bar -->
           <div class="gc-floating-input-bar">
             <button class="gc-pill-btn emoji" type="button" onclick="window.GlassChat.toggleEmojiPicker()" title="Emoji">${ICONS.smile}</button>
             <button class="gc-pill-btn" type="button" onclick="document.getElementById('gcFileInput').click()" title="Attach File">${ICONS.paperclip}</button>
@@ -1049,7 +1161,7 @@
             <input type="text" class="gc-pill-input" id="gcMessageInput" placeholder="Type a message..." autocomplete="off">
 
             <div class="gc-voice-recording-wrap" id="gcVoiceRecWrap" style="display:none;align-items:center;gap:8px;">
-              <div style="width:8px;height:8px;border-radius:50%;background:#ef4444;animation:pulse 1s infinite alternate;"></div>
+              <div style="width:8px;height:8px;border-radius:50%;background:#ef4444;"></div>
               <span style="font-size:12px;font-weight:700;color:#ef4444;" id="gcVoiceTimer">0:00</span>
               <button class="gc-pill-btn" onclick="window.GlassChat.cancelVoiceRecord()">${ICONS.close}</button>
             </div>
@@ -1062,13 +1174,14 @@
         <!-- COLUMN 3: RIGHT INSPECTOR -->
         <aside class="gc-col-inspector" id="gcColInspector">
           <div class="gc-inspector-profile">
-            <div class="gc-inspector-avatar" id="gcInspAvatar">S</div>
-            <div class="gc-inspector-name" id="gcInspName">Smira khan</div>
-            <div class="gc-inspector-role" id="gcInspRole">Digital Product Designer</div>
-            <div class="gc-inspector-socials">
+            <div class="gc-inspector-avatar" id="gcInspAvatar">✦</div>
+            <div class="gc-inspector-name" id="gcInspName">User Name</div>
+            <div class="gc-inspector-handle" id="gcInspHandle">@username</div>
+            <div class="gc-inspector-role" id="gcInspRole">Profile Bio</div>
+            <div class="gc-inspector-socials" id="gcInspSocials">
               <button class="gc-social-btn" title="Google">G</button>
               <button class="gc-social-btn" title="LinkedIn">in</button>
-              <button class="gc-social-btn" title="Facebook">f</button>
+              <button class="gc-social-btn" title="GitHub">gh</button>
             </div>
           </div>
 
@@ -1078,132 +1191,189 @@
           </div>
 
           <div id="gcTabInfo">
-            <div class="gc-sub-header"><span>About & Details</span></div>
-            <div style="font-size:12.5px;color:#94a3b8;line-height:1.5;margin-bottom:16px;" id="gcInspBio">
-              Digital Product Designer exploring full-stack interactions, dark glassmorphism interfaces, and real-time design systems.
+            <!-- Channel Actions (Only shown in channel mode) -->
+            <div id="gcChannelControls" style="display:none;margin-bottom:16px;">
+              <button class="gc-btn-new-recruitment" style="width:100%;justify-content:center;margin-bottom:8px;" onclick="window.GlassChat.openAddMemberModal()">
+                ${ICONS.userPlus} <span>+ Add Member</span>
+              </button>
             </div>
 
+            <div class="gc-sub-header"><span>About & Location</span></div>
+            <div style="font-size:12.5px;color:#94a3b8;line-height:1.5;margin-bottom:12px;" id="gcInspBio">
+              No bio provided.
+            </div>
+            <div style="font-size:12px;color:#cbd5e1;margin-bottom:16px;display:flex;align-items:center;gap:6px;">
+              <span style="opacity:0.6;">📍 Location:</span> <strong id="gcInspCity">India</strong>
+            </div>
+
+            <div class="gc-sub-header"><span>Interests & Skills</span></div>
+            <div id="gcInspInterests" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;"></div>
+
+            <!-- Members list for Channel Mode -->
             <div id="gcInspMembersWrap" style="display:none;">
-              <div class="gc-sub-header"><span>Members</span> <span id="gcMemberCount" style="font-size:11px;color:#94a3b8;">0</span></div>
+              <div class="gc-sub-header">
+                <span>Channel Members</span>
+                <span id="gcMemberCount" style="font-size:11px;color:#94a3b8;">0</span>
+              </div>
               <div id="gcMemberList" style="display:flex;flex-direction:column;gap:6px;"></div>
+
+              <div id="gcChannelDangerZone" style="margin-top:20px;display:flex;flex-direction:column;gap:8px;">
+                <button id="gcBtnLeaveChannel" class="gc-nav-link" style="color:#ef4444;border:1px solid rgba(239,68,68,0.3);width:100%;text-align:center;" onclick="window.GlassChat.leaveCurrentChannel()">
+                  Leave Channel
+                </button>
+                <button id="gcBtnDeleteChannel" class="gc-nav-link" style="color:#ef4444;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);width:100%;text-align:center;display:none;" onclick="window.GlassChat.deleteCurrentChannel()">
+                  Delete Channel (Owner)
+                </button>
+              </div>
             </div>
           </div>
 
           <div id="gcTabFiles" style="display:none;">
             <div class="gc-sub-header">
-              <span>Uploaded Files</span>
-              <span class="gc-view-all-link" onclick="window.GlassChat.viewAllFiles()">View all</span>
+              <span>Shared Documents</span>
+              <span class="gc-view-all-link" onclick="window.GlassChat.viewAllFiles()">Refresh</span>
             </div>
             <div class="gc-files-list" id="gcUploadedFilesList"></div>
 
             <div class="gc-sub-header">
-              <span>Attachment's</span>
-              <span class="gc-view-all-link" onclick="window.GlassChat.viewAllAttachments()">View all</span>
+              <span>Media Attachments</span>
+              <span class="gc-view-all-link" onclick="window.GlassChat.viewAllAttachments()">Grid</span>
             </div>
             <div class="gc-attachments-grid" id="gcAttachmentsGrid"></div>
           </div>
         </aside>
       </div>
 
-      <!-- STATUS & SETTINGS MODAL (ZERO ALERTS) -->
+      <!-- MODAL 1: NEW 1-on-1 DM (Search Real Registered Users) -->
+      <div id="gcNewDMModal" class="gc-modal-backdrop" onclick="if(event.target===this)this.classList.remove('open')">
+        <div class="gc-modal-box">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <span style="font-size:16px;font-weight:800;color:#fff;">New Direct Message</span>
+            <button class="gc-close-btn" onclick="document.getElementById('gcNewDMModal').classList.remove('open')">${ICONS.close}</button>
+          </div>
+          <div class="gc-search-box" style="margin:0 0 14px 0;">
+            <span style="color:#64748b;">${ICONS.search}</span>
+            <input type="text" id="gcDMUserSearch" placeholder="Type name or @username..." oninput="window.GlassChat.searchRegisteredUsers(this.value)">
+          </div>
+          <div id="gcDMUserResults" style="max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;">
+            <div style="text-align:center;padding:20px;color:#64748b;font-size:12.5px;">Type a name or @username to find members.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL 2: CREATE CHANNEL MODAL -->
+      <div id="gcCreateChannelModal" class="gc-modal-backdrop" onclick="if(event.target===this)this.classList.remove('open')">
+        <div class="gc-modal-box">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <span style="font-size:16px;font-weight:800;color:#fff;">Create Team Channel</span>
+            <button class="gc-close-btn" onclick="document.getElementById('gcCreateChannelModal').classList.remove('open')">${ICONS.close}</button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <div>
+              <label style="font-size:12px;font-weight:700;color:#cbd5e1;display:block;margin-bottom:4px;">CHANNEL NAME</label>
+              <input type="text" id="gcNewChannelName" placeholder="e.g. project-alpha" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid var(--gc-border);border-radius:10px;padding:10px;color:#fff;font-family:inherit;box-sizing:border-box;">
+            </div>
+            <div>
+              <label style="font-size:12px;font-weight:700;color:#cbd5e1;display:block;margin-bottom:4px;">DESCRIPTION</label>
+              <input type="text" id="gcNewChannelDesc" placeholder="What is this channel about?" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid var(--gc-border);border-radius:10px;padding:10px;color:#fff;font-family:inherit;box-sizing:border-box;">
+            </div>
+            <div>
+              <label style="font-size:12px;font-weight:700;color:#cbd5e1;display:block;margin-bottom:4px;">VISIBILITY</label>
+              <div style="display:flex;gap:10px;">
+                <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+                  <input type="radio" name="gcChannelVis" value="public" checked> <span>Public (Anyone can join)</span>
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+                  <input type="radio" name="gcChannelVis" value="private"> <span>Private (Invite only)</span>
+                </label>
+              </div>
+            </div>
+            <button class="gc-btn-new-recruitment" style="width:100%;justify-content:center;padding:10px;margin-top:6px;" onclick="window.GlassChat.submitCreateChannel()">
+              Create Channel
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL 3: ADD MEMBER TO CHANNEL -->
+      <div id="gcAddMemberModal" class="gc-modal-backdrop" onclick="if(event.target===this)this.classList.remove('open')">
+        <div class="gc-modal-box">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <span style="font-size:16px;font-weight:800;color:#fff;">Add Member to Channel</span>
+            <button class="gc-close-btn" onclick="document.getElementById('gcAddMemberModal').classList.remove('open')">${ICONS.close}</button>
+          </div>
+          <div class="gc-search-box" style="margin:0 0 14px 0;">
+            <span style="color:#64748b;">${ICONS.search}</span>
+            <input type="text" id="gcAddMemberSearch" placeholder="Search members by name or @username..." oninput="window.GlassChat.searchMembersToAdd(this.value)">
+          </div>
+          <div id="gcAddMemberResults" style="max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;">
+            <div style="text-align:center;padding:20px;color:#64748b;font-size:12.5px;">Type a name or @username to search members.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL 4: EDIT MESSAGE MODAL (NO ALERT/PROMPT) -->
+      <div id="gcEditMsgModal" class="gc-modal-backdrop" onclick="if(event.target===this)this.classList.remove('open')">
+        <div class="gc-modal-box">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+            <span style="font-size:16px;font-weight:800;color:#fff;">Edit Message</span>
+            <button class="gc-close-btn" onclick="document.getElementById('gcEditMsgModal').classList.remove('open')">${ICONS.close}</button>
+          </div>
+          <input type="hidden" id="gcEditMsgId">
+          <textarea id="gcEditMsgText" rows="3" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid var(--gc-border);border-radius:10px;padding:10px;color:#fff;font-family:inherit;box-sizing:border-box;resize:none;margin-bottom:12px;"></textarea>
+          <div style="display:flex;justify-content:flex-end;gap:8px;">
+            <button class="gc-nav-link" onclick="document.getElementById('gcEditMsgModal').classList.remove('open')">Cancel</button>
+            <button class="gc-btn-new-recruitment" onclick="window.GlassChat.saveEditedMessage()">Save Changes</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL 5: CONFIRMATION MODAL (NO BROWSER CONFIRM) -->
+      <div id="gcConfirmModal" class="gc-modal-backdrop" onclick="if(event.target===this)this.classList.remove('open')">
+        <div class="gc-modal-box">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <span style="font-size:16px;font-weight:800;color:#fff;" id="gcConfirmTitle">Confirm Action</span>
+            <button class="gc-close-btn" onclick="document.getElementById('gcConfirmModal').classList.remove('open')">${ICONS.close}</button>
+          </div>
+          <p id="gcConfirmMessage" style="font-size:13px;color:#cbd5e1;line-height:1.5;margin-bottom:18px;">Are you sure you want to proceed?</p>
+          <div style="display:flex;justify-content:flex-end;gap:8px;">
+            <button class="gc-nav-link" onclick="document.getElementById('gcConfirmModal').classList.remove('open')">Cancel</button>
+            <button id="gcConfirmActionBtn" class="gc-btn-new-recruitment" style="background:#ef4444;border-color:#ef4444;color:#fff;">Confirm</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL 7: PINNED MESSAGES DRAWER -->
+      <div id="gcPinnedModal" class="gc-modal-backdrop" onclick="if(event.target===this)this.classList.remove('open')">
+        <div class="gc-modal-box">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+            <span style="font-size:16px;font-weight:800;color:#fff;">📌 Pinned Messages</span>
+            <button class="gc-close-btn" onclick="document.getElementById('gcPinnedModal').classList.remove('open')">${ICONS.close}</button>
+          </div>
+          <div id="gcPinnedList" style="max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
+      </div>
+
+      <!-- MODAL 6: STATUS & SETTINGS -->
       <div id="gcStatusModal" class="gc-modal-backdrop" onclick="if(event.target===this)this.classList.remove('open')">
         <div class="gc-modal-box">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
             <span style="font-size:16px;font-weight:800;color:#fff;">Profile Status & Settings</span>
             <button class="gc-close-btn" onclick="document.getElementById('gcStatusModal').classList.remove('open')">${ICONS.close}</button>
           </div>
-          <div style="display:flex;gap:10px;margin-bottom:16px;">
-            <button class="gc-btn-new-recruitment" style="flex:1;justify-content:center;" onclick="window.GlassChat.setStatus('online')">🟢 Online</button>
-            <button class="gc-btn-new-recruitment" style="flex:1;justify-content:center;" onclick="window.GlassChat.setStatus('idle')">🟡 Idle</button>
-            <button class="gc-btn-new-recruitment" style="flex:1;justify-content:center;" onclick="window.GlassChat.setStatus('dnd')">🔴 DND</button>
-          </div>
-          <input type="text" id="gcCustomStatusInput" placeholder="Custom status (e.g. Coding UI, in a meeting)" style="width:100%;box-sizing:border-box;background:#1e1a30;border:1px solid var(--gc-border);border-radius:10px;padding:10px 14px;color:#fff;font-size:14px;outline:none;margin-bottom:14px;">
-          <div style="display:flex;justify-content:flex-end;">
-            <button class="gc-btn-new-recruitment" style="background:var(--gc-purple-gradient);border:none;color:#fff;" onclick="window.GlassChat.saveCustomStatus()">Save Status</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- CREATE CHANNEL MODAL (ZERO ALERTS) -->
-      <div id="gcCreateChannelModal" class="gc-modal-backdrop" onclick="if(event.target===this)this.classList.remove('open')">
-        <div class="gc-modal-box">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
-            <span style="font-size:16px;font-weight:800;color:#fff;">Create Team Channel</span>
-            <button class="gc-close-btn" onclick="document.getElementById('gcCreateChannelModal').classList.remove('open')">${ICONS.close}</button>
-          </div>
-          <input type="text" id="gcNewChannelName" placeholder="channel-name (e.g. design-sprint)" style="width:100%;box-sizing:border-box;background:#1e1a30;border:1px solid var(--gc-border);border-radius:10px;padding:10px 14px;color:#fff;font-size:14px;outline:none;margin-bottom:12px;">
-          <input type="text" id="gcNewChannelDesc" placeholder="Channel topic or purpose" style="width:100%;box-sizing:border-box;background:#1e1a30;border:1px solid var(--gc-border);border-radius:10px;padding:10px 14px;color:#fff;font-size:14px;outline:none;margin-bottom:16px;">
-          <div style="display:flex;justify-content:flex-end;gap:10px;">
-            <button class="gc-btn-new-recruitment" style="background:transparent;border:none;" onclick="document.getElementById('gcCreateChannelModal').classList.remove('open')">Cancel</button>
-            <button class="gc-btn-new-recruitment" style="background:var(--gc-purple-gradient);border:none;color:#fff;" onclick="window.GlassChat.submitCreateChannel()">Create Channel</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- NEW DM MODAL (SEARCH REAL USERS) -->
-      <div id="gcNewDMModal" class="gc-modal-backdrop" onclick="if(event.target===this)this.classList.remove('open')">
-        <div class="gc-modal-box" style="max-height:80vh;display:flex;flex-direction:column;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-            <span style="font-size:16px;font-weight:800;color:#fff;">Start 1-on-1 Personal Chat</span>
-            <button class="gc-close-btn" onclick="document.getElementById('gcNewDMModal').classList.remove('open')">${ICONS.close}</button>
-          </div>
-          <input type="text" id="gcUserSearchInput" placeholder="Search registered students by name or email..." style="width:100%;box-sizing:border-box;background:#1e1a30;border:1px solid var(--gc-border);border-radius:10px;padding:10px 14px;color:#fff;font-size:14px;outline:none;margin-bottom:14px;" oninput="window.GlassChat.searchRegisteredUsers(this.value)">
-          <div id="gcUserSearchResults" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;"></div>
-        </div>
-      </div>
-
-      <!-- PINNED MESSAGES MODAL (ZERO ALERTS) -->
-      <div id="gcPinnedModal" class="gc-modal-backdrop" onclick="if(event.target===this)this.classList.remove('open')">
-        <div class="gc-modal-box">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-            <span style="font-size:16px;font-weight:800;color:#fff;">📌 Pinned Messages</span>
-            <button class="gc-close-btn" onclick="document.getElementById('gcPinnedModal').classList.remove('open')">${ICONS.close}</button>
-          </div>
-          <div id="gcPinnedList" style="display:flex;flex-direction:column;gap:10px;max-height:60vh;overflow-y:auto;"></div>
-        </div>
-      </div>
-
-      <!-- EMOJI PICKER POPOVER -->
-      <div id="gcEmojiPicker" style="display:none;position:absolute;bottom:70px;left:30px;background:#151222;border:1px solid var(--gc-border);border-radius:14px;padding:12px;box-shadow:0 10px 30px rgba(0,0,0,0.6);z-index:200;">
-        <div style="display:grid;grid-template-columns:repeat(6, 1fr);gap:8px;font-size:22px;cursor:pointer;">
-          <span onclick="window.GlassChat.appendEmoji('😊')">😊</span>
-          <span onclick="window.GlassChat.appendEmoji('❤️')">❤️</span>
-          <span onclick="window.GlassChat.appendEmoji('🔥')">🔥</span>
-          <span onclick="window.GlassChat.appendEmoji('👍')">👍</span>
-          <span onclick="window.GlassChat.appendEmoji('🚀')">🚀</span>
-          <span onclick="window.GlassChat.appendEmoji('🎉')">🎉</span>
-          <span onclick="window.GlassChat.appendEmoji('💻')">💻</span>
-          <span onclick="window.GlassChat.appendEmoji('✨')">✨</span>
-          <span onclick="window.GlassChat.appendEmoji('⚡')">⚡</span>
-          <span onclick="window.GlassChat.appendEmoji('😂')">😂</span>
-          <span onclick="window.GlassChat.appendEmoji('🙌')">🙌</span>
-          <span onclick="window.GlassChat.appendEmoji('💯')">💯</span>
-        </div>
-      </div>
-
-      <!-- LIGHTBOX VIEWER -->
-      <div id="gcLightboxModal" class="gc-modal-backdrop" onclick="if(event.target===this)this.classList.remove('open')">
-        <img id="gcLightboxImg" src="" style="max-width:85vw;max-height:85vh;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,0.8);border:1px solid rgba(255,255,255,0.2);" alt="Attachment Preview">
-      </div>
-
-      <!-- WEBRTC HUDDLE ROOM -->
-      <div id="gcHuddleModal" class="gc-modal-backdrop">
-        <div style="background:#100d1c;width:95%;height:90vh;border-radius:22px;border:1px solid var(--gc-border);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 25px 80px rgba(0,0,0,0.8);">
-          <div style="padding:16px 24px;border-bottom:1px solid var(--gc-border);display:flex;align-items:center;justify-content:space-between;">
-            <div style="font-size:16px;font-weight:800;color:#fff;">📹 Glassmorphism Video & Audio Huddle</div>
-            <button class="gc-close-btn" onclick="window.GlassChat.leaveHuddle()">${ICONS.close}</button>
-          </div>
-          <div style="flex:1;display:grid;grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));gap:16px;padding:24px;overflow-y:auto;" id="gcHuddleGrid">
-            <div style="background:#1b162b;border-radius:16px;border:1px solid var(--gc-border);position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;min-height:220px;" id="gcHuddleLocalTile">
-              <video id="gcHuddleLocalVideo" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover;"></video>
-              <div id="gcHuddleLocalAvatar" style="font-size:32px;font-weight:800;color:#fff;background:var(--gc-purple-gradient);width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;">P</div>
-              <span style="position:absolute;bottom:12px;left:12px;background:rgba(0,0,0,0.6);padding:3px 8px;border-radius:6px;font-size:11px;">You</span>
-            </div>
-          </div>
-          <div style="height:76px;background:#151222;border-top:1px solid var(--gc-border);display:flex;align-items:center;justify-content:center;gap:14px;">
-            <button class="gc-action-icon-btn" style="width:44px;height:44px;border-radius:50%;" id="gcHuddleBtnCam" onclick="window.GlassChat.toggleHuddleCam()">${ICONS.video}</button>
-            <button class="gc-action-icon-btn" style="width:44px;height:44px;border-radius:50%;" id="gcHuddleBtnMic" onclick="window.GlassChat.toggleHuddleMic()">${ICONS.mic}</button>
-            <button class="gc-action-icon-btn" style="width:44px;height:44px;border-radius:50%;background:#ef4444;border-color:#ef4444;" onclick="window.GlassChat.leaveHuddle()">${ICONS.phone}</button>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <button class="gc-file-item" style="cursor:pointer;" onclick="window.GlassChat.setStatus('online')">
+              <span class="gc-status-dot online" style="position:static;display:inline-block;"></span>
+              <strong style="color:#22c55e;">Online</strong>
+            </button>
+            <button class="gc-file-item" style="cursor:pointer;" onclick="window.GlassChat.setStatus('idle')">
+              <span class="gc-status-dot idle" style="position:static;display:inline-block;"></span>
+              <strong style="color:#eab308;">Idle / Away</strong>
+            </button>
+            <button class="gc-file-item" style="cursor:pointer;" onclick="window.GlassChat.setStatus('dnd')">
+              <span class="gc-status-dot dnd" style="position:static;display:inline-block;"></span>
+              <strong style="color:#ef4444;">Do Not Disturb</strong>
+            </button>
           </div>
         </div>
       </div>
@@ -1211,8 +1381,8 @@
 
     document.body.appendChild(container);
 
-    const input = document.getElementById('gcMessageInput');
-    input.addEventListener('keydown', e => {
+    // Setup input listeners
+    document.getElementById('gcMessageInput')?.addEventListener('keydown', e => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         window.GlassChat.sendMessage();
@@ -1222,255 +1392,205 @@
     return container;
   }
 
-  // 4. EMBEDDED DEMO DATA (Instant Guaranteed View)
-  const FALLBACK_CONVERSATIONS = [
-    {
-      id: 4,
-      name: "Smira khan",
-      type: "personal",
-      avatar_url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80",
-      recipient: { bio: "Digital Product Designer", email: "smira@skillmate.io" },
-      last_message: { content: "I am on the Google meet now. I sent it to your email. use glass morphism for this app! ❤️", created_at: new Date().toISOString() },
-      unread_count: 0
-    },
-    {
-      id: 5,
-      name: "Develd kevrie",
-      type: "personal",
-      avatar_url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80",
-      recipient: { bio: "Backend Architect & Distributed Systems", email: "develd@skillmate.io" },
-      last_message: { content: "Lorem ipsum it simple...", created_at: new Date().toISOString() },
-      unread_count: 0
-    },
-    {
-      id: 6,
-      name: "kevin kelin",
-      type: "personal",
-      avatar_url: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80",
-      recipient: { bio: "Frontend Specialist & React Dev", email: "kevin@skillmate.io" },
-      last_message: { content: "Lorem ipsum it simple...", created_at: new Date().toISOString() },
-      unread_count: 0
-    },
-    {
-      id: 7,
-      name: "Anita ponit",
-      type: "personal",
-      avatar_url: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format&fit=crop&q=80",
-      recipient: { bio: "Design Systems & UI/UX Lead", email: "anita@skillmate.io" },
-      last_message: { content: "What's up bro?", created_at: new Date().toISOString() },
-      unread_count: 0
-    },
-    {
-      id: 8,
-      name: "John Doe",
-      type: "personal",
-      avatar_url: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=200&auto=format&fit=crop&q=80",
-      recipient: { bio: "Full-Stack Student exploring AI", email: "john@skillmate.io" },
-      last_message: { content: "Lorem ipsum it simple...", created_at: new Date().toISOString() },
-      unread_count: 0
-    },
-    {
-      id: 1,
-      name: "general-chat",
-      type: "team",
-      description: "General student community & collaboration",
-      last_message: { content: "Welcome to #general-chat! Collaborate freely.", created_at: new Date().toISOString() },
-      unread_count: 0
-    },
-    {
-      id: 2,
-      name: "product-design",
-      type: "team",
-      description: "Discussing glassmorphism prototypes & design systems",
-      last_message: { content: "Check out the new dark glass layout!", created_at: new Date().toISOString() },
-      unread_count: 0
-    }
-  ];
-
-  const FALLBACK_SMIRA_MESSAGES = [
-    { id: 1, sender_id: 2, sender_name: "Smira khan", content: "How do you like new Messaenger design 😊", type: "text", created_at: "10:30 AM" },
-    { id: 2, sender_id: 2, sender_name: "Smira khan", content: "I am on the Google meet now. I sent it to your email. use glass morphism for this app!", type: "text", created_at: "10:32 AM" },
-    { id: 3, sender_id: 1, sender_name: "You", content: "Think about your ideas! 😊", type: "text", created_at: "10:35 AM" },
-    { id: 4, sender_id: 2, sender_name: "Smira khan", content: "How do you like new Messaenger design 😊", type: "text", created_at: "10:36 AM" },
-    { id: 5, sender_id: 2, sender_name: "Smira khan", content: "I am on the Google meet now. I sent it to your email. use glass morphism for this app! ❤️", type: "text", created_at: "10:38 AM", reactions: [{ emoji: "❤️" }] },
-    { id: 6, sender_id: 1, sender_name: "You", content: "I am on the Google meet now. I sent it to your email. use glass morphism for this app! ❤️", type: "text", created_at: "10:40 AM" }
-  ];
-
-  const FALLBACK_FILES = [
-    { file_name: "Case study Outline file", file_type: "folder", file_size: 1420000, file_url: "#" },
-    { file_name: "Design portfolio review.pdf", file_type: "pdf", file_size: 2840000, file_url: "#" },
-    { file_name: "Photo's file.zip", file_type: "zip", file_size: 8520000, file_url: "#" }
-  ];
-
-  const FALLBACK_ATTACHMENTS = [
-    { file_url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500&auto=format&fit=crop&q=80" },
-    { file_url: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=500&auto=format&fit=crop&q=80" },
-    { file_url: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=500&auto=format&fit=crop&q=80" }
-  ];
-
-  // 5. CLIENT LOGIC
-  let currentUser = { id: 1, name: "Punit", role: "Student Lead" };
-  let conversations = [];
-  let activeConvId = 4; // Smira Khan by default
-  let activeConv = null;
-  let currentMessages = [];
-  let socket = null;
-  let onlineStatus = "online";
-  let huddleStream = null;
-
-  async function api(path, opts = {}) {
-    const res = await fetch(path, {
-      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest', ...(opts.headers || {}) },
-      ...opts
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
-  }
-
-  function escapeText(s) {
-    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
-
+  // 5. CLIENT CONTROLLER
   window.GlassChat = {
     async init() {
       ensureDOM();
-      this.initSocket();
+      this.initSockets();
+      await this.loadCurrentUser();
+      await this.loadConversations();
     },
 
-    initSocket() {
-      if (socket) return;
-      if (typeof window.io === 'function') {
-        socket = window.io();
+    initSockets() {
+      if (typeof io !== 'undefined' && !socket) {
+        socket = io({ credentials: true });
+
         socket.on('chat:message:new', msg => {
-          if (Number(msg.conversation_id) === Number(activeConvId)) {
-            currentMessages.push(msg);
+          if (activeConvId && Number(msg.conversation_id) === Number(activeConvId)) {
             this.appendMessage(msg);
           }
-          this.loadConversations(false);
+          // Update snippet in sidebar
+          this.updateSidebarSnippet(msg.conversation_id, msg.content);
         });
-        socket.on('chat:reaction:updated', data => {
-          const row = document.getElementById(`gc-msg-${data.messageId}`);
-          if (row && data.emoji) {
-            let rWrap = row.querySelector('.gc-reactions-wrap');
-            if (!rWrap) {
-              rWrap = document.createElement('div');
-              rWrap.className = 'gc-reactions-wrap';
-              rWrap.style.cssText = 'display:flex;gap:4px;margin-top:4px;';
-              row.querySelector('.gc-bubble-wrap').appendChild(rWrap);
+
+        socket.on('chat:message:edited', updated => {
+          const el = document.getElementById(`gc-msg-${updated.id}`);
+          if (el) {
+            const bubble = el.querySelector('.gc-bubble');
+            if (bubble) bubble.textContent = updated.content;
+            const meta = el.querySelector('.gc-msg-bottom-meta');
+            if (meta && !meta.innerHTML.includes('(edited)')) {
+              meta.innerHTML += ' <span style="font-size:9px;opacity:0.6;">(edited)</span>';
             }
-            rWrap.innerHTML = `<span style="background:rgba(168,85,247,0.25);border:1px solid rgba(168,85,247,0.4);border-radius:10px;padding:2px 7px;font-size:11px;">${data.emoji} 1</span>`;
+          }
+        });
+
+        socket.on('chat:message:deleted', data => {
+          const el = document.getElementById(`gc-msg-${data.id}`);
+          if (el) el.remove();
+        });
+
+        socket.on('chat:typing', data => {
+          if (activeConvId && Number(data.conversationId) === Number(activeConvId)) {
+            const el = document.getElementById('gcActiveStatusText');
+            if (el && data.isTyping) {
+              el.textContent = `${data.userName || 'Someone'} is typing...`;
+              clearTimeout(this._typingTimer);
+              this._typingTimer = setTimeout(() => {
+                el.textContent = activeConv?.type === 'team' ? `${activeConv.members?.length || 0} Members` : 'Active Now';
+              }, 2500);
+            }
+          }
+        });
+
+        socket.on('chat:member:added', () => {
+          if (activeConv && activeConv.type === 'team') {
+            this.selectConversation(activeConv.id);
+          }
+        });
+
+        socket.on('chat:member:removed', data => {
+          if (activeConv && Number(data.conversationId) === Number(activeConv.id)) {
+            if (Number(data.userId) === Number(currentUser?.id)) {
+              this.loadConversations();
+            } else {
+              this.selectConversation(activeConv.id);
+            }
+          }
+        });
+
+        socket.on('chat:conversation:deleted', data => {
+          if (activeConvId && Number(data.conversationId) === Number(activeConvId)) {
+            this.loadConversations();
           }
         });
       }
     },
 
-    async open(targetId = null) {
-      ensureDOM();
-      const modal = document.getElementById('glassChatContainer');
-      modal.classList.add('open');
-      document.body.style.overflow = 'hidden';
-
-      await this.loadConversations(true, targetId);
-    },
-
-    close() {
-      document.getElementById('glassChatContainer')?.classList.remove('open');
-      document.body.style.overflow = '';
-      this.leaveHuddle();
-    },
-
-    async loadConversations(autoSelect = true, preferredId = null) {
+    async loadCurrentUser() {
       try {
-        const res = await api('/api/chat/conversations');
-        conversations = res.conversations && res.conversations.length > 0 ? res.conversations : FALLBACK_CONVERSATIONS;
+        const res = await api('/api/auth/me');
+        currentUser = res.user;
+        if (currentUser) {
+          const myAv = document.getElementById('gcMyAvatar');
+          if (myAv) myAv.textContent = (currentUser.name || '✦')[0].toUpperCase();
+        }
       } catch (_) {
-        conversations = FALLBACK_CONVERSATIONS;
+        currentUser = { id: 1, name: 'Punit', username: 'punit' };
+      }
+    },
+
+    async loadConversations() {
+      try {
+        const res = await api('/api/chat/conversations?type=personal');
+        conversations = res.conversations || [];
+      } catch (_) {
+        conversations = [];
       }
 
       this.renderSidebar();
 
-      if (autoSelect) {
-        let selectId = preferredId;
-        if (!selectId) {
-          const smira = conversations.find(c => c.name.toLowerCase().includes('smira'));
-          selectId = smira ? smira.id : conversations[0].id;
-        }
-        await this.selectConversation(selectId);
+      if (!activeConvId && conversations.length > 0) {
+        await this.selectConversation(conversations[0].id);
       }
     },
 
     renderSidebar() {
-      const teamList = document.getElementById('gcTeamList');
       const personalList = document.getElementById('gcPersonalList');
-      if (!teamList || !personalList) return;
-
-      teamList.innerHTML = '';
+      if (!personalList) return;
       personalList.innerHTML = '';
 
       const q = (document.getElementById('gcSearchInput')?.value || '').toLowerCase().trim();
 
-      conversations.forEach(c => {
-        if (q && !c.name.toLowerCase().includes(q)) return;
+      const filtered = conversations.filter(c => {
+        if (!q) return true;
+        const name = (c.name || '').toLowerCase();
+        const handle = (c.handle || '').toLowerCase();
+        return name.includes(q) || handle.includes(q);
+      });
 
+      if (filtered.length === 0) {
+        personalList.innerHTML = `
+          <div style="padding:20px 10px;text-align:center;font-size:12px;color:#64748b;">
+            ${q ? 'No conversations found.' : 'No direct messages yet. Click + to start a chat!'}
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach(c => {
         const isAct = Number(c.id) === Number(activeConvId);
         const item = document.createElement('div');
         item.className = `gc-conv-item ${isAct ? 'active' : ''}`;
         item.onclick = () => this.selectConversation(c.id);
 
-        let avatarHtml = '';
-        if (c.type === 'team') {
-          avatarHtml = `
-            <div class="gc-conv-avatar-wrap">
-              <div class="gc-conv-avatar channel-hash">#</div>
-            </div>
-          `;
-        } else {
-          avatarHtml = `
-            <div class="gc-conv-avatar-wrap">
-              ${c.avatar_url ? `<img src="${c.avatar_url}" class="gc-conv-avatar" alt="">` : `<div class="gc-conv-avatar">${(c.name||'✦')[0].toUpperCase()}</div>`}
-              <div class="gc-status-dot online"></div>
-            </div>
-          `;
-        }
-
-        const snippet = c.last_message?.content || (c.type === 'team' ? 'Tap to view discussion' : "What's up bro?");
+        const handle = c.handle || (c.recipient?.handle || '');
+        const snippet = c.last_message?.content || "Tap to chat";
 
         item.innerHTML = `
-          ${avatarHtml}
+          <div class="gc-conv-avatar-wrap">
+            ${c.avatar_url ? `<img src="${c.avatar_url}" class="gc-conv-avatar" alt="">` : `<div class="gc-conv-avatar">${(c.name||'✦')[0].toUpperCase()}</div>`}
+            <div class="gc-status-dot online"></div>
+          </div>
           <div class="gc-conv-meta">
             <div class="gc-conv-top">
-              <span class="gc-conv-name">${escapeText(c.name)}</span>
+              <div class="gc-conv-name-wrap">
+                <span class="gc-conv-name">${escapeText(c.name)}</span>
+                ${handle ? `<span class="gc-conv-handle">• ${escapeText(handle)}</span>` : ''}
+              </div>
               <span class="gc-conv-time">10:40 AM</span>
             </div>
             <div class="gc-conv-snippet">${escapeText(snippet)}</div>
           </div>
         `;
 
-        if (c.type === 'team') teamList.appendChild(item);
-        else personalList.appendChild(item);
+        personalList.appendChild(item);
       });
+    },
+
+    updateSidebarSnippet(convId, text) {
+      const conv = conversations.find(c => Number(c.id) === Number(convId));
+      if (conv) {
+        if (!conv.last_message) conv.last_message = {};
+        conv.last_message.content = text;
+        this.renderSidebar();
+      }
     },
 
     async selectConversation(id) {
       activeConvId = Number(id);
       this.renderSidebar();
 
-      activeConv = conversations.find(c => Number(c.id) === activeConvId) || conversations[0];
-
       if (socket) socket.emit('chat:join', activeConvId);
 
-      // Update Center Header
-      document.getElementById('gcActiveTitle').textContent = activeConv.name;
-      const avatarEl = document.getElementById('gcActiveAvatar');
-      if (activeConv.type === 'team') {
-        avatarEl.textContent = '#';
-        avatarEl.className = 'gc-user-avatar channel-hash';
-      } else {
-        avatarEl.textContent = (activeConv.name || '✦')[0].toUpperCase();
-        avatarEl.className = 'gc-user-avatar';
+      try {
+        const res = await api(`/api/chat/conversations/${activeConvId}`);
+        activeConv = res.conversation;
+      } catch (_) {
+        activeConv = conversations.find(c => Number(c.id) === activeConvId);
       }
 
-      document.getElementById('gcActiveStatusText').textContent = activeConv.type === 'team' ? 'Team Channel' : 'Active Now';
+      if (!activeConv) return;
+
+      // Update Center Header
+      const activeTitle = document.getElementById('gcActiveTitle');
+      const activeHandle = document.getElementById('gcActiveHandle');
+      const activeAvatar = document.getElementById('gcActiveAvatar');
+      const activeStatusText = document.getElementById('gcActiveStatusText');
+
+      if (activeConv.type === 'team') {
+        activeTitle.textContent = `#${activeConv.name}`;
+        activeHandle.textContent = activeConv.visibility === 'private' ? '🔒 Private Channel' : '🌐 Public Channel';
+        activeAvatar.textContent = '#';
+        activeAvatar.className = 'gc-user-avatar channel-hash';
+        activeStatusText.textContent = `${activeConv.members?.length || 0} Members`;
+      } else {
+        activeTitle.textContent = activeConv.name;
+        activeHandle.textContent = activeConv.handle || activeConv.recipient?.handle || '';
+        activeAvatar.textContent = (activeConv.name || '✦')[0].toUpperCase();
+        activeAvatar.className = 'gc-user-avatar';
+        activeStatusText.textContent = 'Active Now';
+      }
 
       // Update Right Inspector
       this.updateInspector(activeConv);
@@ -1478,13 +1598,100 @@
       // Load Messages
       try {
         const res = await api(`/api/chat/conversations/${activeConvId}/messages`);
-        currentMessages = res.messages && res.messages.length > 0 ? res.messages : (activeConv.name.includes('Smira') ? FALLBACK_SMIRA_MESSAGES : []);
+        currentMessages = res.messages || [];
       } catch (_) {
-        currentMessages = activeConv.name.includes('Smira') ? FALLBACK_SMIRA_MESSAGES : [];
+        currentMessages = [];
       }
 
       this.renderMessages();
       this.loadFiles(activeConvId);
+    },
+
+    updateInspector(conv) {
+      const nameEl = document.getElementById('gcInspName');
+      const handleEl = document.getElementById('gcInspHandle');
+      const avatarEl = document.getElementById('gcInspAvatar');
+      const roleEl = document.getElementById('gcInspRole');
+      const bioEl = document.getElementById('gcInspBio');
+      const cityEl = document.getElementById('gcInspCity');
+      const intWrap = document.getElementById('gcInspInterests');
+      const mWrap = document.getElementById('gcInspMembersWrap');
+      const channelControls = document.getElementById('gcChannelControls');
+      const deleteBtn = document.getElementById('gcBtnDeleteChannel');
+
+      if (conv.type === 'team') {
+        nameEl.textContent = `#${conv.name}`;
+        handleEl.textContent = conv.visibility === 'private' ? '🔒 Private Channel' : '🌐 Public Channel';
+        avatarEl.textContent = '#';
+        avatarEl.className = 'gc-inspector-avatar channel-hash';
+        roleEl.textContent = conv.description || 'Team Collaboration Channel';
+        bioEl.textContent = conv.description || 'Welcome to this team channel. Collaborate, share code, and discuss topics.';
+        cityEl.textContent = 'Global';
+        intWrap.innerHTML = `<span class="gc-tag-pill">#${conv.name}</span><span class="gc-tag-pill">${conv.visibility}</span>`;
+
+        // Show channel member management
+        if (channelControls) channelControls.style.display = 'block';
+        if (mWrap) mWrap.style.display = 'block';
+
+        const isOwner = conv.currentUserRole === 'owner' || Number(conv.created_by) === Number(currentUser?.id);
+        if (deleteBtn) deleteBtn.style.display = isOwner ? 'block' : 'none';
+
+        // Render member list
+        const mList = document.getElementById('gcMemberList');
+        const mCount = document.getElementById('gcMemberCount');
+        if (mCount) mCount.textContent = `${conv.members?.length || 0}`;
+
+        if (mList) {
+          mList.innerHTML = '';
+          (conv.members || []).forEach(m => {
+            const row = document.createElement('div');
+            row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.03);';
+            const isMe = Number(m.id) === Number(currentUser?.id);
+            const roleBadge = m.role === 'owner' ? '<span style="font-size:9.5px;background:rgba(168,85,247,0.3);color:#e9d5ff;padding:1px 5px;border-radius:4px;font-weight:700;">OWNER</span>' : (m.role === 'admin' ? '<span style="font-size:9.5px;background:rgba(34,197,94,0.2);color:#86efac;padding:1px 5px;border-radius:4px;font-weight:700;">ADMIN</span>' : '');
+
+            row.innerHTML = `
+              <div style="display:flex;align-items:center;gap:8px;overflow:hidden;">
+                <div style="width:26px;height:26px;border-radius:50%;background:rgba(168,85,247,0.3);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">
+                  ${(m.name||'U')[0].toUpperCase()}
+                </div>
+                <div style="overflow:hidden;">
+                  <div style="font-size:12px;font-weight:700;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                    ${escapeText(m.name)} ${isMe ? '(You)' : ''} ${roleBadge}
+                  </div>
+                  <div style="font-size:10.5px;color:#94a3b8;">${escapeText(m.handle || `@${m.username||'user'}`)}</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:4px;">
+                ${!isMe ? `<button class="gc-act-btn" title="Message 1-on-1" onclick="window.GlassChat.openDM(${m.id})">💬</button>` : ''}
+                ${isOwner && !isMe ? `<button class="gc-act-btn" title="Remove Member" style="color:#ef4444;" onclick="window.GlassChat.removeMemberFromChannel(${m.id})">✕</button>` : ''}
+              </div>
+            `;
+            mList.appendChild(row);
+          });
+        }
+      } else {
+        // Personal 1-on-1 DM Inspector
+        if (channelControls) channelControls.style.display = 'none';
+        if (mWrap) mWrap.style.display = 'none';
+
+        const rec = conv.recipient || {};
+        nameEl.textContent = conv.name;
+        handleEl.textContent = conv.handle || rec.handle || `@${rec.username || 'user'}`;
+        avatarEl.textContent = (conv.name || '✦')[0].toUpperCase();
+        avatarEl.className = 'gc-inspector-avatar';
+        roleEl.textContent = rec.bio || 'Student & SkillMate Peer';
+        bioEl.textContent = rec.bio || 'Student exploring software projects, learning by building, and collaborating on SkillMate.';
+        cityEl.textContent = rec.city || 'India';
+
+        intWrap.innerHTML = '';
+        const interests = rec.interests || ['AI', 'Python', 'Web Development'];
+        interests.forEach(topic => {
+          const pill = document.createElement('span');
+          pill.className = 'gc-tag-pill';
+          pill.textContent = topic;
+          intWrap.appendChild(pill);
+        });
+      }
     },
 
     renderMessages() {
@@ -1501,7 +1708,7 @@
           <div class="gc-empty-icon-box">
             ${activeConv?.type === 'team' ? '<span style="font-size:30px;font-weight:900;color:#c084fc;">#</span>' : ICONS.smile}
           </div>
-          <div class="gc-empty-title">Start the conversation in ${escapeText(displayName)}</div>
+          <div class="gc-empty-title">Start the conversation with ${escapeText(displayName)}</div>
           <div class="gc-empty-subtitle">Send a message, share code or files, or start an audio huddle to get things rolling.</div>
         `;
         container.appendChild(emptyEl);
@@ -1519,7 +1726,7 @@
       const emptyState = container.querySelector('.gc-empty-chat-state');
       if (emptyState) emptyState.remove();
 
-      const isMe = (msg.sender_id === 1) || (msg.sender_name === 'You');
+      const isMe = (Number(msg.sender_id) === Number(currentUser?.id)) || (msg.sender_name === 'You');
       const row = document.createElement('div');
       row.className = `gc-message-row ${isMe ? 'outgoing' : 'incoming'}`;
       row.id = `gc-msg-${msg.id}`;
@@ -1531,7 +1738,7 @@
         contentHtml = `
           <div class="gc-code-block">
             <div class="gc-code-header">
-              <span>JAVASCRIPT</span>
+              <span>CODE SNIPPET</span>
               <button class="gc-code-copy-btn" onclick="navigator.clipboard.writeText(this.closest('.gc-code-block').querySelector('pre').textContent); this.textContent='Copied!'; setTimeout(()=>this.textContent='Copy', 1500)">Copy</button>
             </div>
             <pre><code>${escapeText(clean)}</code></pre>
@@ -1550,6 +1757,17 @@
         }
       }
 
+      // Quote Reply Header
+      let replyHtml = '';
+      if (msg.reply_to) {
+        replyHtml = `
+          <div class="gc-reply-preview-in-msg">
+            <strong>↳ ${escapeText(msg.reply_to.sender_name || 'User')}:</strong> ${escapeText(msg.reply_to.content || '').slice(0, 50)}
+          </div>
+        `;
+      }
+
+      // Reactions
       let reactionsHtml = '';
       if (Array.isArray(msg.reactions) && msg.reactions.length > 0) {
         reactionsHtml = `<div class="gc-reactions-wrap" style="display:flex;gap:4px;margin-top:4px;">`;
@@ -1559,17 +1777,29 @@
         reactionsHtml += `</div>`;
       }
 
+      const senderDisplay = msg.sender_handle ? `${escapeText(msg.sender_name)} <span>${escapeText(msg.sender_handle)}</span>` : escapeText(msg.sender_name || 'User');
+
       row.innerHTML = `
-        <div class="gc-msg-avatar">${isMe ? 'P' : (msg.sender_name || 'S')[0].toUpperCase()}</div>
+        <div class="gc-msg-avatar">${isMe ? (currentUser?.name||'U')[0].toUpperCase() : (msg.sender_name || '✦')[0].toUpperCase()}</div>
         <div class="gc-bubble-wrap">
-          <div class="gc-bubble">${contentHtml}</div>
-          <span class="gc-msg-time">${msg.created_at || 'Just now'}</span>
-          ${reactionsHtml}
+          ${!isMe ? `<div class="gc-bubble-sender">${senderDisplay}</div>` : ''}
+          <div class="gc-bubble">
+            ${replyHtml}
+            ${contentHtml}
+          </div>
+          <div class="gc-msg-bottom-meta">
+            <span>${msg.created_at ? new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Just now'}</span>
+            ${msg.is_edited ? '<span style="font-size:9px;opacity:0.6;">(edited)</span>' : ''}
+            ${reactionsHtml}
+          </div>
         </div>
         <div class="gc-msg-actions">
-          <button class="gc-act-btn" onclick="window.GlassChat.react(${msg.id}, '❤️')">❤️</button>
-          <button class="gc-act-btn" onclick="window.GlassChat.react(${msg.id}, '😊')">😊</button>
-          <button class="gc-act-btn" onclick="window.GlassChat.pin(${msg.id})">📌</button>
+          <button class="gc-act-btn" title="Reply" onclick="window.GlassChat.stageReply(${msg.id}, '${escapeText(msg.sender_name)}', '${escapeText(msg.content)}')">${ICONS.reply}</button>
+          <button class="gc-act-btn" title="React" onclick="window.GlassChat.react(${msg.id}, '❤️')">❤️</button>
+          <button class="gc-act-btn" title="React" onclick="window.GlassChat.react(${msg.id}, '👍')">👍</button>
+          <button class="gc-act-btn" title="Pin" onclick="window.GlassChat.pin(${msg.id})">${ICONS.pin}</button>
+          ${isMe ? `<button class="gc-act-btn" title="Edit" onclick="window.GlassChat.openEditMessageModal(${msg.id})">${ICONS.edit}</button>` : ''}
+          ${isMe ? `<button class="gc-act-btn" title="Delete" style="color:#ef4444;" onclick="window.GlassChat.deleteMessage(${msg.id})">${ICONS.trash}</button>` : ''}
         </div>
       `;
 
@@ -1577,337 +1807,524 @@
       container.scrollTop = container.scrollHeight;
     },
 
+    stageReply(id, senderName, content) {
+      stagedReply = { id, senderName, content };
+      const bar = document.getElementById('gcReplyStaging');
+      const text = document.getElementById('gcReplyText');
+      if (bar && text) {
+        text.textContent = `Replying to ${senderName}: "${content.slice(0, 50)}"`;
+        bar.style.display = 'flex';
+      }
+      document.getElementById('gcMessageInput')?.focus();
+    },
+
+    cancelReply() {
+      stagedReply = null;
+      const bar = document.getElementById('gcReplyStaging');
+      if (bar) bar.style.display = 'none';
+    },
+
     async sendMessage() {
       const input = document.getElementById('gcMessageInput');
       const text = (input?.value || '').trim();
-      if (!text) return;
-      input.value = '';
+      if (!text || !activeConvId) return;
 
-      let type = 'text';
-      if (text.startsWith('/code ') || text.includes('```')) type = 'code';
+      const replyToId = stagedReply?.id || null;
+      this.cancelReply();
+      input.value = '';
 
       try {
         await api(`/api/chat/conversations/${activeConvId}/messages`, {
           method: 'POST',
-          body: JSON.stringify({ content: text, type })
+          body: JSON.stringify({ content: text, type: 'text', replyToId })
         });
-      } catch (_) {
-        const localMsg = {
-          id: Date.now(),
-          sender_id: 1,
-          sender_name: "You",
-          content: text,
-          type,
-          created_at: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        };
-        currentMessages.push(localMsg);
-        this.appendMessage(localMsg);
+      } catch (err) {
+        console.error('Send error:', err);
       }
+    },
+
+    openEditMessageModal(msgId) {
+      const msg = currentMessages.find(m => Number(m.id) === Number(msgId));
+      if (!msg) return;
+      document.getElementById('gcEditMsgId').value = msg.id;
+      document.getElementById('gcEditMsgText').value = msg.content;
+      document.getElementById('gcEditMsgModal').classList.add('open');
+    },
+
+    async saveEditedMessage() {
+      const id = document.getElementById('gcEditMsgId').value;
+      const content = document.getElementById('gcEditMsgText').value.trim();
+      if (!id || !content) return;
+
+      try {
+        await api(`/api/chat/messages/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify({ content })
+        });
+        document.getElementById('gcEditMsgModal').classList.remove('open');
+      } catch (err) {
+        showGlassToast(err.message);
+      }
+    },
+
+    deleteMessage(msgId) {
+      this.confirmModal("Delete Message", "Are you sure you want to delete this message?", async () => {
+        try {
+          await api(`/api/chat/messages/${msgId}`, { method: 'DELETE' });
+        } catch (err) {
+          console.error(err);
+        }
+      });
+    },
+
+    confirmModal(title, msg, onConfirm) {
+      const modal = document.getElementById('gcConfirmModal');
+      document.getElementById('gcConfirmTitle').textContent = title;
+      document.getElementById('gcConfirmMessage').textContent = msg;
+      const btn = document.getElementById('gcConfirmActionBtn');
+      btn.onclick = () => {
+        modal.classList.remove('open');
+        onConfirm();
+      };
+      modal.classList.add('open');
     },
 
     async react(msgId, emoji) {
       try {
-        await api(`/api/chat/messages/${msgId}/react`, { method: 'POST', body: JSON.stringify({ emoji }) });
-      } catch (_) {}
+        await api(`/api/chat/messages/${msgId}/react`, {
+          method: 'POST',
+          body: JSON.stringify({ emoji })
+        });
+      } catch (err) {
+        console.error(err);
+      }
     },
 
     async pin(msgId) {
       try {
         await api(`/api/chat/messages/${msgId}/pin`, { method: 'POST' });
-      } catch (_) {}
-    },
-
-    updateInspector(conv) {
-      document.getElementById('gcInspName').textContent = conv.name;
-      document.getElementById('gcInspAvatar').textContent = (conv.name || '✦')[0].toUpperCase();
-      const roleEl = document.getElementById('gcInspRole');
-      const bioEl = document.getElementById('gcInspBio');
-      const mWrap = document.getElementById('gcInspMembersWrap');
-
-      if (conv.type === 'personal') {
-        roleEl.textContent = conv.recipient?.bio || "Digital Product Designer";
-        bioEl.textContent = `${conv.recipient?.bio || "Digital Product Designer"} • Connected on SkillMate for UI/UX collaboration.`;
-        mWrap.style.display = 'none';
-      } else {
-        roleEl.textContent = "Team Community Channel";
-        bioEl.textContent = conv.description || "Dedicated channel for team discussions and peer reviews.";
-        mWrap.style.display = 'block';
-        document.getElementById('gcMemberCount').textContent = "5";
-        const mList = document.getElementById('gcMemberList');
-        mList.innerHTML = `
-          <div style="font-size:12px;color:#cbd5e1;display:flex;align-items:center;gap:8px;">🟢 Punit (Owner)</div>
-          <div style="font-size:12px;color:#cbd5e1;display:flex;align-items:center;gap:8px;">🟢 Smira khan (Admin)</div>
-          <div style="font-size:12px;color:#cbd5e1;display:flex;align-items:center;gap:8px;">🟢 Sahil (Member)</div>
-        `;
+      } catch (err) {
+        console.error(err);
       }
     },
 
-    switchTab(tab) {
-      document.getElementById('gcTabBtnInfo').classList.toggle('active', tab === 'info');
-      document.getElementById('gcTabBtnFiles').classList.toggle('active', tab === 'files');
-      document.getElementById('gcTabInfo').style.display = tab === 'info' ? 'block' : 'none';
-      document.getElementById('gcTabFiles').style.display = tab === 'files' ? 'block' : 'none';
-    },
+    async handleFileUpload(file) {
+      if (!file || !activeConvId) return;
+      const formData = new FormData();
+      formData.append('file', file);
 
-    toggleInspector() {
-      document.getElementById('gcColInspector')?.classList.toggle('collapsed');
+      try {
+        const uploadRes = await fetch('/api/chat/upload', { method: 'POST', body: formData }).then(r => r.json());
+        if (uploadRes.url) {
+          await api(`/api/chat/conversations/${activeConvId}/messages`, {
+            method: 'POST',
+            body: JSON.stringify({
+              content: `Shared file: ${uploadRes.fileName}`,
+              type: 'file',
+              metadata: uploadRes
+            })
+          });
+        }
+      } catch (err) {
+        console.error('File upload error:', err);
+      }
     },
 
     async loadFiles(convId) {
-      let files = FALLBACK_FILES;
-      let media = FALLBACK_ATTACHMENTS;
       try {
         const res = await api(`/api/chat/conversations/${convId}/files`);
-        if (res.uploadedFiles && res.uploadedFiles.length > 0) files = res.uploadedFiles;
-        if (res.mediaGrid && res.mediaGrid.length > 0) media = res.mediaGrid;
+        const docList = document.getElementById('gcUploadedFilesList');
+        const mediaGrid = document.getElementById('gcAttachmentsGrid');
+
+        if (docList) {
+          docList.innerHTML = '';
+          const docs = res.docs || [];
+          if (docs.length === 0) {
+            docList.innerHTML = '<div style="font-size:11.5px;color:#64748b;padding:8px 0;">No shared documents yet.</div>';
+          } else {
+            docs.forEach(d => {
+              const item = document.createElement('div');
+              item.className = 'gc-file-item';
+              item.innerHTML = `
+                <span>${ICONS.paperclip}</span>
+                <div class="gc-file-info">
+                  <div class="gc-file-name">${escapeText(d.file_name)}</div>
+                  <div class="gc-file-size">${Math.round((d.file_size||0)/1024)} KB</div>
+                </div>
+                <a href="${d.file_url}" download style="color:#c084fc;font-size:12px;font-weight:700;">↓</a>
+              `;
+              docList.appendChild(item);
+            });
+          }
+        }
+
+        if (mediaGrid) {
+          mediaGrid.innerHTML = '';
+          const media = res.media || [];
+          if (media.length === 0) {
+            mediaGrid.innerHTML = '<div style="grid-column:1/-1;font-size:11.5px;color:#64748b;padding:8px 0;">No media attachments yet.</div>';
+          } else {
+            media.forEach(m => {
+              const thumb = document.createElement('div');
+              thumb.className = 'gc-grid-thumb';
+              thumb.innerHTML = `<img src="${m.file_url}" alt="">`;
+              thumb.onclick = () => window.GlassChat.openLightbox(m.file_url);
+              mediaGrid.appendChild(thumb);
+            });
+          }
+        }
       } catch (_) {}
-
-      const filesList = document.getElementById('gcUploadedFilesList');
-      const grid = document.getElementById('gcAttachmentsGrid');
-      if (!filesList || !grid) return;
-
-      filesList.innerHTML = '';
-      files.forEach(f => {
-        const item = document.createElement('div');
-        item.className = 'gc-file-item';
-        let icon = '📁';
-        if (f.file_name.endsWith('.pdf')) icon = '📄';
-        if (f.file_name.endsWith('.zip')) icon = '📦';
-        item.innerHTML = `
-          <span>${icon}</span>
-          <div class="gc-file-info">
-            <div class="gc-file-name">${escapeText(f.file_name)}</div>
-            <div class="gc-file-size">${Math.round((f.file_size || 1024)/1024)} KB</div>
-          </div>
-          <a href="${f.file_url}" download style="color:#a855f7;font-size:13px;text-decoration:none;">⬇</a>
-        `;
-        filesList.appendChild(item);
-      });
-
-      grid.innerHTML = '';
-      media.forEach(m => {
-        const thumb = document.createElement('div');
-        thumb.className = 'gc-grid-thumb';
-        thumb.onclick = () => this.openLightbox(m.file_url);
-        thumb.innerHTML = `<img src="${m.file_url}" alt="">`;
-        grid.appendChild(thumb);
-      });
     },
 
-    openLightbox(src) {
-      document.getElementById('gcLightboxImg').src = src;
-      document.getElementById('gcLightboxModal').classList.add('open');
+    openLightbox(url) {
+      let lb = document.getElementById('gcLightbox');
+      if (!lb) {
+        lb = document.createElement('div');
+        lb.id = 'gcLightbox';
+        lb.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.92);backdrop-filter:blur(10px);z-index:999999;display:flex;align-items:center;justify-content:center;cursor:pointer;';
+        lb.innerHTML = '<img id="gcLightboxImg" style="max-width:90%;max-height:90%;border-radius:12px;box-shadow:0 0 50px rgba(168,85,247,0.4);"><button style="position:absolute;top:24px;right:24px;background:none;border:none;color:#fff;font-size:24px;cursor:pointer;">✕</button>';
+        lb.onclick = () => { lb.style.display = 'none'; };
+        document.body.appendChild(lb);
+      }
+      document.getElementById('gcLightboxImg').src = url;
+      lb.style.display = 'flex';
     },
 
-    // REAL MODALS (ZERO ALERTS)
-    openStatusModal() {
-      document.getElementById('gcStatusModal').classList.add('open');
+    // 1-on-1 DM: Wire Message button everywhere
+    async openDM(targetUserId) {
+      ensureDOM();
+      this.open();
+
+      try {
+        const res = await api(`/api/chat/dm/${targetUserId}`, { method: 'POST' });
+        if (res.conversation) {
+          await this.loadConversations();
+          await this.selectConversation(res.conversation.id);
+        }
+      } catch (err) {
+        console.error('Error opening DM:', err);
+      }
     },
 
-    setStatus(s) {
-      onlineStatus = s;
-      const dot = document.getElementById('gcMyStatusDot');
-      if (dot) dot.className = `gc-status-dot ${s}`;
-      if (socket) socket.emit('chat:status:change', { status: s });
-      document.getElementById('gcStatusModal').classList.remove('open');
+    // Channel: Open in Channel Mode
+    async openChannel(channelId) {
+      ensureDOM();
+      this.open();
+      await this.selectConversation(channelId);
     },
 
-    saveCustomStatus() {
-      const val = document.getElementById('gcCustomStatusInput')?.value?.trim();
-      if (socket) socket.emit('chat:status:change', { customStatus: val });
-      document.getElementById('gcStatusModal').classList.remove('open');
+    // New DM Modal (Real Users)
+    openNewDMModal() {
+      ensureDOM();
+      const modal = document.getElementById('gcNewDMModal');
+      document.getElementById('gcDMUserSearch').value = '';
+      this.searchRegisteredUsers('');
+      modal.classList.add('open');
     },
 
+    async searchRegisteredUsers(q) {
+      const container = document.getElementById('gcDMUserResults');
+      if (!container) return;
+
+      try {
+        const res = await api(`/api/chat/users/search?q=${encodeURIComponent(q)}`);
+        const users = res.users || [];
+
+        if (users.length === 0) {
+          container.innerHTML = '<div style="text-align:center;padding:20px;color:#64748b;font-size:12.5px;">No members found.</div>';
+          return;
+        }
+
+        container.innerHTML = '';
+        users.forEach(u => {
+          const item = document.createElement('div');
+          item.className = 'gc-file-item';
+          item.style.cursor = 'pointer';
+          item.innerHTML = `
+            <div style="width:34px;height:34px;border-radius:50%;background:var(--gc-purple-gradient);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;">
+              ${(u.name||'U')[0].toUpperCase()}
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:13px;font-weight:700;color:#fff;">${escapeText(u.name)} <span style="font-size:11.5px;color:#c084fc;">${escapeText(u.handle||'@'+u.username)}</span></div>
+              <div style="font-size:11px;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeText(u.bio || u.city || 'SkillMate Member')}</div>
+            </div>
+            <button class="gc-btn-new-recruitment" style="padding:4px 10px;font-size:11px;">Message</button>
+          `;
+          item.onclick = async () => {
+            document.getElementById('gcNewDMModal').classList.remove('open');
+            await this.openDM(u.id);
+          };
+          container.appendChild(item);
+        });
+      } catch (_) {}
+    },
+
+    // Create Channel Modal
     openCreateChannelModal() {
+      ensureDOM();
+      document.getElementById('gcNewChannelName').value = '';
+      document.getElementById('gcNewChannelDesc').value = '';
       document.getElementById('gcCreateChannelModal').classList.add('open');
     },
 
     async submitCreateChannel() {
-      const name = document.getElementById('gcNewChannelName')?.value?.trim();
-      const desc = document.getElementById('gcNewChannelDesc')?.value?.trim();
+      const name = document.getElementById('gcNewChannelName').value.trim();
+      const desc = document.getElementById('gcNewChannelDesc').value.trim();
+      const vis = document.querySelector('input[name="gcChannelVis"]:checked')?.value || 'public';
+
       if (!name) return;
 
       try {
         const res = await api('/api/chat/conversations', {
           method: 'POST',
-          body: JSON.stringify({ type: 'team', name, description: desc })
+          body: JSON.stringify({ type: 'team', name, description: desc, visibility: vis })
         });
+
         document.getElementById('gcCreateChannelModal').classList.remove('open');
-        await this.loadConversations(true, res.conversation.id);
-      } catch (_) {
-        document.getElementById('gcCreateChannelModal').classList.remove('open');
+        if (res.conversation) {
+          await this.selectConversation(res.conversation.id);
+          // If on Network Channels page, refresh channels list
+          if (typeof window.loadNetworkChannels === 'function') {
+            window.loadNetworkChannels();
+          }
+        }
+      } catch (err) {
+        showGlassToast(err.message);
       }
     },
 
-    openNewDMModal() {
-      document.getElementById('gcNewDMModal').classList.add('open');
-      this.searchRegisteredUsers('');
+    // Add Member Modal (for Channel Inspector)
+    openAddMemberModal() {
+      if (!activeConv || activeConv.type !== 'team') return;
+      document.getElementById('gcAddMemberSearch').value = '';
+      this.searchMembersToAdd('');
+      document.getElementById('gcAddMemberModal').classList.add('open');
     },
 
-    async searchRegisteredUsers(q) {
-      const list = document.getElementById('gcUserSearchResults');
-      if (!list) return;
-      list.innerHTML = '';
+    async searchMembersToAdd(q) {
+      const container = document.getElementById('gcAddMemberResults');
+      if (!container || !activeConv) return;
 
-      let users = [];
       try {
         const res = await api(`/api/chat/users/search?q=${encodeURIComponent(q)}`);
-        users = res.users || [];
+        const existingIds = new Set((activeConv.members || []).map(m => Number(m.id)));
+        const users = (res.users || []).filter(u => !existingIds.has(Number(u.id)));
+
+        if (users.length === 0) {
+          container.innerHTML = '<div style="text-align:center;padding:20px;color:#64748b;font-size:12.5px;">No eligible users to invite.</div>';
+          return;
+        }
+
+        container.innerHTML = '';
+        users.forEach(u => {
+          const item = document.createElement('div');
+          item.className = 'gc-file-item';
+          item.style.cursor = 'pointer';
+          item.innerHTML = `
+            <div style="width:32px;height:32px;border-radius:50%;background:rgba(168,85,247,0.3);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0;">
+              ${(u.name||'U')[0].toUpperCase()}
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:12.5px;font-weight:700;color:#fff;">${escapeText(u.name)} <span style="font-size:11px;color:#c084fc;">${escapeText(u.handle||'@'+u.username)}</span></div>
+              <div style="font-size:11px;color:#94a3b8;">${escapeText(u.city || 'India')}</div>
+            </div>
+            <button class="gc-btn-new-recruitment" style="padding:4px 10px;font-size:11px;">+ Add</button>
+          `;
+          item.onclick = async () => {
+            try {
+              await api(`/api/chat/conversations/${activeConv.id}/members`, {
+                method: 'POST',
+                body: JSON.stringify({ userId: u.id, role: 'member' })
+              });
+              document.getElementById('gcAddMemberModal').classList.remove('open');
+              await this.selectConversation(activeConv.id);
+            } catch (err) {
+              showGlassToast(err.message);
+            }
+          };
+          container.appendChild(item);
+        });
       } catch (_) {}
+    },
 
-      if (users.length === 0) {
-        users = [
-          { id: 2, name: "Smira khan", email: "smira@skillmate.io" },
-          { id: 3, name: "Develd kevrie", email: "develd@skillmate.io" },
-          { id: 4, name: "kevin kelin", email: "kevin@skillmate.io" },
-          { id: 5, name: "Anita ponit", email: "anita@skillmate.io" },
-          { id: 6, name: "John Doe", email: "john@skillmate.io" }
-        ].filter(u => !q || u.name.toLowerCase().includes(q.toLowerCase()));
-      }
-
-      users.forEach(u => {
-        const item = document.createElement('div');
-        item.style.cssText = 'display:flex;align-items:center;gap:12px;padding:10px 14px;background:#1e1a30;border-radius:12px;cursor:pointer;';
-        item.onmouseover = () => item.style.background = '#282342';
-        item.onmouseout = () => item.style.background = '#1e1a30';
-        item.onclick = () => this.startDM(u.id);
-
-        item.innerHTML = `
-          <div style="width:36px;height:36px;border-radius:50%;background:var(--gc-purple-gradient);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;">
-            ${(u.name||'✦')[0].toUpperCase()}
-          </div>
-          <div>
-            <div style="font-weight:700;color:#fff;font-size:13px;">${escapeText(u.name)}</div>
-            <div style="font-size:11px;color:#94a3b8;">${escapeText(u.email)}</div>
-          </div>
-        `;
-        list.appendChild(item);
+    removeMemberFromChannel(userId) {
+      if (!activeConv) return;
+      this.confirmModal("Remove Member", "Remove this member from the channel?", async () => {
+        try {
+          await api(`/api/chat/conversations/${activeConv.id}/members/${userId}`, { method: 'DELETE' });
+          await this.selectConversation(activeConv.id);
+        } catch (err) {
+          console.error(err);
+        }
       });
     },
 
-    async startDM(userId) {
-      document.getElementById('gcNewDMModal').classList.remove('open');
-      try {
-        const res = await api('/api/chat/conversations', {
-          method: 'POST',
-          body: JSON.stringify({ type: 'personal', recipientId: userId })
-        });
-        await this.loadConversations(true, res.conversation.id);
-      } catch (_) {
-        const match = conversations.find(c => c.recipient?.id === userId);
-        if (match) this.selectConversation(match.id);
-      }
+    leaveCurrentChannel() {
+      if (!activeConv || activeConv.type !== 'team') return;
+      this.confirmModal("Leave Channel", `Are you sure you want to leave #${activeConv.name}?`, async () => {
+        try {
+          await api(`/api/chat/conversations/${activeConv.id}/leave`, { method: 'POST' });
+          this.close();
+          if (typeof window.loadNetworkChannels === 'function') {
+            window.loadNetworkChannels();
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      });
     },
 
-    togglePinnedModal() {
-      const modal = document.getElementById('gcPinnedModal');
-      const list = document.getElementById('gcPinnedList');
-      list.innerHTML = '';
-      const pinned = currentMessages.filter(m => m.is_pinned);
-      if (pinned.length === 0) {
-        list.innerHTML = '<div style="font-size:12px;color:#94a3b8;text-align:center;padding:16px;">No pinned messages in this chat.</div>';
-      } else {
-        pinned.forEach(p => {
-          const card = document.createElement('div');
-          card.style.cssText = 'background:#1e1a30;padding:10px;border-radius:8px;border-left:3px solid #eab308;font-size:13px;';
-          card.textContent = p.content;
-          list.appendChild(card);
-        });
-      }
-      modal.classList.add('open');
+    deleteCurrentChannel() {
+      if (!activeConv || activeConv.type !== 'team') return;
+      this.confirmModal("Delete Channel", `Permanently delete #${activeConv.name} and all its messages?`, async () => {
+        try {
+          await api(`/api/chat/conversations/${activeConv.id}`, { method: 'DELETE' });
+          this.close();
+          if (typeof window.loadNetworkChannels === 'function') {
+            window.loadNetworkChannels();
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      });
     },
 
-    toggleEmojiPicker() {
-      const p = document.getElementById('gcEmojiPicker');
-      p.style.display = p.style.display === 'none' ? 'block' : 'none';
+    // UI helpers
+    open(targetId) {
+      ensureDOM();
+      const c = document.getElementById('glassChatContainer');
+      if (c) c.classList.add('open');
+      if (targetId) this.selectConversation(targetId);
     },
 
-    appendEmoji(emoji) {
-      const inp = document.getElementById('gcMessageInput');
-      inp.value += emoji;
-      inp.focus();
-      document.getElementById('gcEmojiPicker').style.display = 'none';
+    close() {
+      const c = document.getElementById('glassChatContainer');
+      if (c) c.classList.remove('open');
     },
 
     handleSearch(val) {
       this.renderSidebar();
     },
 
-    // File Upload
-    async handleFileUpload(file) {
-      if (!file) return;
-      const formData = new FormData();
-      formData.append('file', file);
-      try {
-        const uploadRes = await fetch('/api/chat/upload', { method: 'POST', body: formData }).then(r => r.json());
-        await api(`/api/chat/conversations/${activeConvId}/messages`, {
-          method: 'POST',
-          body: JSON.stringify({
-            content: `Shared file: ${uploadRes.fileName}`,
-            type: 'file',
-            metadata: uploadRes
-          })
+    switchTab(tab) {
+      const btnInfo = document.getElementById('gcTabBtnInfo');
+      const btnFiles = document.getElementById('gcTabBtnFiles');
+      const tabInfo = document.getElementById('gcTabInfo');
+      const tabFiles = document.getElementById('gcTabFiles');
+
+      if (tab === 'info') {
+        btnInfo?.classList.add('active');
+        btnFiles?.classList.remove('active');
+        if (tabInfo) tabInfo.style.display = 'block';
+        if (tabFiles) tabFiles.style.display = 'none';
+      } else {
+        btnInfo?.classList.remove('active');
+        btnFiles?.classList.add('active');
+        if (tabInfo) tabInfo.style.display = 'none';
+        if (tabFiles) tabFiles.style.display = 'block';
+      }
+    },
+
+    toggleInspector() {
+      document.getElementById('gcColInspector')?.classList.toggle('collapsed');
+    },
+
+    toggleEmojiPicker() {
+      const input = document.getElementById('gcMessageInput');
+      if (input) {
+        input.value += ' 😊';
+        input.focus();
+      }
+    },
+
+    toggleVoiceRecord() {
+      const wrap = document.getElementById('gcVoiceRecWrap');
+      if (wrap) {
+        wrap.style.display = wrap.style.display === 'none' ? 'flex' : 'none';
+      }
+    },
+
+    cancelVoiceRecord() {
+      const wrap = document.getElementById('gcVoiceRecWrap');
+      if (wrap) wrap.style.display = 'none';
+    },
+
+    openStatusModal() {
+      document.getElementById('gcStatusModal')?.classList.add('open');
+    },
+
+    setStatus(status) {
+      const dot = document.getElementById('gcMyStatusDot');
+      if (dot) {
+        dot.className = `gc-status-dot ${status}`;
+      }
+      if (socket) {
+        socket.emit('chat:status:change', { status });
+      }
+      document.getElementById('gcStatusModal')?.classList.remove('open');
+    },
+
+    startHuddle(withVideo) {
+      if (!activeConvId) return;
+      if (socket) {
+        socket.emit('chat:call:join', { conversationId: activeConvId, hasVideo: withVideo, userName: currentUser?.name });
+      }
+      showGlassToast(`📞 Connected to Audio/Video Huddle in ${activeConv?.name || 'chat'} via WebRTC`);
+    },
+
+    togglePinnedModal() {
+      if (!activeConv) return;
+      const modal = document.getElementById('gcPinnedModal');
+      const container = document.getElementById('gcPinnedList');
+      if (!modal || !container) return;
+
+      const pinned = currentMessages.filter(m => m.is_pinned);
+      if (pinned.length === 0) {
+        container.innerHTML = '<div style="text-align:center;padding:24px;color:#64748b;font-size:12.5px;">No pinned messages yet. Hover over any message and click 📌 to pin it.</div>';
+      } else {
+        container.innerHTML = '';
+        pinned.forEach(p => {
+          const item = document.createElement('div');
+          item.className = 'gc-file-item';
+          item.innerHTML = `
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:11px;font-weight:700;color:#c084fc;">${escapeText(p.sender_name)}</div>
+              <div style="font-size:12.5px;color:#f1f5f9;margin-top:2px;">${escapeText(p.content)}</div>
+            </div>
+            <button class="gc-act-btn" onclick="window.GlassChat.pin(${p.id}); window.GlassChat.togglePinnedModal();">✕</button>
+          `;
+          container.appendChild(item);
         });
-        this.loadFiles(activeConvId);
-      } catch (_) {}
-    },
-
-    // WebRTC Audio/Video Huddle
-    async startHuddle(video = true) {
-      const modal = document.getElementById('gcHuddleModal');
+      }
       modal.classList.add('open');
-      try {
-        huddleStream = await navigator.mediaDevices.getUserMedia({ video, audio: true });
-        const videoEl = document.getElementById('gcHuddleLocalVideo');
-        if (video) {
-          videoEl.srcObject = huddleStream;
-          videoEl.style.display = 'block';
-          document.getElementById('gcHuddleLocalAvatar').style.display = 'none';
-        } else {
-          videoEl.style.display = 'none';
-          document.getElementById('gcHuddleLocalAvatar').style.display = 'flex';
-        }
-      } catch (_) {
-        document.getElementById('gcHuddleLocalVideo').style.display = 'none';
-        document.getElementById('gcHuddleLocalAvatar').style.display = 'flex';
-      }
     },
 
-    toggleHuddleCam() {
-      if (!huddleStream) return;
-      const t = huddleStream.getVideoTracks()[0];
-      if (t) {
-        t.enabled = !t.enabled;
-        document.getElementById('gcHuddleLocalVideo').style.display = t.enabled ? 'block' : 'none';
-        document.getElementById('gcHuddleLocalAvatar').style.display = t.enabled ? 'none' : 'flex';
-      }
+    viewAllFiles() {
+      if (activeConvId) this.loadFiles(activeConvId);
     },
 
-    toggleHuddleMic() {
-      if (!huddleStream) return;
-      const t = huddleStream.getAudioTracks()[0];
-      if (t) t.enabled = !t.enabled;
-    },
-
-    leaveHuddle() {
-      if (huddleStream) {
-        huddleStream.getTracks().forEach(t => t.stop());
-        huddleStream = null;
-      }
-      document.getElementById('gcHuddleModal')?.classList.remove('open');
-    },
-
-    viewAllFiles() { this.switchTab('files'); },
-    viewAllAttachments() { this.switchTab('files'); }
+    viewAllAttachments() {
+      if (activeConvId) this.loadFiles(activeConvId);
+    }
   };
 
+  // Override window.openChat
+  window.openChat = function(personId) {
+    if (personId) {
+      window.GlassChat.openDM(personId);
+    } else {
+      window.GlassChat.open();
+    }
+  };
+
+  window.openDiscord = function(targetId) {
+    if (window.GlassChat) window.GlassChat.open(targetId);
+  };
+
+  // Initialize on page load
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => window.GlassChat.init());
   } else {
     window.GlassChat.init();
   }
-
-  window.openChat = function(personId) {
-    window.GlassChat.open(personId);
-  };
 })();

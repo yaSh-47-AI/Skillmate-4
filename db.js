@@ -111,9 +111,16 @@ async function saveInterests(userId, interests) {
   }
 }
 
+function generateFallbackUsername(name, email) {
+  if (email && email.includes('@')) {
+    return email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '');
+  }
+  return String(name || 'user').toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+}
+
 async function getProfile(userId) {
   const user = await db.get(
-    "SELECT id, name, email, bio, photo_url, created_at, is_demo FROM users WHERE id = ?",
+    "SELECT id, name, email, username, bio, city, photo_url, created_at, is_demo FROM users WHERE id = ?",
     userId
   );
 
@@ -131,12 +138,15 @@ async function getProfile(userId) {
   const storedBio = String(user.bio || "");
   const separator = storedBio.lastIndexOf(" • ");
   const bio = separator >= 0 ? storedBio.slice(0, separator) : storedBio;
-  const city = separator >= 0 ? storedBio.slice(separator + 3) : "";
+  const parsedCity = separator >= 0 ? storedBio.slice(separator + 3) : "";
+  const finalCity = user.city || parsedCity || "India";
+  const cleanUsername = user.username || generateFallbackUsername(user.name, user.email);
 
   return {
     ...user,
+    username: cleanUsername,
     bio,
-    city,
+    city: finalCity,
     is_demo: Boolean(user.is_demo),
     interests
   };
@@ -309,6 +319,14 @@ async function initDb() {
   `;
 
   await pool.query(schema);
+  await pool.query(`
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS username TEXT;
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS city TEXT;
+    ALTER TABLE chat_conversations ADD COLUMN IF NOT EXISTS visibility VARCHAR(10) DEFAULT 'public';
+    UPDATE users
+    SET username = LOWER(REGEXP_REPLACE(SPLIT_PART(email, '@', 1), '[^a-z0-9_]', '', 'g'))
+    WHERE username IS NULL OR username = '';
+  `);
   await seedDemoData();
   console.log("Supabase PostgreSQL initialized and seeded successfully.");
 }

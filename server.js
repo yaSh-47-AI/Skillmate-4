@@ -384,14 +384,16 @@ app.get("/api/profiles", async (req, res, next) => {
       SELECT id
       FROM users
       WHERE id != ?
+        AND email NOT LIKE '%@skillmate.io'
         AND (
           ? = ''
           OR name ILIKE ?
+          OR COALESCE(username, '') ILIKE ?
           OR bio ILIKE ?
         )
       ORDER BY name
       LIMIT 100
-    `, currentUserId, search, pattern, pattern);
+    `, currentUserId, search, pattern, pattern, pattern);
 
     let users = (await Promise.all(userRows.map(u => getPublicProfile(u.id)))).filter(Boolean);
 

@@ -221,11 +221,45 @@
           Every passion has a place. Join the circles that match your interests and meet people who are into the same things.
         </p>
 
+        <!-- Clean Tabs: My Circles vs Explore -->
+        <div class="community-tabs-bar">
+          <button type="button" class="community-tab-btn active" id="commTabBtnJoined" onclick="switchCommunityTab('joined')">
+            ✦ My Circles (<span id="myCirclesCount">0</span>)
+          </button>
+          <button type="button" class="community-tab-btn" id="commTabBtnExplore" onclick="switchCommunityTab('explore')">
+            🧭 Explore Circles
+          </button>
+        </div>
+
+        <!-- Search & Filter Chips Bar -->
+        <div class="search-row" style="margin-bottom:12px;">
+          <div class="search-wrap">
+            <span>⌕</span>
+            <input class="search" id="communitySearch" placeholder="Search circles by name, topic or description..." aria-label="Search circles" oninput="handleCommunitySearch(this.value)">
+          </div>
+          <button class="filter" type="button" onclick="clearCommunitySearch()">Clear search</button>
+        </div>
+
+        <div class="community-chips-bar" id="communityChipsBar">
+          <button type="button" class="community-chip active" onclick="selectCommunityCategory('all')">All</button>
+          <button type="button" class="community-chip" onclick="selectCommunityCategory('AI')">AI & ML</button>
+          <button type="button" class="community-chip" onclick="selectCommunityCategory('Python')">Python</button>
+          <button type="button" class="community-chip" onclick="selectCommunityCategory('Web Development')">Web Dev</button>
+          <button type="button" class="community-chip" onclick="selectCommunityCategory('Startups')">Startups</button>
+          <button type="button" class="community-chip" onclick="selectCommunityCategory('Cybersecurity')">Cybersecurity</button>
+          <button type="button" class="community-chip" onclick="selectCommunityCategory('Data Science')">Data Science</button>
+          <button type="button" class="community-chip" onclick="selectCommunityCategory('Design')">Design</button>
+          <button type="button" class="community-chip" onclick="selectCommunityCategory('Robotics')">Robotics</button>
+          <button type="button" class="community-chip" onclick="selectCommunityCategory('Gaming')">Gaming</button>
+          <button type="button" class="community-chip" onclick="selectCommunityCategory('Finance')">Finance</button>
+          <button type="button" class="community-chip" onclick="selectCommunityCategory('IoT')">IoT</button>
+        </div>
+
         <div class="community-toolbar">
           <div class="community-toolbar-copy">
             <span class="recommendation-icon">✦</span>
             <div>
-              <strong>Your interest circles</strong>
+              <strong id="communityToolbarTitle">My Joined Circles</strong>
               <span id="communitySummary">Choose your interests and join the communities that fit.</span>
             </div>
           </div>
@@ -233,7 +267,13 @@
         </div>
 
         <div class="communities-grid" id="communitiesGrid" aria-live="polite"></div>
-        <p class="community-footnote">Preview members help showcase the community experience. Teammate accounts are local demo accounts.</p>
+        <p class="no-results" id="noCommunitiesMsg" hidden style="text-align:center;padding:30px;color:#94a3b8;">No circles found in this view.</p>
+
+        <!-- Pagination Controls (6 at a time) -->
+        <div class="load-more-wrap" style="margin-top:20px;">
+          <span id="communityPaginationCount">Showing 6 circles</span>
+          <button class="secondary" id="showMoreCommunitiesBtn" onclick="showMoreCommunities()" style="display:none;">Show More Circles ↓</button>
+        </div>
       </section>
     </div>
 
@@ -244,7 +284,19 @@
         <span class="view-tag">INTERACTIVE NETWORK & MATCHING</span>
       </div>
 
-      <section class="section" id="network">
+      <!-- Network Top Tabs: Connections vs Team Channels -->
+      <div class="network-tabs-bar">
+        <button type="button" class="network-tab-btn active" id="netTabBtnConnections" onclick="switchNetworkTab('connections')">
+          🔗 Connections & Lattice
+        </button>
+        <button type="button" class="network-tab-btn" id="netTabBtnChannels" onclick="switchNetworkTab('channels')">
+          💬 Team Channels (<span id="netJoinedChannelsCount">0</span>)
+        </button>
+      </div>
+
+      <!-- TAB 1: CONNECTIONS & LATTICE -->
+      <div id="netTabContentConnections">
+        <section class="section" id="network">
         <div class="section-eyebrow">A DIFFERENT KIND OF NETWORK</div>
         <h2 class="section-title">Your interests can<br>bring people together.</h2>
 
@@ -322,7 +374,51 @@
           </div>
         </div>
       </section>
+
+      <!-- Connected Members List -->
+      <section class="section" id="connectedMembersSection" style="padding-top:20px;">
+        <div class="section-eyebrow">YOUR DIRECT NETWORK</div>
+        <h2 class="section-title">Connected Members</h2>
+        <div id="connectedMembersGrid" class="people" style="margin-top:16px;"></div>
+        <p id="noConnectionsMsg" style="color:#64748b;font-size:13px;text-align:center;padding:20px;">No accepted connections yet. Explore peers in Discover to connect!</p>
+      </section>
     </div>
+
+    <!-- TAB 2: TEAM CHANNELS -->
+    <div id="netTabContentChannels" style="display:none;">
+      <section class="section" style="padding-top:10px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
+          <div>
+            <div class="section-eyebrow">TOPIC ROOMS & GROUP CHAT</div>
+            <h2 class="section-title" style="margin:4px 0;">Team Channels</h2>
+            <p style="color:#94a3b8;font-size:13.5px;margin:0;">Topic-based discussion spaces. Chat, share code & files, or jump into live voice/video calls.</p>
+          </div>
+          <button class="primary" type="button" onclick="window.GlassChat ? window.GlassChat.openCreateChannelModal() : null" style="display:flex;align-items:center;gap:6px;font-weight:700;">
+            <span>＋</span> Create Channel
+          </button>
+        </div>
+
+        <!-- Sub-section: Joined Channels -->
+        <div style="margin-bottom:28px;">
+          <div style="font-size:14px;font-weight:800;color:#fff;display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <span>💬 Your Channels</span>
+            <span id="joinedChannelsBadge" style="font-size:11px;background:rgba(168,85,247,0.2);color:#c084fc;padding:2px 8px;border-radius:10px;">0</span>
+          </div>
+          <div class="channels-grid" id="joinedChannelsGrid"></div>
+          <p id="noJoinedChannelsMsg" style="color:#64748b;font-size:13px;padding:16px 0;display:none;">You haven't joined any team channels yet. Check out explore channels below!</p>
+        </div>
+
+        <!-- Sub-section: Explore Channels -->
+        <div>
+          <div style="font-size:14px;font-weight:800;color:#fff;display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <span>🧭 Discover Public Channels</span>
+          </div>
+          <div class="channels-grid" id="exploreChannelsGrid"></div>
+          <p id="noExploreChannelsMsg" style="color:#64748b;font-size:13px;padding:16px 0;display:none;">No additional public channels to explore right now.</p>
+        </div>
+      </section>
+    </div>
+  </div>
 
     <!-- ==================== VIEW 4: DISCOVER PEERS ==================== -->
     <div class="app-view" id="view-discover">
@@ -354,9 +450,24 @@
         <div class="search-row">
           <div class="search-wrap">
             <span>⌕</span>
-            <input class="search" id="search" placeholder="Search by name, city or interest..." aria-label="Search people">
+            <input class="search" id="search" placeholder="Search by name, @username, city or interest..." aria-label="Search people" oninput="renderMembers()">
           </div>
           <button class="filter" type="button" onclick="clearSearch()">Clear search</button>
+        </div>
+
+        <!-- Filter Pills Bar -->
+        <div class="filter-pills-bar" id="discoverFilterPills">
+          <button type="button" class="filter-pill active" onclick="selectDiscoverFilter('all')">All</button>
+          <button type="button" class="filter-pill" onclick="selectDiscoverFilter('top')">✦ Top Matches (70%+)</button>
+          <button type="button" class="filter-pill" onclick="selectDiscoverFilter('connected')">🔗 Connected</button>
+          <button type="button" class="filter-pill" onclick="selectDiscoverFilter('AI')">AI & ML</button>
+          <button type="button" class="filter-pill" onclick="selectDiscoverFilter('Python')">Python</button>
+          <button type="button" class="filter-pill" onclick="selectDiscoverFilter('Web Development')">Web Dev</button>
+          <button type="button" class="filter-pill" onclick="selectDiscoverFilter('Cybersecurity')">Cybersecurity</button>
+          <button type="button" class="filter-pill" onclick="selectDiscoverFilter('Startups')">Startups</button>
+          <button type="button" class="filter-pill" onclick="selectDiscoverFilter('Data Science')">Data Science</button>
+          <button type="button" class="filter-pill" onclick="selectDiscoverFilter('Design')">Design</button>
+          <button type="button" class="filter-pill" onclick="selectDiscoverFilter('Robotics')">Robotics</button>
         </div>
 
         <div class="people" id="people"></div>
