@@ -320,6 +320,15 @@ async function initDb() {
 
   await pool.query(schema);
   await pool.query(`
+    ALTER TABLE public."session" ENABLE ROW LEVEL SECURITY;
+    ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
+    ALTER TABLE public.interests ENABLE ROW LEVEL SECURITY;
+    ALTER TABLE public.user_interests ENABLE ROW LEVEL SECURITY;
+    ALTER TABLE public.connections ENABLE ROW LEVEL SECURITY;
+    ALTER TABLE public.messages ENABLE ROW LEVEL SECURITY;
+    ALTER TABLE public.communities ENABLE ROW LEVEL SECURITY;
+    ALTER TABLE public.community_members ENABLE ROW LEVEL SECURITY;
+    ALTER TABLE public.community_messages ENABLE ROW LEVEL SECURITY;
     ALTER TABLE users ADD COLUMN IF NOT EXISTS username TEXT;
     ALTER TABLE users ADD COLUMN IF NOT EXISTS city TEXT;
     ALTER TABLE chat_conversations ADD COLUMN IF NOT EXISTS visibility VARCHAR(10) DEFAULT 'public';

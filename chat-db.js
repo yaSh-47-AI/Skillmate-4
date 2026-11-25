@@ -85,8 +85,15 @@ async function initChatDb() {
 
   await pool.query(schema);
 
-  // Column safety migrations
+  // Column safety migrations & Row-Level Security
   await pool.query(`
+    ALTER TABLE public.chat_conversations ENABLE ROW LEVEL SECURITY;
+    ALTER TABLE public.chat_members ENABLE ROW LEVEL SECURITY;
+    ALTER TABLE public.chat_messages ENABLE ROW LEVEL SECURITY;
+    ALTER TABLE public.chat_reactions ENABLE ROW LEVEL SECURITY;
+    ALTER TABLE public.chat_attachments ENABLE ROW LEVEL SECURITY;
+    ALTER TABLE public.chat_polls ENABLE ROW LEVEL SECURITY;
+    ALTER TABLE public.chat_poll_votes ENABLE ROW LEVEL SECURITY;
     ALTER TABLE chat_conversations ADD COLUMN IF NOT EXISTS visibility VARCHAR(10) DEFAULT 'public';
     ALTER TABLE chat_messages ADD COLUMN IF NOT EXISTS is_edited BOOLEAN DEFAULT FALSE;
     ALTER TABLE chat_messages ADD COLUMN IF NOT EXISTS edited_at TIMESTAMPTZ;
