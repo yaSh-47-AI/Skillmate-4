@@ -1025,6 +1025,216 @@
       cursor: pointer;
     }
     .gc-retry-btn:hover { background: rgba(239, 68, 68, 0.4); color: #fff; }
+
+    /* Mobile Back Button & Inspector Mobile Bar (hidden on desktop) */
+    .gc-mobile-back-btn,
+    .gc-inspector-mobile-bar {
+      display: none;
+    }
+
+    @keyframes gcSheetUp {
+      from { transform: translateY(100%); opacity: 0.7; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* Native Mobile Single-Screen Stack & Bottom Sheets (<= 768px) */
+    @media (max-width: 768px) {
+      #glassChatContainer {
+        height: 100dvh;
+        max-height: 100dvh;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      #glassChatContainer button,
+      #glassChatContainer .gc-conv-item,
+      #glassChatContainer .gc-tab-btn,
+      #glassChatContainer .gc-topbar {
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: manipulation;
+      }
+
+      #glassChatContainer .gc-bubble,
+      #glassChatContainer .gc-bubble * {
+        user-select: text;
+        -webkit-user-select: text;
+      }
+
+      .gc-topbar {
+        height: calc(54px + env(safe-area-inset-top, 0px));
+        padding: env(safe-area-inset-top, 0px) 14px 0;
+      }
+
+      #glassChatContainer.gc-mobile-view-chat .gc-topbar {
+        display: none;
+      }
+
+      .gc-layout {
+        margin: 0;
+        border-radius: 0;
+        border: none;
+        flex: 1;
+        min-height: 0;
+        position: relative;
+      }
+
+      /* Screen 1: Full-width Chat List View */
+      .gc-col-sidebar {
+        width: 100vw;
+        max-width: 100vw;
+        flex: 1;
+        border-right: none;
+        padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+      }
+
+      .gc-conv-item {
+        min-height: 68px;
+        padding: 10px 14px !important;
+      }
+
+      .gc-conv-item .gc-user-avatar-wrap {
+        width: 44px !important;
+        height: 44px !important;
+      }
+
+      .gc-col-chat,
+      .gc-col-inspector {
+        display: none;
+      }
+
+      /* Screen 2: Full-Screen Active Chat View */
+      #glassChatContainer.gc-mobile-view-chat .gc-col-sidebar {
+        display: none;
+      }
+
+      #glassChatContainer.gc-mobile-view-chat .gc-col-chat {
+        display: flex;
+        flex: 1;
+        width: 100vw;
+        max-width: 100vw;
+        height: 100%;
+        min-height: 0;
+      }
+
+      .gc-mobile-back-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--gc-border);
+        color: #f8fafc;
+        cursor: pointer;
+        margin-right: 4px;
+        flex-shrink: 0;
+      }
+
+      .gc-mobile-back-btn:active {
+        transform: scale(0.94);
+      }
+
+      .gc-chat-header {
+        padding: calc(env(safe-area-inset-top, 0px) + 10px) 12px 10px !important;
+        gap: 8px;
+      }
+
+      .gc-chat-header-user {
+        min-width: 0;
+        flex: 1;
+        gap: 8px;
+      }
+
+      .gc-active-title {
+        font-size: 15px !important;
+      }
+
+      .gc-chat-header-actions {
+        gap: 6px;
+        flex-shrink: 0;
+      }
+
+      .gc-neon-action-btn {
+        width: 34px;
+        height: 34px;
+      }
+
+      .gc-chat-messages {
+        padding: 14px 12px 10px;
+        gap: 12px;
+      }
+
+      .gc-message-row {
+        max-width: 86%;
+      }
+
+      .gc-floating-input-bar {
+        margin: 4px 10px calc(10px + env(safe-area-inset-bottom, 0px));
+        padding: 5px 8px 5px 10px;
+        gap: 6px;
+      }
+
+      .gc-pill-input {
+        font-size: 16px !important;
+        min-width: 0;
+      }
+
+      /* Screen 3: Mobile Inspector Slide-Over */
+      #gcColInspector.gc-mobile-inspector-open {
+        display: flex !important;
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        max-width: 100vw;
+        height: 100dvh;
+        z-index: 100001;
+        border-left: none;
+        background: rgba(12, 10, 22, 0.98);
+        backdrop-filter: blur(28px);
+        -webkit-backdrop-filter: blur(28px);
+        padding: calc(env(safe-area-inset-top, 0px) + 14px) 18px calc(24px + env(safe-area-inset-bottom, 0px));
+        animation: gcSheetUp 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .gc-inspector-mobile-bar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 16px;
+        font-size: 16px;
+        font-weight: 800;
+        color: #f8fafc;
+      }
+
+      /* Bottom-Sheet Modals on Mobile */
+      .gc-modal-backdrop {
+        align-items: flex-end;
+        justify-content: center;
+      }
+
+      .gc-modal-box {
+        width: 100vw;
+        max-width: 100vw;
+        border-radius: 24px 24px 0 0;
+        border-left: none;
+        border-right: none;
+        border-bottom: none;
+        padding: 14px 18px calc(24px + env(safe-area-inset-bottom, 0px));
+        animation: gcSheetUp 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .gc-modal-box::before {
+        content: "";
+        display: block;
+        width: 40px;
+        height: 4px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.22);
+        margin: 0 auto 14px;
+      }
+    }
   `;
   document.head.appendChild(styleEl);
 
@@ -1046,7 +1256,8 @@
     reply: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 17 4 12 9 7"></polyline><path d="M20 18v-2a4 4 0 0 0-4-4H4"></path></svg>',
     trash: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>',
     edit: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>',
-    userPlus: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7.5" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>'
+    userPlus: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7.5" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>',
+    backArrow: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>'
   };
 
   function showGlassToast(msg) {
@@ -1179,7 +1390,8 @@
         <!-- COLUMN 2: CENTER ACTIVE CHAT STREAM -->
         <main class="gc-col-chat" id="gcColChat">
           <div class="gc-chat-header">
-            <div class="gc-chat-header-user">
+            <div class="gc-chat-header-user" onclick="if (window.innerWidth <= 768) window.GlassChat.toggleInspector()">
+              <button class="gc-mobile-back-btn" type="button" onclick="event.stopPropagation(); window.GlassChat.exitMobileChat()" aria-label="Back to chats">${ICONS.backArrow}</button>
               <div class="gc-user-avatar-wrap" style="width:40px;height:40px;">
                 <div class="gc-user-avatar" id="gcActiveAvatar">✦</div>
                 <div class="gc-status-dot" id="gcActiveStatusDot"></div>
@@ -1235,6 +1447,10 @@
 
         <!-- COLUMN 3: RIGHT INSPECTOR -->
         <aside class="gc-col-inspector" id="gcColInspector">
+          <div class="gc-inspector-mobile-bar">
+            <button class="gc-mobile-back-btn" type="button" onclick="window.GlassChat.closeInspector()" aria-label="Close profile details">${ICONS.backArrow}</button>
+            <span>Profile &amp; Files</span>
+          </div>
           <div class="gc-inspector-profile">
             <div class="gc-inspector-avatar" id="gcInspAvatar">✦</div>
             <div class="gc-inspector-name" id="gcInspName">User Name</div>
@@ -1570,7 +1786,7 @@
       if (Array.isArray(cached) && cached.length > 0 && conversations.length === 0) {
         conversations = cached;
         this.renderSidebar();
-        if (!activeConvId) {
+        if (!activeConvId && window.innerWidth > 768) {
           this.selectConversation(conversations[0].id);
         }
       }
@@ -1584,7 +1800,7 @@
 
       this.renderSidebar();
 
-      if (!activeConvId && conversations.length > 0) {
+      if (!activeConvId && conversations.length > 0 && window.innerWidth > 768) {
         await this.selectConversation(conversations[0].id);
       }
 
@@ -1663,6 +1879,12 @@
     async selectConversation(id) {
       activeConvId = Number(id);
       this.renderSidebar();
+
+      if (window.innerWidth <= 768) {
+        document.getElementById('glassChatContainer')?.classList.add('gc-mobile-view-chat');
+        document.body.classList.add('gc-chat-active');
+        document.getElementById('gcColInspector')?.classList.remove('gc-mobile-inspector-open');
+      }
 
       if (socket) socket.emit('chat:join', activeConvId);
 
@@ -2410,16 +2632,59 @@
     },
 
     // UI helpers
+    _bindMobileViewport() {
+      if (this._vvBound || !window.visualViewport) return;
+      this._vvBound = true;
+      const syncViewport = () => {
+        const c = document.getElementById('glassChatContainer');
+        if (!c || !c.classList.contains('open') || window.innerWidth > 768) {
+          if (c) {
+            c.style.height = '';
+            c.style.top = '';
+          }
+          return;
+        }
+        const vv = window.visualViewport;
+        c.style.height = `${vv.height}px`;
+        c.style.top = `${vv.offsetTop}px`;
+        const stream = document.getElementById('gcChatMessages');
+        if (stream && c.classList.contains('gc-mobile-view-chat')) {
+          stream.scrollTop = stream.scrollHeight;
+        }
+      };
+      window.visualViewport.addEventListener('resize', syncViewport);
+      window.visualViewport.addEventListener('scroll', syncViewport);
+    },
+
     open(targetId) {
       ensureDOM();
+      this._bindMobileViewport();
       const c = document.getElementById('glassChatContainer');
-      if (c) c.classList.add('open');
+      if (c) {
+        c.classList.add('open');
+        if (!targetId && window.innerWidth <= 768) {
+          c.classList.remove('gc-mobile-view-chat');
+          document.body.classList.remove('gc-chat-active');
+        }
+      }
       if (targetId) this.selectConversation(targetId);
+    },
+
+    exitMobileChat() {
+      document.getElementById('glassChatContainer')?.classList.remove('gc-mobile-view-chat');
+      document.body.classList.remove('gc-chat-active');
+      document.getElementById('gcColInspector')?.classList.remove('gc-mobile-inspector-open');
     },
 
     close() {
       const c = document.getElementById('glassChatContainer');
-      if (c) c.classList.remove('open');
+      if (c) {
+        c.classList.remove('open', 'gc-mobile-view-chat');
+        c.style.height = '';
+        c.style.top = '';
+      }
+      document.body.classList.remove('gc-chat-active');
+      document.getElementById('gcColInspector')?.classList.remove('gc-mobile-inspector-open');
     },
 
     handleSearch(val) {
@@ -2446,7 +2711,18 @@
     },
 
     toggleInspector() {
-      document.getElementById('gcColInspector')?.classList.toggle('collapsed');
+      const insp = document.getElementById('gcColInspector');
+      if (!insp) return;
+      if (window.innerWidth <= 768) {
+        insp.classList.remove('collapsed');
+        insp.classList.toggle('gc-mobile-inspector-open');
+      } else {
+        insp.classList.toggle('collapsed');
+      }
+    },
+
+    closeInspector() {
+      document.getElementById('gcColInspector')?.classList.remove('gc-mobile-inspector-open');
     },
 
     toggleEmojiPicker() {

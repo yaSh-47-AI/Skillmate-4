@@ -1,7 +1,7 @@
 {
-  "webVersion": "2.1.0",
+  "webVersion": "2.2.0",
   "nativeVersion": "1.0.0",
   "nativeVersionCode": 5,
   "apkUrl": "https://skillmate-4.onrender.com/downloads/skillmate-latest.apk",
-  "notes": "Seamless in-app OTA updates, Aurora Glassmorphism Login & 0ms Optimistic Chat!"
+  "notes": "Native mobile app redesign: bottom tab bar, full-screen chat flow, bottom-sheet modals, and phone-optimized layouts"
 }

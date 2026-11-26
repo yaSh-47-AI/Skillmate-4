@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#06060a">
   <meta name="description" content="Discover people who share your interests, skills and ambitions.">
   <title>SkillMate — Find Your People</title>
@@ -26,7 +26,8 @@
         <span></span>
         <span></span>
       </button>
-      <a class="logo" href="#/" onclick="navigateTo('home'); return false;">Skill<span>Mate.</span></a>
+      <a class="logo" id="topNavLogo" href="#/" onclick="navigateTo('home'); return false;">Skill<span>Mate.</span></a>
+      <span class="mobile-page-title" id="mobilePageTitle" aria-live="polite"></span>
     </div>
 
     <div class="nav-center">
@@ -981,11 +982,11 @@
   </aside>
   <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
-  <!-- ==================== INSTAGRAM-STYLE MOBILE BOTTOM NAVIGATION ==================== -->
+  <!-- ==================== NATIVE MOBILE BOTTOM TAB BAR ==================== -->
   <div class="mobile-bottom-bar" id="mobileBottomBar" role="navigation" aria-label="Mobile Navigation">
     <button type="button" class="mobile-tab active" id="mobileTabHome" aria-label="Home">
       <span class="mobile-tab-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
           <polyline points="9 22 9 12 15 12 15 22"></polyline>
         </svg>
@@ -993,31 +994,9 @@
       <span class="mobile-tab-text">Home</span>
     </button>
 
-    <button type="button" class="mobile-tab" id="mobileTabCommunities" aria-label="Communities">
-      <span class="mobile-tab-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-          <circle cx="9" cy="7" r="4"></circle>
-          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-        </svg>
-      </span>
-      <span class="mobile-tab-text">Circles</span>
-    </button>
-
-    <button type="button" class="mobile-tab" id="mobileTabChat" aria-label="Chats">
-      <span class="mobile-tab-icon-wrap">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-        </svg>
-        <span class="mobile-badge" id="mobileChatBadge" hidden>0</span>
-      </span>
-      <span class="mobile-tab-text">Chats</span>
-    </button>
-
     <button type="button" class="mobile-tab" id="mobileTabDiscover" aria-label="Discover">
       <span class="mobile-tab-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
@@ -1025,11 +1004,43 @@
       <span class="mobile-tab-text">Discover</span>
     </button>
 
-    <button type="button" class="mobile-tab" id="mobileTabProfile" aria-label="Profile">
-      <span class="mobile-tab-avatar" id="mobileTabAvatar">
-        <span>👤</span>
+    <button type="button" class="mobile-tab" id="mobileTabCommunities" aria-label="Communities">
+      <span class="mobile-tab-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
       </span>
-      <span class="mobile-tab-text" id="mobileTabProfileLabel">Profile</span>
+      <span class="mobile-tab-text">Communities</span>
+    </button>
+
+    <button type="button" class="mobile-tab" id="mobileTabNetwork" aria-label="Network">
+      <span class="mobile-tab-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <circle cx="5" cy="6" r="2"></circle>
+          <circle cx="19" cy="6" r="2"></circle>
+          <circle cx="5" cy="18" r="2"></circle>
+          <circle cx="19" cy="18" r="2"></circle>
+          <line x1="9.6" y1="10.2" x2="6.6" y2="7.5"></line>
+          <line x1="14.4" y1="10.2" x2="17.4" y2="7.5"></line>
+          <line x1="9.6" y1="13.8" x2="6.6" y2="16.5"></line>
+          <line x1="14.4" y1="13.8" x2="17.4" y2="16.5"></line>
+        </svg>
+      </span>
+      <span class="mobile-tab-text">Network</span>
+    </button>
+
+    <button type="button" class="mobile-tab" id="mobileTabChat" aria-label="Chats">
+      <span class="mobile-tab-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+        <span class="mobile-badge" id="mobileChatBadge" hidden>0</span>
+      </span>
+      <span class="mobile-tab-text">Chats</span>
     </button>
   </div>
 

@@ -2116,22 +2116,10 @@ function bindAuthModalListeners() {
     }
   });
 
-  // Instagram-style Mobile Bottom Bar Triggers
+  // Native Mobile Bottom Bar Triggers
   $("#mobileTabHome")?.addEventListener("click", event => {
     event.preventDefault();
     navigateTo("home");
-  });
-
-  $("#mobileTabCommunities")?.addEventListener("click", event => {
-    event.preventDefault();
-    navigateTo("communities");
-  });
-
-  $("#mobileTabChat")?.addEventListener("click", event => {
-    event.preventDefault();
-    closeSidebar();
-    closeModal();
-    openChat();
   });
 
   $("#mobileTabDiscover")?.addEventListener("click", event => {
@@ -2139,15 +2127,21 @@ function bindAuthModalListeners() {
     navigateTo("discover");
   });
 
-  $("#mobileTabProfile")?.addEventListener("click", event => {
+  $("#mobileTabCommunities")?.addEventListener("click", event => {
     event.preventDefault();
-    closeChat();
+    navigateTo("communities");
+  });
+
+  $("#mobileTabNetwork")?.addEventListener("click", event => {
+    event.preventDefault();
+    navigateTo("network");
+  });
+
+  $("#mobileTabChat")?.addEventListener("click", event => {
+    event.preventDefault();
     closeSidebar();
-    if (currentUser) {
-      openModal("signup");
-    } else {
-      openModal("login");
-    }
+    closeModal();
+    openChat();
   });
 }
 
@@ -2200,13 +2194,27 @@ function updateNavActiveStates(target) {
     link.classList.toggle("active", isActive);
   });
 
-  // Mobile Bottom Bar
+  // Mobile Bottom Bar & Slim Top Header Title
   const mobileMap = {
     home: "#mobileTabHome",
-    communities: "#mobileTabCommunities",
     discover: "#mobileTabDiscover",
+    communities: "#mobileTabCommunities",
+    network: "#mobileTabNetwork",
     chat: "#mobileTabChat"
   };
+  const mobileTitles = {
+    home: "SkillMate.",
+    discover: "Discover",
+    communities: "Communities",
+    network: "Network",
+    chat: "Chats"
+  };
+  document.body.dataset.mobileView = target;
+  const mobilePageTitle = $("#mobilePageTitle");
+  if (mobilePageTitle) {
+    mobilePageTitle.textContent = mobileTitles[target] || "SkillMate.";
+  }
+
   $$(".mobile-tab").forEach(tab => tab.classList.remove("active"));
   const activeTabId = mobileMap[target];
   if (activeTabId) {
