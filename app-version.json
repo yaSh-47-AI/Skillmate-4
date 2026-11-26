@@ -1,8 +1,8 @@
 {
-  "appVersion": "3.3.0",
-  "webVersion": "3.3.0",
+  "appVersion": "3.4.0",
+  "webVersion": "3.4.0",
   "nativeVersion": "1.0.0",
   "nativeVersionCode": 5,
   "apkUrl": "https://skillmate-4.onrender.com/downloads/skillmate-latest.apk",
-  "notes": "Fixed mobile bottom-sheet positioning (100dvh portals), native circular pull-to-refresh spinner, and Top Matches default filter"
+  "notes": "Added full-screen Video Intro Splash Screen with smart aspect-ratio fit, Skip pill, and once-per-session playback"
 }
