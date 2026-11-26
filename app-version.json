@@ -1,8 +1,8 @@
 {
-  "appVersion": "3.2.0",
-  "webVersion": "3.2.0",
+  "appVersion": "3.3.0",
+  "webVersion": "3.3.0",
   "nativeVersion": "1.0.0",
   "nativeVersionCode": 5,
   "apkUrl": "https://skillmate-4.onrender.com/downloads/skillmate-latest.apk",
-  "notes": "Mobile-first Discover redesign: 80px Story-style Perfect Swaps, compact high-density profile cards, 40px search bar, and strict zero-overflow layout"
+  "notes": "Fixed mobile bottom-sheet positioning (100dvh portals), native circular pull-to-refresh spinner, and Top Matches default filter"
 }

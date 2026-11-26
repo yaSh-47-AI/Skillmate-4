@@ -23,7 +23,7 @@
 
   const state = {
     viewMode: 'feed', // 'feed' | 'deck'
-    vibe: 'all',
+    vibe: 'top',
     search: '',
     filters: {
       city: '',
@@ -216,13 +216,9 @@
     }
 
     if (state.vibe === 'top') {
-      const seventyPlus = list.filter(p => p.matchPercentage >= 70);
-      if (seventyPlus.length >= 2) {
-        list = seventyPlus;
-      } else {
-        const sortedTop = [...list].sort((a, b) => b.matchPercentage - a.matchPercentage);
-        list = sortedTop.slice(0, Math.max(1, Math.ceil(sortedTop.length / 2)));
-      }
+      const sortedTop = [...list].sort((a, b) => b.matchPercentage - a.matchPercentage || String(a.name).localeCompare(String(b.name)));
+      const strongMatches = sortedTop.filter(p => p.matchPercentage >= 60);
+      list = strongMatches.length >= 3 ? strongMatches : sortedTop;
     } else if (state.vibe === 'online') {
       list = list.filter(p => p.isOnline);
     } else if (state.vibe === 'nearby') {
@@ -356,7 +352,7 @@
     const carousel = $('#discSwapsCarousel');
     if (!section || !carousel) return;
 
-    const showSwaps = state.viewMode === 'feed' && !state.search.trim() && state.vibe === 'all';
+    const showSwaps = state.viewMode === 'feed' && !state.search.trim() && state.vibe === 'top';
     section.hidden = !showSwaps;
     if (!showSwaps) return;
 
@@ -505,76 +501,84 @@
     const host = document.createElement('div');
     host.id = 'discoverSheetsHost';
     host.innerHTML = `
-      <!-- Icebreaker Bottom Sheet -->
-      <div class="disc-sheet-backdrop" id="discIcebreakerBackdrop"></div>
-      <div class="disc-sheet" id="discIcebreakerSheet" role="dialog" aria-modal="true" aria-label="Send connection icebreaker">
-        <div class="disc-sheet-handle"></div>
-        <div class="disc-sheet-head">
-          <div>
-            <h3>Break the ice</h3>
-            <p id="discIceTargetText">Pick a quick intro or write a short note</p>
+      <!-- Icebreaker Bottom Sheet Portal -->
+      <div class="disc-sheet-overlay" id="discIcebreakerOverlay">
+        <div class="disc-sheet-panel" id="discIcebreakerSheet" role="dialog" aria-modal="true" aria-label="Send connection icebreaker">
+          <div class="disc-sheet-handle"></div>
+          <div class="disc-sheet-head">
+            <div>
+              <h3>Break the ice</h3>
+              <p id="discIceTargetText">Pick a quick intro or write a short note</p>
+            </div>
+            <button type="button" class="disc-sheet-close" id="discIceCloseBtn" aria-label="Close">✕</button>
           </div>
-          <button type="button" class="disc-sheet-close" id="discIceCloseBtn" aria-label="Close">✕</button>
-        </div>
-        <div class="disc-ice-chips" id="discIceChips">
-          ${ICEBREAKER_CHIPS.map((c, i) => `<button type="button" class="disc-ice-chip ${i === 0 ? 'active' : ''}" data-intent="${escapeHtml(c)}">${escapeHtml(c)}</button>`).join('')}
-        </div>
-        <input type="text" class="disc-ice-input" id="discIceNoteInput" maxlength="140" placeholder="Optional 1-line note (e.g. Saw your React work!)">
-        <button type="button" class="disc-btn-primary full" id="discIceSendBtn">Send Request</button>
-      </div>
-
-      <!-- Filter Bottom Sheet -->
-      <div class="disc-sheet-backdrop" id="discFilterBackdrop"></div>
-      <div class="disc-sheet" id="discFilterSheet" role="dialog" aria-modal="true" aria-label="Discover filters">
-        <div class="disc-sheet-handle"></div>
-        <div class="disc-sheet-head">
-          <div>
-            <h3>Filter Matches</h3>
-            <p>Dial in location, skills, and availability</p>
+          <div class="disc-ice-chips" id="discIceChips">
+            ${ICEBREAKER_CHIPS.map((c, i) => `<button type="button" class="disc-ice-chip ${i === 0 ? 'active' : ''}" data-intent="${escapeHtml(c)}">${escapeHtml(c)}</button>`).join('')}
           </div>
-          <button type="button" class="disc-sheet-close" id="discFilterCloseBtn" aria-label="Close">✕</button>
-        </div>
-
-        <label class="disc-field-label" for="discFilterCityInput">Location / City</label>
-        <input type="text" class="disc-ice-input" id="discFilterCityInput" placeholder="e.g. Raipur, Bengaluru, Remote">
-
-        <span class="disc-field-label">Skills &amp; Interests</span>
-        <div class="disc-filter-skills" id="discFilterSkills">
-          ${FILTER_SKILL_OPTIONS.map(s => `<button type="button" class="disc-filter-tag" data-skill="${escapeHtml(s)}">${escapeHtml(s)}</button>`).join('')}
-        </div>
-
-        <span class="disc-field-label">Minimum Match %</span>
-        <div class="disc-filter-toggles" id="discFilterMinMatch">
-          <button type="button" class="disc-match-opt active" data-min="0">Any</button>
-          <button type="button" class="disc-match-opt" data-min="50">50%+</button>
-          <button type="button" class="disc-match-opt" data-min="70">70%+</button>
-          <button type="button" class="disc-match-opt" data-min="85">85%+</button>
-        </div>
-
-        <span class="disc-field-label">Availability</span>
-        <div class="disc-filter-toggles">
-          <button type="button" class="disc-avail-btn" id="discToggleOnline">⚡ Online Now</button>
-          <button type="button" class="disc-avail-btn" id="discToggleCollab">Open to Collab</button>
-        </div>
-
-        <div class="disc-sheet-actions">
-          <button type="button" class="disc-btn-ghost" id="discFilterResetBtn">Reset</button>
-          <button type="button" class="disc-btn-primary" id="discFilterApplyBtn">Apply Filters</button>
+          <input type="text" class="disc-ice-input" id="discIceNoteInput" maxlength="140" placeholder="Optional 1-line note (e.g. Saw your React work!)">
+          <button type="button" class="disc-btn-primary full" id="discIceSendBtn">Send Request</button>
         </div>
       </div>
 
-      <!-- Profile Detail Sheet -->
-      <div class="disc-sheet-backdrop" id="discProfileBackdrop"></div>
-      <div class="disc-sheet" id="discProfileSheet" role="dialog" aria-modal="true" aria-label="Member profile">
-        <div class="disc-sheet-handle"></div>
-        <div id="discProfileSheetBody"></div>
+      <!-- Filter Bottom Sheet Portal -->
+      <div class="disc-sheet-overlay" id="discFilterOverlay">
+        <div class="disc-sheet-panel" id="discFilterSheet" role="dialog" aria-modal="true" aria-label="Discover filters">
+          <div class="disc-sheet-handle"></div>
+          <div class="disc-sheet-head">
+            <div>
+              <h3>Filter Matches</h3>
+              <p>Dial in location, skills, and availability</p>
+            </div>
+            <button type="button" class="disc-sheet-close" id="discFilterCloseBtn" aria-label="Close">✕</button>
+          </div>
+
+          <label class="disc-field-label" for="discFilterCityInput">Location / City</label>
+          <input type="text" class="disc-ice-input" id="discFilterCityInput" placeholder="e.g. Raipur, Bengaluru, Remote">
+
+          <span class="disc-field-label">Skills &amp; Interests</span>
+          <div class="disc-filter-skills" id="discFilterSkills">
+            ${FILTER_SKILL_OPTIONS.map(s => `<button type="button" class="disc-filter-tag" data-skill="${escapeHtml(s)}">${escapeHtml(s)}</button>`).join('')}
+          </div>
+
+          <span class="disc-field-label">Minimum Match %</span>
+          <div class="disc-filter-toggles" id="discFilterMinMatch">
+            <button type="button" class="disc-match-opt active" data-min="0">Any</button>
+            <button type="button" class="disc-match-opt" data-min="50">50%+</button>
+            <button type="button" class="disc-match-opt" data-min="70">70%+</button>
+            <button type="button" class="disc-match-opt" data-min="85">85%+</button>
+          </div>
+
+          <span class="disc-field-label">Availability</span>
+          <div class="disc-filter-toggles">
+            <button type="button" class="disc-avail-btn" id="discToggleOnline">⚡ Online Now</button>
+            <button type="button" class="disc-avail-btn" id="discToggleCollab">Open to Collab</button>
+          </div>
+
+          <div class="disc-sheet-actions">
+            <button type="button" class="disc-btn-ghost" id="discFilterResetBtn">Reset</button>
+            <button type="button" class="disc-btn-primary" id="discFilterApplyBtn">Apply Filters</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile Detail Sheet Portal -->
+      <div class="disc-sheet-overlay" id="discProfileOverlay">
+        <div class="disc-sheet-panel" id="discProfileSheet" role="dialog" aria-modal="true" aria-label="Member profile">
+          <div class="disc-sheet-handle"></div>
+          <div class="disc-sheet-head" style="justify-content:flex-end;margin-bottom:-4px;">
+            <button type="button" class="disc-sheet-close" id="discProfileCloseBtn" aria-label="Close">✕</button>
+          </div>
+          <div id="discProfileSheetBody"></div>
+        </div>
       </div>
     `;
     document.body.appendChild(host);
 
     // Wire Icebreaker events
     $('#discIceCloseBtn')?.addEventListener('click', closeIcebreaker);
-    $('#discIcebreakerBackdrop')?.addEventListener('click', closeIcebreaker);
+    $('#discIcebreakerOverlay')?.addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeIcebreaker();
+    });
     $('#discIceChips')?.addEventListener('click', e => {
       const chip = e.target.closest('.disc-ice-chip');
       if (!chip) return;
@@ -586,7 +590,9 @@
 
     // Wire Filter Sheet events
     $('#discFilterCloseBtn')?.addEventListener('click', closeFilterSheet);
-    $('#discFilterBackdrop')?.addEventListener('click', closeFilterSheet);
+    $('#discFilterOverlay')?.addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeFilterSheet();
+    });
     $('#discFilterSkills')?.addEventListener('click', e => {
       const btn = e.target.closest('.disc-filter-tag');
       if (!btn) return;
@@ -626,8 +632,11 @@
       DiscoverScreen.render();
     });
 
-    // Wire Profile Sheet backdrop
-    $('#discProfileBackdrop')?.addEventListener('click', closeProfileSheet);
+    // Wire Profile Sheet close & backdrop
+    $('#discProfileCloseBtn')?.addEventListener('click', closeProfileSheet);
+    $('#discProfileOverlay')?.addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeProfileSheet();
+    });
   }
 
   function openIcebreaker(profile) {
@@ -643,13 +652,11 @@
     $('#discIceTargetText').textContent = `Connect with ${profile.name} (${profile.username})`;
     $('#discIceNoteInput').value = '';
     document.querySelectorAll('#discIceChips .disc-ice-chip').forEach((el, idx) => el.classList.toggle('active', idx === 0));
-    $('#discIcebreakerBackdrop')?.classList.add('open');
-    $('#discIcebreakerSheet')?.classList.add('open');
+    $('#discIcebreakerOverlay')?.classList.add('open');
   }
 
   function closeIcebreaker() {
-    $('#discIcebreakerBackdrop')?.classList.remove('open');
-    $('#discIcebreakerSheet')?.classList.remove('open');
+    $('#discIcebreakerOverlay')?.classList.remove('open');
   }
 
   async function submitIcebreakerRequest() {
@@ -702,13 +709,11 @@
     });
     $('#discToggleOnline')?.classList.toggle('active', state.filters.onlineOnly);
     $('#discToggleCollab')?.classList.toggle('active', state.filters.collabOnly);
-    $('#discFilterBackdrop')?.classList.add('open');
-    $('#discFilterSheet')?.classList.add('open');
+    $('#discFilterOverlay')?.classList.add('open');
   }
 
   function closeFilterSheet() {
-    $('#discFilterBackdrop')?.classList.remove('open');
-    $('#discFilterSheet')?.classList.remove('open');
+    $('#discFilterOverlay')?.classList.remove('open');
   }
 
   function updateFilterBadge() {
@@ -759,13 +764,11 @@
       closeProfileSheet();
       openIcebreaker(profile);
     });
-    $('#discProfileBackdrop')?.classList.add('open');
-    $('#discProfileSheet')?.classList.add('open');
+    $('#discProfileOverlay')?.classList.add('open');
   }
 
   function closeProfileSheet() {
-    $('#discProfileBackdrop')?.classList.remove('open');
-    $('#discProfileSheet')?.classList.remove('open');
+    $('#discProfileOverlay')?.classList.remove('open');
   }
 
   function setupPullToRefresh() {
@@ -773,11 +776,13 @@
     const indicator = $('#discPtrIndicator');
     if (!view || !indicator) return;
     let startY = 0;
+    let pullDist = 0;
     let pulling = false;
 
     view.addEventListener('touchstart', e => {
       if (window.scrollY <= 2) {
         startY = e.touches[0].clientY;
+        pullDist = 0;
         pulling = true;
       }
     }, { passive: true });
@@ -785,22 +790,34 @@
     view.addEventListener('touchmove', e => {
       if (!pulling) return;
       const dy = e.touches[0].clientY - startY;
-      if (dy > 35 && window.scrollY <= 2) {
+      if (dy > 16 && window.scrollY <= 2) {
+        pullDist = Math.min(72, dy * 0.45);
         indicator.classList.add('visible');
+        indicator.style.transform = `translateY(${pullDist - 24}px)`;
+        indicator.style.opacity = String(Math.min(1, pullDist / 40));
       }
     }, { passive: true });
 
     view.addEventListener('touchend', async () => {
       if (!pulling) return;
       pulling = false;
-      if (indicator.classList.contains('visible')) {
+      if (pullDist >= 38) {
         haptic(12);
+        indicator.classList.add('spinning');
+        indicator.style.transform = 'translateY(12px)';
+        indicator.style.opacity = '1';
         state.isLoading = true;
         DiscoverScreen.render();
         if (typeof window.refreshMembers === 'function') await window.refreshMembers();
         state.isLoading = false;
-        indicator.classList.remove('visible');
+        indicator.classList.remove('spinning', 'visible');
+        indicator.style.transform = '';
+        indicator.style.opacity = '';
         DiscoverScreen.render();
+      } else {
+        indicator.classList.remove('visible');
+        indicator.style.transform = '';
+        indicator.style.opacity = '';
       }
     }, { passive: true });
   }
@@ -902,12 +919,12 @@
       if (searchInput) searchInput.value = '';
       if ($('#discSearchClear')) $('#discSearchClear').hidden = true;
       state.search = '';
-      state.vibe = 'all';
+      state.vibe = 'top';
       state.filters = { city: '', skills: new Set(), onlineOnly: false, collabOnly: false, minMatch: 0 };
       state.visibleCount = PAGE_SIZE;
       state.deckIndex = 0;
       document.querySelectorAll('#discVibeChips .disc-vibe-chip').forEach(el => {
-        el.classList.toggle('active', el.dataset.vibe === 'all');
+        el.classList.toggle('active', el.dataset.vibe === 'top');
       });
       updateFilterBadge();
       this.render();
@@ -917,7 +934,7 @@
       const val = String(interest || '').trim();
       if (!val) return;
       state.filters.skills = new Set([val]);
-      state.vibe = 'all';
+      state.vibe = 'top';
       state.visibleCount = PAGE_SIZE;
       updateFilterBadge();
       this.render();

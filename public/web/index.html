@@ -551,10 +551,11 @@
     <!-- ==================== VIEW 4: DISCOVER PEERS ==================== -->
     <div class="app-view" id="view-discover">
       <section class="disc-shell" id="discover" aria-label="Skill Matchmaking and Discovery">
-        <!-- Pull-to-refresh indicator -->
+        <!-- Native Pull-to-refresh circular spinner (zero text) -->
         <div class="disc-ptr-indicator" id="discPtrIndicator" aria-hidden="true">
-          <span class="disc-ptr-dot"></span>
-          <span>Release to refresh</span>
+          <div class="disc-ptr-circle">
+            <span class="disc-ptr-arc"></span>
+          </div>
         </div>
 
         <!-- 1. Top Header Row with Dual View Toggle -->
@@ -604,8 +605,7 @@
 
         <!-- 3. Horizontal Vibe Chips -->
         <div class="disc-vibe-chips" id="discVibeChips" role="list">
-          <button type="button" class="disc-vibe-chip active" data-vibe="all">All</button>
-          <button type="button" class="disc-vibe-chip" data-vibe="top">🔥 Top Matches</button>
+          <button type="button" class="disc-vibe-chip active" data-vibe="top">🔥 Top Matches</button>
           <button type="button" class="disc-vibe-chip" data-vibe="online">⚡ Online Now</button>
           <button type="button" class="disc-vibe-chip" data-vibe="nearby">📍 Nearby</button>
           <button type="button" class="disc-vibe-chip" data-vibe="tech">💻 Tech</button>

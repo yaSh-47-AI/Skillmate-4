@@ -6402,6 +6402,97 @@ footer small { display:block; margin-top:12px; color:#6f6c81; font-size:9px; }
   }
 }
 
+/* ==========================================================================
+   NATIVE CIRCULAR PULL-TO-REFRESH & VIEWPORT-SAFE BOTTOM SHEET PORTALS
+   ========================================================================== */
+
+@keyframes discPtrSpin {
+  to { transform: rotate(360deg); }
+}
+
+.disc-ptr-indicator {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 56px);
+  left: 0;
+  right: 0;
+  z-index: 100040;
+  display: flex !important;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-28px);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.disc-ptr-indicator.visible {
+  opacity: 1;
+}
+
+.disc-ptr-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #151922;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.disc-ptr-arc {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(124, 58, 237, 0.22);
+  border-top-color: #7C3AED;
+  border-right-color: #06B6D4;
+}
+
+.disc-ptr-indicator.spinning .disc-ptr-arc {
+  animation: discPtrSpin 0.7s linear infinite;
+}
+
+/* Viewport-Safe Bottom Sheet Portal Overlays (100dvh, never clips off-screen) */
+.disc-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  z-index: 100050;
+  background: rgba(5, 7, 11, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.disc-sheet-overlay.open {
+  display: flex;
+}
+
+.disc-sheet-panel {
+  width: 100%;
+  max-width: 520px;
+  max-height: 85dvh;
+  overflow-y: auto;
+  background: #151922;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px 24px 0 0;
+  padding: 12px 18px calc(32px + env(safe-area-inset-bottom, 0px));
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 -16px 48px rgba(0, 0, 0, 0.7);
+  animation: smSheetSlideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 .disc-ice-input {
   width: 100%;
   background: #0B0D12;
