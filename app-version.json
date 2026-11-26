@@ -1,7 +1,7 @@
 {
-  "webVersion": "2.4.0",
+  "webVersion": "2.5.0",
   "nativeVersion": "1.0.0",
   "nativeVersionCode": 5,
   "apkUrl": "https://skillmate-4.onrender.com/downloads/skillmate-latest.apk",
-  "notes": "Fixed Chat & Discover DM navigation, locked in 0ms messaging speed, and refined studio-grade UI"
+  "notes": "Rebuilt Discover: Dark-mode Bento Skill Cards, Swipe Deck, Perfect Swaps carousel, Filter Sheet & 1-Tap Icebreakers"
 }

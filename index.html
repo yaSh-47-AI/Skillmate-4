@@ -550,73 +550,115 @@
 
     <!-- ==================== VIEW 4: DISCOVER PEERS ==================== -->
     <div class="app-view" id="view-discover">
-      <div class="view-header">
-        <button class="view-back-btn" type="button" onclick="navigateTo('home')">← Back to Home</button>
-        <span class="view-tag">DISCOVER MEMBERS</span>
-      </div>
+      <section class="disc-shell" id="discover" aria-label="Skill Matchmaking and Discovery">
+        <!-- Pull-to-refresh indicator -->
+        <div class="disc-ptr-indicator" id="discPtrIndicator" aria-hidden="true">
+          <span class="disc-ptr-dot"></span>
+          <span>Release to refresh</span>
+        </div>
 
-      <section class="section" id="discover">
-        <div class="section-eyebrow">YOUR NEXT CONNECTION</div>
-        <h2 class="section-title">Meet your kind<br>of people.</h2>
-        <p class="section-description">
-          Explore a growing mix of interests, backgrounds and ideas.
-        </p>
-
-        <div class="recommendation-strip">
-          <div class="recommendation-copy">
-            <span class="recommendation-icon">✦</span>
-            <div>
-              <strong>Recommended for you</strong>
-              <span id="discoverySummary">Members ranked by shared interests</span>
-            </div>
+        <!-- 1. Top Header Row with Dual View Toggle -->
+        <header class="disc-header">
+          <div class="disc-header-left">
+            <h1 class="disc-title">Discover</h1>
           </div>
-          <button class="filter" id="recommendationToggle" type="button" onclick="toggleRecommendedOnly()">
-            Show best matches
+          <div class="disc-view-toggle" id="discViewToggle" role="tablist" aria-label="Discover layout">
+            <button type="button" class="disc-toggle-btn active" data-mode="feed" role="tab" aria-selected="true" title="Feed View">
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+                <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+                <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+                <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+              </svg>
+              <span>Feed</span>
+            </button>
+            <button type="button" class="disc-toggle-btn" data-mode="deck" role="tab" aria-selected="false" title="Swipe Deck View">
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="5" y="4" width="14" height="17" rx="2.5"></rect>
+                <path d="M8 2h8"></path>
+              </svg>
+              <span>Deck</span>
+            </button>
+          </div>
+        </header>
+
+        <!-- 2. Floating Pill Search Bar + Filter Trigger -->
+        <div class="disc-search-bar">
+          <span class="disc-search-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </span>
+          <input type="search" class="disc-search-input" id="search" placeholder="Search @username, skill, or city..." aria-label="Search members by username, skill, or city" autocomplete="off">
+          <button type="button" class="disc-search-clear" id="discSearchClear" aria-label="Clear search" hidden>✕</button>
+          <button type="button" class="disc-filter-trigger" id="discFilterTrigger" aria-label="Open filters">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="4" y1="6" x2="20" y2="6"></line>
+              <line x1="7" y1="12" x2="17" y2="12"></line>
+              <line x1="10" y1="18" x2="14" y2="18"></line>
+            </svg>
+            <span class="disc-filter-badge" id="discFilterBadge" hidden>0</span>
           </button>
         </div>
 
-        <div class="search-row">
-          <div class="search-wrap">
-            <span>⌕</span>
-            <input class="search" id="search" placeholder="Search by name, @username, city or interest..." aria-label="Search people" oninput="renderMembers()">
+        <!-- 3. Horizontal Vibe Chips -->
+        <div class="disc-vibe-chips" id="discVibeChips" role="list">
+          <button type="button" class="disc-vibe-chip active" data-vibe="all">All</button>
+          <button type="button" class="disc-vibe-chip" data-vibe="top">🔥 Top Matches</button>
+          <button type="button" class="disc-vibe-chip" data-vibe="online">⚡ Online Now</button>
+          <button type="button" class="disc-vibe-chip" data-vibe="nearby">📍 Nearby</button>
+          <button type="button" class="disc-vibe-chip" data-vibe="tech">💻 Tech</button>
+          <button type="button" class="disc-vibe-chip" data-vibe="design">🎨 Design</button>
+          <button type="button" class="disc-vibe-chip" data-vibe="music">🎵 Music</button>
+        </div>
+
+        <!-- 4. Perfect Skill Swaps Spotlight Carousel -->
+        <section class="disc-swaps-section" id="discSwapsSection" aria-label="Perfect Skill Swaps">
+          <div class="disc-section-head">
+            <h2>⚡ Perfect Swaps</h2>
+            <span class="disc-section-meta" id="discSwapsMeta">Complementary skills</span>
           </div>
-          <button class="filter" type="button" onclick="clearSearch()">Clear search</button>
+          <div class="disc-swaps-carousel" id="discSwapsCarousel"></div>
+        </section>
+
+        <!-- 5A. Feed / Bento Grid View -->
+        <div class="disc-feed-container" id="discFeedContainer">
+          <div class="disc-feed-meta">
+            <span id="profileCount">Loading matches...</span>
+          </div>
+          <div class="disc-bento-grid" id="people"></div>
+          <div class="disc-scroll-sentinel" id="discScrollSentinel" aria-hidden="true"></div>
         </div>
 
-        <!-- Filter Pills Bar -->
-        <div class="filter-pills-bar" id="discoverFilterPills">
-          <button type="button" class="filter-pill active" onclick="selectDiscoverFilter('all')">All</button>
-          <button type="button" class="filter-pill" onclick="selectDiscoverFilter('top')">✦ Top Matches (70%+)</button>
-          <button type="button" class="filter-pill" onclick="selectDiscoverFilter('connected')">🔗 Connected</button>
-          <button type="button" class="filter-pill" onclick="selectDiscoverFilter('AI')">AI & ML</button>
-          <button type="button" class="filter-pill" onclick="selectDiscoverFilter('Python')">Python</button>
-          <button type="button" class="filter-pill" onclick="selectDiscoverFilter('Web Development')">Web Dev</button>
-          <button type="button" class="filter-pill" onclick="selectDiscoverFilter('Cybersecurity')">Cybersecurity</button>
-          <button type="button" class="filter-pill" onclick="selectDiscoverFilter('Startups')">Startups</button>
-          <button type="button" class="filter-pill" onclick="selectDiscoverFilter('Data Science')">Data Science</button>
-          <button type="button" class="filter-pill" onclick="selectDiscoverFilter('Design')">Design</button>
-          <button type="button" class="filter-pill" onclick="selectDiscoverFilter('Robotics')">Robotics</button>
+        <!-- 5B. Deck / Swipe View -->
+        <div class="disc-deck-container" id="discDeckContainer" hidden>
+          <div class="disc-deck-stage" id="discDeckStage"></div>
+          <div class="disc-deck-actions" id="discDeckActions">
+            <button type="button" class="disc-deck-btn skip" id="discDeckSkipBtn" aria-label="Skip profile">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <button type="button" class="disc-deck-btn info" id="discDeckInfoBtn" aria-label="View profile">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            </button>
+            <button type="button" class="disc-deck-btn connect" id="discDeckConnectBtn" aria-label="Connect">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
         </div>
 
-        <div class="people" id="people"></div>
-        <p class="no-results" id="noResults" hidden>No profiles found. Try another search or interest.</p>
-
-        <div class="load-more-wrap">
-          <span id="profileCount">Showing up to 8 relevant profiles</span>
-          <button class="secondary" id="showMoreButton" onclick="showMoreProfiles()" hidden>Load more people ↓</button>
-        </div>
-
-        <p class="demo-note">
-          Curated preview profiles are included for the demo. Connection requests and chat are saved by the local SkillMate backend.
-        </p>
-      </section>
-
-      <section class="section" id="joinCtaSection">
-        <div class="cta">
-          <div class="section-eyebrow">YOUR MOVE</div>
-          <h2>Find someone<br>who gets it.</h2>
-          <p>Your next collaborator, study partner or friend might be closer than you think.</p>
-          <button class="primary" onclick="openModal('signup')">Join SkillMate ✦</button>
+        <!-- 6. Smart Empty State -->
+        <div class="disc-empty-state" id="discEmptyState" hidden>
+          <div class="disc-empty-graphic" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+          </div>
+          <h3>No exact matches found</h3>
+          <p id="discEmptySub">Try widening your filters or clearing your search query.</p>
+          <button type="button" class="disc-btn-primary" id="discClearFiltersBtn">Clear Filters</button>
+          <div class="disc-suggested-wrap" id="discSuggestedWrap" hidden>
+            <span class="disc-suggested-label">Suggested peers you might like</span>
+            <div class="disc-bento-grid" id="discSuggestedGrid"></div>
+          </div>
         </div>
       </section>
     </div>
@@ -1219,6 +1261,7 @@
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="/script.js"></script>
+  <script src="/discover.js"></script>
   <script src="/glass-chat-client.js"></script>
 </body>
 </html>

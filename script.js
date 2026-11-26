@@ -946,73 +946,19 @@ window.selectDiscoverFilter = function(filterKey) {
 };
 
 function renderMembers() {
-  const people = $("#people");
-  if (!people) return;
-
-  const query = normalize($("#search")?.value);
-  const topics = selectedFilterTopics();
-
-  let profiles = allDisplayProfiles()
-    .filter(profile => !currentUser || Number(profile.id) !== Number(currentUser.id))
-    .map(profile => ({profile, match:getMatch(profile)}))
-    .filter(item => !query || profileSearchText(item.profile).includes(query));
-
-  // Filter Pills (All, Top Matches 70%+, Connected, Topic)
-  if (activeDiscoverFilter === 'top') {
-    profiles = profiles.filter(item => item.match.score >= 70 || (item.match.score > 0 && profiles.length <= 6));
-  } else if (activeDiscoverFilter === 'connected') {
-    profiles = profiles.filter(item => connectionsByUserId.get(Number(item.profile.id))?.status === 'accepted');
-  } else if (activeDiscoverFilter !== 'all') {
-    profiles = profiles.filter(item =>
-      (item.profile.interests || []).some(t => t.toLowerCase() === activeDiscoverFilter.toLowerCase())
-    );
+  if (window.DiscoverScreen) {
+    window.DiscoverScreen.render();
   }
-
-  if (recommendedOnly && topics.length && activeDiscoverFilter === 'all') {
-    profiles = profiles.filter(item => item.match.score > 0);
-  }
-
-  profiles.sort((a,b) =>
-    b.match.score - a.match.score ||
-    String(a.profile.name).localeCompare(String(b.profile.name))
-  );
-
-  const total = profiles.length;
-  const visible = profiles.slice(0, visibleLimit);
-  people.replaceChildren();
-
-  visible.forEach(item => people.appendChild(createProfileCard(item.profile)));
-
-  const noResults = $("#noResults");
-  if (noResults) {
-    noResults.hidden = total > 0;
-    noResults.textContent = query
-      ? "No profiles match your search. Try another name or interest."
-      : "No matching profiles yet. Try choosing other interests.";
-  }
-
-  const count = $("#profileCount");
-  if (count) {
-    count.textContent = `${Math.min(visibleLimit,total)} of ${total} profiles`;
-  }
-
-  const more = $("#showMoreButton");
-  if (more) {
-    more.hidden = total <= visibleLimit;
-    const remaining = total - visibleLimit;
-    more.textContent = `Load more people ↓ (${remaining > 0 ? remaining : 0} remaining)`;
-  }
-
-  const summary = $("#discoverySummary");
-  if (summary) {
-    summary.textContent = topics.length
-      ? `Ranked by shared interests: ${topics.slice(0,3).join(", ")}${topics.length > 3 ? " and more" : ""}`
-      : `${total} profiles · choose interests for recommendations`;
-  }
-
   updateMatchPanel();
   updateInterestCounts();
 }
+
+// Bridge state for modular DiscoverScreen
+window.getDiscoverBridgeState = () => ({
+  currentUser,
+  connectionsByUserId,
+  requestedDemoProfiles
+});
 
 async function refreshMembers() {
   if (!currentUser) {
@@ -2209,8 +2155,8 @@ function bindAuthModalListeners() {
     tile.addEventListener("click", () => {
       const interest = tile.dataset.interest || "";
       navigateTo("discover");
-      if (interest && typeof filterByInterest === "function") {
-        filterByInterest(interest);
+      if (interest && window.DiscoverScreen?.setInterestFilter) {
+        window.DiscoverScreen.setInterestFilter(interest);
       }
     });
   });
