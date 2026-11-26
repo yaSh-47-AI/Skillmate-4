@@ -501,120 +501,170 @@
   </footer>
 
   <div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="SkillMate account">
-    <div class="auth-box">
-      <button class="auth-close" onclick="closeModal()" aria-label="Close dialog">×</button>
+    <!-- Animated Aurora Background Orbs & Futuristic Dot Grid -->
+    <div class="auth-aurora-bg" aria-hidden="true">
+      <div class="auth-orb auth-orb-1"></div>
+      <div class="auth-orb auth-orb-2"></div>
+      <div class="auth-orb auth-orb-3"></div>
+      <div class="auth-grid-overlay"></div>
+    </div>
 
-      <div class="auth-brand">
-        <div class="auth-logo">S<span>M</span></div>
-        <div>
-          <strong>SkillMate</strong>
-          <small>Find your people.</small>
-        </div>
+    <div class="auth-box" id="authBox">
+      <button class="auth-close" onclick="closeModal()" aria-label="Close dialog">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+
+      <!-- Hero Brand Header -->
+      <div class="auth-hero-brand">
+        <div class="auth-wordmark">Skill<span>Mate.</span></div>
+        <p class="auth-tagline">Connect. Build. Level up.</p>
       </div>
 
-      <div class="auth-tabs">
-        <button id="loginTab" class="auth-tab active" onclick="switchAuth('login')">Login</button>
-        <button id="signupTab" class="auth-tab" onclick="switchAuth('signup')">Create account</button>
+      <!-- Sliding Segmented Toggle -->
+      <div class="auth-tabs" id="authTabs">
+        <div class="auth-tab-slider" aria-hidden="true"></div>
+        <button id="loginTab" class="auth-tab active" type="button" onclick="switchAuth('login')">Log In</button>
+        <button id="signupTab" class="auth-tab" type="button" onclick="switchAuth('signup')">Create Account</button>
       </div>
+
+      <!-- Inline Error / Success Banner -->
+      <div id="authInlineBanner" class="auth-inline-banner" role="alert" hidden></div>
 
       <div id="loginForm" class="auth-form">
-        <div class="auth-heading">
-          <h2>Welcome back.</h2>
-          <p>Log in to continue building your network.</p>
-        </div>
-
         <label for="loginEmail">Email address</label>
         <div class="input-wrap">
-          <span>✉</span>
-          <input id="loginEmail" type="email" placeholder="you@example.com" autocomplete="email">
+          <span class="input-svg">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          </span>
+          <input id="loginEmail" type="email" inputmode="email" placeholder="you@example.com" autocomplete="email">
         </div>
 
         <label for="loginPassword">Password</label>
         <div class="input-wrap">
-          <span>●</span>
+          <span class="input-svg">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </span>
           <input id="loginPassword" type="password" placeholder="Your password" autocomplete="current-password">
-          <button class="eye" type="button" onclick="togglePassword('loginPassword',this)" aria-label="Show password">◉</button>
+          <button class="eye" type="button" onclick="togglePassword('loginPassword',this)" aria-label="Show password">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
         </div>
 
-        <button class="auth-submit" onclick="loginUser()">Login to SkillMate <span>↗</span></button>
-        <p class="switch-text">New here? <button onclick="switchAuth('signup')">Create your account</button></p>
+        <button class="auth-submit" type="button" onclick="loginUser()"><span>Log In to SkillMate</span></button>
+        <p class="switch-text">New here? <button type="button" onclick="switchAuth('signup')">Create your account</button></p>
       </div>
 
       <div id="signupForm" class="auth-form" style="display:none">
-        <div class="auth-heading">
-          <h2>Let's meet.</h2>
-          <p>A few details help us find people you'll click with.</p>
+        <div class="auth-step-indicator" id="signupStepIndicator">
+          <span class="step-pill active" id="signupStepPill1">1. Account</span>
+          <span class="step-pill" id="signupStepPill2">2. Profile &amp; Skills</span>
         </div>
 
-        <div class="photo-upload-row">
-          <div class="photo-preview" id="photoPreview"><span>👤</span></div>
-          <div class="photo-upload-copy">
-            <strong>Profile photo <span class="optional-label">Optional</span></strong>
-            <small>JPG, PNG or WEBP. Maximum 5 MB.</small>
-            <label class="upload-trigger" for="signupPhoto">＋ Add a photo</label>
-            <input class="file-input" type="file" id="signupPhoto" accept="image/jpeg,image/png,image/webp,image/gif">
+        <!-- Step 1: Clean Account Credentials -->
+        <div id="signupStep1">
+          <label for="signupName">Full name</label>
+          <div class="input-wrap">
+            <span class="input-svg">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </span>
+            <input id="signupName" placeholder="Your full name" autocomplete="name">
+          </div>
+
+          <label for="signupEmail">Email address</label>
+          <div class="input-wrap">
+            <span class="input-svg">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            </span>
+            <input id="signupEmail" type="email" inputmode="email" placeholder="you@example.com" autocomplete="email">
+          </div>
+
+          <label for="signupPassword">Password</label>
+          <div class="input-wrap">
+            <span class="input-svg">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </span>
+            <input id="signupPassword" type="password" placeholder="At least 8 characters" autocomplete="new-password">
+            <button class="eye" type="button" onclick="togglePassword('signupPassword',this)" aria-label="Show password">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+
+          <button class="auth-submit" type="button" onclick="nextSignupStep()"><span>Continue</span></button>
+        </div>
+
+        <!-- Step 2: Profile & Interests -->
+        <div id="signupStep2" style="display:none">
+          <div class="photo-upload-row">
+            <div class="photo-preview" id="photoPreview"><span>👤</span></div>
+            <div class="photo-upload-copy">
+              <strong>Profile photo <span class="optional-label">Optional</span></strong>
+              <small>JPG, PNG or WEBP. Max 5 MB.</small>
+              <label class="upload-trigger" for="signupPhoto">＋ Add a photo</label>
+              <input class="file-input" type="file" id="signupPhoto" accept="image/jpeg,image/png,image/webp,image/gif">
+            </div>
+          </div>
+
+          <div class="name-row">
+            <div>
+              <label for="signupCity">City</label>
+              <div class="input-wrap">
+                <span class="input-svg">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                </span>
+                <input id="signupCity" placeholder="Your city" autocomplete="address-level2">
+              </div>
+            </div>
+            <div>
+              <label for="signupRole">Role</label>
+              <div class="input-wrap">
+                <span class="input-svg">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                </span>
+                <input id="signupRole" placeholder="Developer, Student...">
+              </div>
+            </div>
+          </div>
+
+          <div class="signup-interest-heading">
+            <div>
+              <label>Your interests</label>
+              <p>Pick topics to personalize matches.</p>
+            </div>
+            <span class="selection-count" id="signupInterestCount">3 selected</span>
+          </div>
+
+          <div class="signup-interest-grid" id="signupInterests">
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="AI" checked><span>AI & ML</span></label>
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="Python" checked><span>Python</span></label>
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="Web Development" checked><span>Web Dev</span></label>
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="Startups"><span>Startups</span></label>
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="Music"><span>Music</span></label>
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="Gaming"><span>Gaming</span></label>
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="Design"><span>Design</span></label>
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="Robotics"><span>Robotics</span></label>
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="Psychology"><span>Psychology</span></label>
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="Photography"><span>Photography</span></label>
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="Finance"><span>Finance</span></label>
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="Movies"><span>Movies</span></label>
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="Data Science"><span>Data Science</span></label>
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="Cybersecurity"><span>Security</span></label>
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="IoT"><span>IoT</span></label>
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="Writing"><span>Writing</span></label>
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="Fitness"><span>Fitness</span></label>
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="Astronomy"><span>Astronomy</span></label>
+          </div>
+
+          <div class="interest-actions signup-interest-actions">
+            <button class="text-button" type="button" onclick="setRecommendedSignupInterests()">Use recommended ✦</button>
+          </div>
+
+          <div class="auth-step-actions">
+            <button class="auth-back-btn" type="button" onclick="prevSignupStep()">← Back</button>
+            <button class="auth-submit signup-submit" type="button" onclick="signupUser()"><span>Create Account</span></button>
           </div>
         </div>
 
-        <div class="name-row">
-          <div>
-            <label for="signupName">Your name</label>
-            <div class="input-wrap"><input id="signupName" placeholder="Your name" autocomplete="name"></div>
-          </div>
-          <div>
-            <label for="signupCity">City</label>
-            <div class="input-wrap"><input id="signupCity" placeholder="Your city" autocomplete="address-level2"></div>
-          </div>
-        </div>
-
-        <label for="signupRole">What do you do?</label>
-        <div class="input-wrap"><input id="signupRole" placeholder="Student, designer, developer..."></div>
-
-        <label for="signupEmail">Email address</label>
-        <div class="input-wrap"><input id="signupEmail" type="email" placeholder="you@example.com" autocomplete="email"></div>
-
-        <label for="signupPassword">Password</label>
-        <div class="input-wrap">
-          <input id="signupPassword" type="password" placeholder="At least 8 characters" autocomplete="new-password">
-          <button class="eye" type="button" onclick="togglePassword('signupPassword',this)" aria-label="Show password">◉</button>
-        </div>
-
-        <div class="signup-interest-heading">
-          <div>
-            <label>Your interests</label>
-            <p>Choose a few. No typing or commas needed.</p>
-          </div>
-          <span class="selection-count" id="signupInterestCount">3 selected</span>
-        </div>
-
-        <div class="signup-interest-grid" id="signupInterests">
-          <label class="interest-option"><input type="checkbox" name="signupInterest" value="AI" checked><span>AI & ML</span></label>
-          <label class="interest-option"><input type="checkbox" name="signupInterest" value="Python" checked><span>Python</span></label>
-          <label class="interest-option"><input type="checkbox" name="signupInterest" value="Web Development" checked><span>Web development</span></label>
-          <label class="interest-option"><input type="checkbox" name="signupInterest" value="Startups"><span>Startups</span></label>
-          <label class="interest-option"><input type="checkbox" name="signupInterest" value="Music"><span>Music</span></label>
-          <label class="interest-option"><input type="checkbox" name="signupInterest" value="Gaming"><span>Gaming</span></label>
-          <label class="interest-option"><input type="checkbox" name="signupInterest" value="Design"><span>Design</span></label>
-          <label class="interest-option"><input type="checkbox" name="signupInterest" value="Robotics"><span>Robotics</span></label>
-          <label class="interest-option"><input type="checkbox" name="signupInterest" value="Psychology"><span>Psychology</span></label>
-          <label class="interest-option"><input type="checkbox" name="signupInterest" value="Photography"><span>Photography</span></label>
-          <label class="interest-option"><input type="checkbox" name="signupInterest" value="Finance"><span>Finance</span></label>
-          <label class="interest-option"><input type="checkbox" name="signupInterest" value="Movies"><span>Movies</span></label>
-          <label class="interest-option"><input type="checkbox" name="signupInterest" value="Data Science"><span>Data science</span></label>
-          <label class="interest-option"><input type="checkbox" name="signupInterest" value="Cybersecurity"><span>Cybersecurity</span></label>
-          <label class="interest-option"><input type="checkbox" name="signupInterest" value="IoT"><span>IoT & electronics</span></label>
-          <label class="interest-option"><input type="checkbox" name="signupInterest" value="Writing"><span>Writing</span></label>
-          <label class="interest-option"><input type="checkbox" name="signupInterest" value="Fitness"><span>Fitness</span></label>
-          <label class="interest-option"><input type="checkbox" name="signupInterest" value="Astronomy"><span>Astronomy</span></label>
-        </div>
-
-        <div class="interest-actions signup-interest-actions">
-          <button class="text-button" type="button" onclick="setRecommendedSignupInterests()">Use recommended interests ✦</button>
-        </div>
-
-        <button class="auth-submit signup-submit" onclick="signupUser()">Create my profile <span>↗</span></button>
-        <p class="terms">Your account and interests are stored in the local SkillMate database.</p>
-        <p class="switch-text">Already a member? <button onclick="switchAuth('login')">Log in</button></p>
+        <p class="switch-text">Already a member? <button type="button" onclick="switchAuth('login')">Log in</button></p>
       </div>
     </div>
   </div>

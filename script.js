@@ -309,14 +309,77 @@ function closeModal() {
   document.body.classList.remove("modal-open");
 }
 
+function clearAuthBanner() {
+  const banner = $("#authInlineBanner");
+  if (banner) {
+    banner.hidden = true;
+    banner.textContent = "";
+    banner.classList.remove("success");
+  }
+}
+
+function showAuthBanner(message, isSuccess = false) {
+  const banner = $("#authInlineBanner");
+  const box = $("#authBox");
+  if (banner) {
+    banner.textContent = message;
+    banner.hidden = false;
+    banner.classList.toggle("success", isSuccess);
+  }
+  if (!isSuccess && box) {
+    box.classList.remove("shake");
+    void box.offsetWidth; // trigger reflow
+    box.classList.add("shake");
+  }
+}
+
+function nextSignupStep() {
+  clearAuthBanner();
+  const name = clean($("#signupName")?.value);
+  const email = clean($("#signupEmail")?.value);
+  const password = $("#signupPassword")?.value || "";
+
+  if (!name || !email) {
+    showAuthBanner("Please enter your full name and email address.");
+    return;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showAuthBanner("Please enter a valid email address.");
+    return;
+  }
+  if (!currentUser && password.length < 8) {
+    showAuthBanner("Use a password with at least 8 characters.");
+    return;
+  }
+
+  if ($("#signupStep1")) $("#signupStep1").style.display = "none";
+  if ($("#signupStep2")) $("#signupStep2").style.display = "block";
+  $("#signupStepPill1")?.classList.remove("active");
+  $("#signupStepPill2")?.classList.add("active");
+}
+
+function prevSignupStep() {
+  clearAuthBanner();
+  if ($("#signupStep1")) $("#signupStep1").style.display = "block";
+  if ($("#signupStep2")) $("#signupStep2").style.display = "none";
+  $("#signupStepPill1")?.classList.add("active");
+  $("#signupStepPill2")?.classList.remove("active");
+}
+
 function switchAuth(mode) {
+  clearAuthBanner();
   const login = mode !== "signup";
   $("#loginForm").style.display = login ? "block" : "none";
   $("#signupForm").style.display = login ? "none" : "block";
   $("#loginTab").classList.toggle("active", login);
   $("#signupTab").classList.toggle("active", !login);
+  $("#authTabs")?.classList.toggle("is-signup", !login);
 
   if (!login) {
+    if ($("#signupStep1")) $("#signupStep1").style.display = currentUser ? "none" : "block";
+    if ($("#signupStep2")) $("#signupStep2").style.display = currentUser ? "block" : "none";
+    $("#signupStepPill1")?.classList.toggle("active", !currentUser);
+    $("#signupStepPill2")?.classList.toggle("active", Boolean(currentUser));
     configureSignupForm();
     if (currentUser) fillProfileForm();
   }
@@ -387,7 +450,9 @@ function togglePassword(id, button) {
 
   const show = input.type === "password";
   input.type = show ? "text" : "password";
-  button.textContent = show ? "◌" : "◉";
+  button.innerHTML = show
+    ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>'
+    : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>';
   button.setAttribute("aria-label", show ? "Hide password" : "Show password");
 }
 
@@ -519,18 +584,19 @@ function updateSidebarAndMobileNav() {
 }
 
 async function loginUser() {
+  clearAuthBanner();
   const email = clean($("#loginEmail")?.value);
   const password = $("#loginPassword")?.value || "";
 
   if (!email || !password) {
-    showToast("Enter your email and password.");
+    showAuthBanner("Enter your email and password.");
     return;
   }
 
   const submitBtn = $("#loginForm .auth-submit");
   if (submitBtn) {
     submitBtn.disabled = true;
-    submitBtn.textContent = "Logging in...";
+    submitBtn.innerHTML = '<span class="auth-spinner"></span><span>Signing in...</span>';
   }
 
   try {
@@ -550,11 +616,11 @@ async function loginUser() {
 
     showToast(`Welcome back, ${result.user.name}!`);
   } catch (error) {
-    showToast(error.message || "Login failed.");
+    showAuthBanner(error.message || "Invalid email or password.");
   } finally {
     if (submitBtn) {
       submitBtn.disabled = false;
-      submitBtn.innerHTML = 'Login to SkillMate <span>↗</span>';
+      submitBtn.innerHTML = '<span>Log In to SkillMate</span>';
     }
   }
 }
@@ -569,16 +635,16 @@ async function signupUser() {
   const interests = selectedSignupTopics();
 
   if (!name || !email) {
-    showToast("Please enter your name and email.");
+    showAuthBanner("Please enter your name and email.");
     return;
   }
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    showToast("Enter a valid email address.");
+    showAuthBanner("Enter a valid email address.");
     return;
   }
   if (isNew && password.length < 8) {
-    showToast("Use a password with at least 8 characters.");
+    showAuthBanner("Use a password with at least 8 characters.");
     return;
   }
 
@@ -588,7 +654,7 @@ async function signupUser() {
   const submitBtn = $(".signup-submit");
   if (submitBtn) {
     submitBtn.disabled = true;
-    submitBtn.textContent = "Creating profile...";
+    submitBtn.innerHTML = '<span class="auth-spinner"></span><span>Creating account...</span>';
   }
 
   try {
@@ -635,11 +701,11 @@ async function signupUser() {
 
     showToast(isNew ? `Welcome to SkillMate, ${name}!` : "Profile updated.");
   } catch (error) {
-    showToast(error.message || "Failed to create account.");
+    showAuthBanner(error.message || "Failed to create account.");
   } finally {
     if (submitBtn) {
       submitBtn.disabled = false;
-      submitBtn.innerHTML = (currentUser ? "Save profile changes" : "Create my profile") + ' <span>↗</span>';
+      submitBtn.innerHTML = '<span>' + (currentUser ? "Save profile changes" : "Create Account") + '</span>';
     }
   }
 }
