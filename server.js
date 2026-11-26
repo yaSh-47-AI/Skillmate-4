@@ -213,6 +213,32 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+// Mobile App OTA Version & APK Download
+app.get("/api/app/version", (req, res) => {
+  try {
+    const versionFile = path.join(ROOT, "app-version.json");
+    if (fs.existsSync(versionFile)) {
+      const data = JSON.parse(fs.readFileSync(versionFile, "utf8"));
+      return res.json(data);
+    }
+  } catch (_) {}
+  res.json({
+    versionCode: 2,
+    versionName: "1.1",
+    apkUrl: "https://skillmate-4.onrender.com/downloads/skillmate-latest.apk",
+    notes: "Latest SkillMate Android build"
+  });
+});
+
+app.get("/downloads/skillmate-latest.apk", (req, res) => {
+  const apkPath = path.join(ROOT, "downloads", "skillmate-latest.apk");
+  if (!fs.existsSync(apkPath)) {
+    return res.status(404).json({ error: "APK not found on server." });
+  }
+  res.setHeader("Content-Type", "application/vnd.android.package-archive");
+  res.sendFile(apkPath);
+});
+
 // Authentication
 app.post("/api/auth/register", registerLimiter, async (req, res, next) => {
   try {
