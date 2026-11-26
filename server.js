@@ -217,7 +217,7 @@ app.get("/api/health", (req, res) => {
 });
 
 // Mobile App OTA Version & APK Download
-app.get("/api/app/version", (req, res) => {
+function sendAppVersion(req, res) {
   try {
     const versionFile = path.join(ROOT, "app-version.json");
     if (fs.existsSync(versionFile)) {
@@ -226,12 +226,16 @@ app.get("/api/app/version", (req, res) => {
     }
   } catch (_) {}
   res.json({
-    versionCode: 2,
-    versionName: "1.1",
+    webVersion: "2.1.0",
+    nativeVersion: "1.0.0",
+    nativeVersionCode: 5,
     apkUrl: "https://skillmate-4.onrender.com/downloads/skillmate-latest.apk",
-    notes: "Latest SkillMate Android build"
+    notes: "Latest SkillMate release"
   });
-});
+}
+
+app.get("/api/app/version", sendAppVersion);
+app.get("/api/version", sendAppVersion);
 
 app.get("/downloads/skillmate-latest.apk", (req, res) => {
   const apkPath = path.join(ROOT, "downloads", "skillmate-latest.apk");

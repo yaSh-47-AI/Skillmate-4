@@ -2411,3 +2411,92 @@ window.leaveNetworkChannel = async function(channelId, name) {
     showToast(err.message);
   }
 };
+
+// ==================== SEAMLESS IN-APP WEB OTA UPDATER (webVersion) ====================
+(function initWebOtaUpdater() {
+  const STORAGE_KEY = "sm_web_version";
+  let updateDismissed = false;
+
+  async function checkWebVersion() {
+    if (updateDismissed || window.SkillMateNativeOta) return;
+    try {
+      const res = await fetch(`/api/version?_t=${Date.now()}`, { cache: "no-store" });
+      if (!res.ok) return;
+      const data = await res.json();
+      const serverVersion = data?.webVersion;
+      if (!serverVersion) return;
+
+      const savedVersion = localStorage.getItem(STORAGE_KEY);
+      if (!savedVersion) {
+        localStorage.setItem(STORAGE_KEY, serverVersion);
+        return;
+      }
+
+      if (savedVersion !== serverVersion) {
+        showWebOtaModal(serverVersion, data.notes || "New UI & performance improvements are ready.");
+      }
+    } catch (_) {}
+  }
+
+  function showWebOtaModal(newVersion, notes) {
+    if (document.getElementById("smWebOtaModal")) return;
+
+    const modal = document.createElement("div");
+    modal.id = "smWebOtaModal";
+    modal.style.cssText = "position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(7,7,11,0.78);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);";
+    modal.innerHTML = `
+      <div style="width:min(400px,100%);padding:24px;border-radius:22px;background:rgba(18,18,28,0.85);border:1px solid rgba(168,85,247,0.35);box-shadow:0 24px 70px rgba(0,0,0,0.75),0 0 50px rgba(139,92,246,0.22);color:#f8fafc;font-family:inherit;">
+        <div style="font-size:18px;font-weight:800;margin-bottom:8px;">✨ New Update Available (v${escapeHtml(newVersion)})</div>
+        <p style="font-size:13px;color:#94a3b8;line-height:1.5;margin:0 0 16px;">${escapeHtml(notes)}</p>
+        <div id="smOtaProgressWrap" style="display:none;margin-bottom:14px;">
+          <div style="height:6px;border-radius:99px;background:rgba(255,255,255,0.08);overflow:hidden;">
+            <div id="smOtaProgressBar" style="width:15%;height:100%;background:linear-gradient(135deg,#7c3aed,#c026d3);transition:width 0.35s ease;"></div>
+          </div>
+          <div style="font-size:12px;color:#c084fc;margin-top:6px;font-weight:600;">Updating in-app...</div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:10px;">
+          <button id="smOtaLaterBtn" type="button" style="padding:10px 14px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:#94a3b8;font-weight:700;cursor:pointer;">Later</button>
+          <button id="smOtaNowBtn" type="button" style="padding:10px 18px;border-radius:12px;border:0;background:linear-gradient(135deg,#7c3aed,#c026d3);color:#fff;font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(124,58,237,0.35);">Update Now</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    document.getElementById("smOtaLaterBtn").onclick = () => {
+      updateDismissed = true;
+      modal.remove();
+    };
+
+    document.getElementById("smOtaNowBtn").onclick = async () => {
+      const btn = document.getElementById("smOtaNowBtn");
+      const later = document.getElementById("smOtaLaterBtn");
+      const wrap = document.getElementById("smOtaProgressWrap");
+      const bar = document.getElementById("smOtaProgressBar");
+      if (btn) { btn.disabled = true; btn.textContent = "Updating..."; }
+      if (later) later.style.display = "none";
+      if (wrap) wrap.style.display = "block";
+
+      setTimeout(() => { if (bar) bar.style.width = "65%"; }, 80);
+
+      try {
+        if ("caches" in window) {
+          const keys = await caches.keys();
+          await Promise.all(keys.map(k => caches.delete(k)));
+        }
+      } catch (_) {}
+
+      localStorage.setItem(STORAGE_KEY, newVersion);
+      setTimeout(() => {
+        if (bar) bar.style.width = "100%";
+        const url = new URL(window.location.href);
+        url.searchParams.set("_v", newVersion);
+        window.location.replace(url.toString());
+      }, 420);
+    };
+  }
+
+  window.addEventListener("load", () => setTimeout(checkWebVersion, 1200));
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") checkWebVersion();
+  });
+})();
