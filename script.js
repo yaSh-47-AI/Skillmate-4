@@ -549,6 +549,7 @@ function setAuthenticatedUser(user) {
   updateSidebarAndMobileNav();
   updateNotificationBadge();
   renderNotificationPanel();
+  if (typeof renderMobileHomeDashboard === "function") renderMobileHomeDashboard();
   window.dispatchEvent(new CustomEvent('auth-updated', { detail: currentUser }));
 }
 
@@ -1119,6 +1120,7 @@ async function loadConnections() {
     renderNotificationPanel();
     renderMembers();
     renderContacts();
+    if (typeof renderMobileHomeDashboard === "function") renderMobileHomeDashboard();
   } catch (error) {
     showToast(error.message);
   }
@@ -2116,7 +2118,7 @@ function bindAuthModalListeners() {
     }
   });
 
-  // Native Mobile Bottom Bar Triggers
+  // Floating Frosted Glass Bottom Dock Triggers
   $("#mobileTabHome")?.addEventListener("click", event => {
     event.preventDefault();
     navigateTo("home");
@@ -2127,14 +2129,14 @@ function bindAuthModalListeners() {
     navigateTo("discover");
   });
 
+  $("#mobileTabQuickAdd")?.addEventListener("click", event => {
+    event.preventDefault();
+    openQuickActionSheet();
+  });
+
   $("#mobileTabCommunities")?.addEventListener("click", event => {
     event.preventDefault();
     navigateTo("communities");
-  });
-
-  $("#mobileTabNetwork")?.addEventListener("click", event => {
-    event.preventDefault();
-    navigateTo("network");
   });
 
   $("#mobileTabChat")?.addEventListener("click", event => {
@@ -2142,6 +2144,201 @@ function bindAuthModalListeners() {
     closeSidebar();
     closeModal();
     openChat();
+  });
+
+  // Quick Action Bottom Sheet Controls
+  $("#quickActionCloseBtn")?.addEventListener("click", closeQuickActionSheet);
+  $("#quickActionBackdrop")?.addEventListener("click", closeQuickActionSheet);
+  $("#qaNewDM")?.addEventListener("click", () => {
+    closeQuickActionSheet();
+    if (window.GlassChat?.openNewDMModal) {
+      window.GlassChat.open();
+      window.GlassChat.openNewDMModal();
+    } else {
+      openChat();
+    }
+  });
+  $("#qaCreateChannel")?.addEventListener("click", () => {
+    closeQuickActionSheet();
+    if (window.GlassChat?.openCreateChannelModal) {
+      window.GlassChat.openCreateChannelModal();
+    } else {
+      navigateTo("network");
+    }
+  });
+  $("#qaExploreCircles")?.addEventListener("click", () => {
+    closeQuickActionSheet();
+    navigateTo("communities");
+  });
+
+  // Mobile Home Dashboard Controls
+  $("#mhSearchBtn")?.addEventListener("click", () => {
+    navigateTo("discover");
+    setTimeout(() => $("#search")?.focus(), 180);
+  });
+  $("#mhAvatarBtn")?.addEventListener("click", () => {
+    openModal(currentUser ? "signup" : "login");
+  });
+  $("#mhSpotlightBtn")?.addEventListener("click", () => {
+    if (!currentUser) {
+      openModal("signup");
+    } else {
+      navigateTo("discover");
+    }
+  });
+  $$("#mhCategoriesRow .mh-cat-tile").forEach(tile => {
+    tile.addEventListener("click", () => {
+      const interest = tile.dataset.interest || "";
+      navigateTo("discover");
+      if (interest && typeof filterByInterest === "function") {
+        filterByInterest(interest);
+      }
+    });
+  });
+
+  renderMobileHomeDashboard();
+}
+
+function openQuickActionSheet() {
+  $("#quickActionBackdrop")?.classList.add("open");
+  $("#quickActionSheet")?.classList.add("open");
+}
+
+function closeQuickActionSheet() {
+  $("#quickActionBackdrop")?.classList.remove("open");
+  $("#quickActionSheet")?.classList.remove("open");
+}
+
+function renderMobileHomeDashboard() {
+  const hour = new Date().getHours();
+  const timeGreeting = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
+  const timeEl = $("#mhTimeGreeting");
+  if (timeEl) timeEl.textContent = timeGreeting;
+
+  const firstNameEl = $("#mhFirstName");
+  const subtitleEl = $("#mhSubtitle");
+  const avatarEl = $("#mhUserAvatar");
+  if (currentUser) {
+    const first = (currentUser.name || "Explorer").trim().split(/\s+/)[0];
+    if (firstNameEl) firstNameEl.textContent = first;
+    if (subtitleEl) subtitleEl.textContent = "Connect, build, and grow with your peers.";
+    renderUserAvatar(avatarEl, currentUser);
+  } else {
+    if (firstNameEl) firstNameEl.textContent = "Explorer";
+    if (subtitleEl) subtitleEl.textContent = "Sign in to connect, chat, and join circles.";
+    if (avatarEl) avatarEl.textContent = "✦";
+  }
+
+  // Bento stats from live data
+  const acceptedCount = Array.isArray(connectionRows)
+    ? connectionRows.filter(r => r.status === "accepted").length
+    : 0;
+  const circlesCount = typeof joinedCommunityIds !== "undefined" && joinedCommunityIds?.size
+    ? joinedCommunityIds.size
+    : 0;
+
+  let cachedConvs = [];
+  try {
+    cachedConvs = JSON.parse(localStorage.getItem("gc_cache_convs") || "[]") || [];
+  } catch (_) {}
+  const unreadTotal = cachedConvs.reduce((acc, c) => acc + Number(c.unread_count || 0), 0);
+
+  if ($("#mhStatConnections")) $("#mhStatConnections").textContent = String(acceptedCount);
+  if ($("#mhStatCircles")) $("#mhStatCircles").textContent = String(circlesCount);
+  if ($("#mhStatUnread")) $("#mhStatUnread").textContent = String(unreadTotal);
+
+  const notifDot = $("#mhNotifDot");
+  const pendingCount = Array.isArray(connectionRows)
+    ? connectionRows.filter(r => r.status === "pending" && r.direction === "incoming").length
+    : 0;
+  if (notifDot) notifDot.hidden = pendingCount === 0;
+
+  // Profile Strength / Match Pulse
+  let strength = 35;
+  if (currentUser) {
+    strength = 55;
+    if (currentUser.bio) strength += 15;
+    if (Array.isArray(currentUser.interests) && currentUser.interests.length > 0) strength += 15;
+    if (acceptedCount > 0 || circlesCount > 0) strength += 15;
+  }
+  strength = Math.min(100, strength);
+  if ($("#mhProgressFill")) $("#mhProgressFill").style.width = `${strength}%`;
+  if ($("#mhProgressPct")) $("#mhProgressPct").textContent = `${strength}%`;
+  if ($("#mhSpotlightTitle")) {
+    $("#mhSpotlightTitle").textContent = currentUser ? (strength >= 85 ? "Match Pulse Strong!" : "Keep Building!") : "Join SkillMate";
+  }
+  if ($("#mhSpotlightDesc")) {
+    $("#mhSpotlightDesc").textContent = currentUser
+      ? (strength >= 85 ? "Your profile is tuned for top peer & circle matches." : "Add skills or join a circle to boost your peer match score.")
+      : "Create your profile to unlock live DMs, circles, and peer matching.";
+  }
+
+  // Stacked Active Chats & Circles List
+  const listEl = $("#mhActivityList");
+  if (!listEl) return;
+  const items = [];
+  cachedConvs.slice(0, 3).forEach(c => {
+    items.push({
+      type: "dm",
+      id: c.id,
+      name: c.name || c.title || "Direct Message",
+      sub: c.last_message || "Tap to continue conversation",
+      avatar: c.avatar_url || "",
+      initial: (c.name || "C").charAt(0).toUpperCase()
+    });
+  });
+
+  if (typeof COMMUNITIES !== "undefined" && Array.isArray(COMMUNITIES)) {
+    const joinedList = COMMUNITIES.filter(cm => joinedCommunityIds?.has?.(cm.id)).slice(0, 3);
+    joinedList.forEach(cm => {
+      items.push({
+        type: "circle",
+        id: cm.id,
+        name: cm.name,
+        sub: `${cm.members || "Active"} members · Circle`,
+        avatar: "",
+        initial: "#"
+      });
+    });
+  }
+
+  if (items.length === 0) {
+    listEl.innerHTML = `<button type="button" class="mh-activity-row" onclick="navigateTo('discover')">
+      <span class="mh-row-avatar">✦</span>
+      <span class="mh-row-copy">
+        <strong>Discover Peers &amp; Circles</strong>
+        <small>Tap to find collaborators who share your skills</small>
+      </span>
+      <span class="mh-row-chevron">&rsaquo;</span>
+    </button>`;
+    return;
+  }
+
+  listEl.innerHTML = "";
+  items.slice(0, 4).forEach(item => {
+    const row = document.createElement("button");
+    row.type = "button";
+    row.className = "mh-activity-row";
+    const avatarHtml = item.avatar
+      ? `<img src="${escapeHtml(item.avatar)}" alt="">`
+      : escapeHtml(item.initial);
+    row.innerHTML = `
+      <span class="mh-row-avatar">${avatarHtml}</span>
+      <span class="mh-row-copy">
+        <strong>${escapeHtml(item.name)}</strong>
+        <small>${escapeHtml(item.sub)}</small>
+      </span>
+      <span class="mh-row-chevron">&rsaquo;</span>
+    `;
+    row.addEventListener("click", () => {
+      if (item.type === "dm") {
+        if (window.GlassChat) window.GlassChat.open(item.id);
+        else openChat();
+      } else {
+        navigateTo("communities");
+      }
+    });
+    listEl.appendChild(row);
   });
 }
 

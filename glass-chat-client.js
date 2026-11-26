@@ -6,19 +6,19 @@
   styleEl.id = 'glass-messenger-styles';
   styleEl.textContent = `
     :root {
-      --gc-bg-base: #090810;
-      --gc-bg-glass: rgba(16, 13, 26, 0.78);
-      --gc-bg-sidebar: rgba(12, 10, 20, 0.75);
-      --gc-bg-input: rgba(22, 18, 36, 0.88);
-      --gc-bg-card-hover: rgba(255, 255, 255, 0.06);
-      --gc-border: rgba(255, 255, 255, 0.08);
-      --gc-border-focus: rgba(168, 85, 247, 0.6);
-      --gc-purple-primary: #a855f7;
-      --gc-purple-gradient: linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%);
-      --gc-purple-glow: 0 0 25px rgba(168, 85, 247, 0.35);
-      --gc-text-main: #f8fafc;
-      --gc-text-muted: #94a3b8;
-      --gc-online: #22c55e;
+      --gc-bg-base: #0B1410;
+      --gc-bg-glass: rgba(14, 24, 19, 0.84);
+      --gc-bg-sidebar: rgba(11, 20, 16, 0.86);
+      --gc-bg-input: rgba(24, 39, 31, 0.9);
+      --gc-bg-card-hover: rgba(197, 217, 169, 0.08);
+      --gc-border: rgba(203, 224, 190, 0.12);
+      --gc-border-focus: rgba(197, 217, 169, 0.55);
+      --gc-purple-primary: #C5D9A9;
+      --gc-purple-gradient: linear-gradient(135deg, #D2E4B8 0%, #99C58D 100%);
+      --gc-purple-glow: 0 0 22px rgba(197, 217, 169, 0.3);
+      --gc-text-main: #F3F6F1;
+      --gc-text-muted: rgba(200, 215, 198, 0.58);
+      --gc-online: #84C99A;
       --gc-idle: #eab308;
       --gc-dnd: #ef4444;
       --gc-font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -30,9 +30,9 @@
       z-index: 99999;
       background: var(--gc-bg-base);
       background-image: 
-        radial-gradient(circle at 18% 22%, rgba(139, 92, 246, 0.32) 0%, transparent 48%),
-        radial-gradient(circle at 82% 78%, rgba(217, 70, 239, 0.25) 0%, transparent 50%),
-        radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.12) 0%, transparent 65%);
+        radial-gradient(circle at 18% 20%, rgba(74, 118, 86, 0.28) 0%, transparent 50%),
+        radial-gradient(circle at 82% 80%, rgba(197, 217, 169, 0.14) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(45, 90, 64, 0.16) 0%, transparent 65%);
       color: var(--gc-text-main);
       font-family: var(--gc-font);
       display: flex;
@@ -563,19 +563,20 @@
 
     /* Left Incoming: Dark Frosted Glass */
     .gc-message-row.incoming .gc-bubble {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      color: #f1f5f9;
+      background: rgba(255, 255, 255, 0.055);
+      border: 1px solid rgba(203, 224, 190, 0.12);
+      color: #F3F6F1;
       border-radius: 18px 18px 18px 4px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.22);
     }
 
-    /* Right Outgoing: Neon Purple Gradient */
+    /* Right Outgoing: Soft Sage / Emerald Frosted Gradient */
     .gc-message-row.outgoing .gc-bubble {
-      background: var(--gc-purple-gradient);
-      color: #ffffff;
+      background: linear-gradient(135deg, rgba(197, 217, 169, 0.24) 0%, rgba(132, 201, 154, 0.16) 100%);
+      border: 1px solid rgba(197, 217, 169, 0.32);
+      color: #F3F6F1;
       border-radius: 18px 18px 4px 18px;
-      box-shadow: 0 4px 20px rgba(139, 92, 246, 0.35);
+      box-shadow: 0 4px 20px rgba(24, 52, 36, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.12);
       font-weight: 500;
     }
 
@@ -731,7 +732,7 @@
       border-radius: 50%;
       background: var(--gc-purple-gradient);
       border: none;
-      color: #fff;
+      color: #0C1812;
       display: flex;
       align-items: center;
       justify-content: center;
