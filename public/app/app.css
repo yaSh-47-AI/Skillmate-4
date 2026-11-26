@@ -6131,6 +6131,277 @@ footer small { display:block; margin-top:12px; color:#6f6c81; font-size:9px; }
   color: #FFFFFF;
 }
 
+/* ==========================================================================
+   MOBILE-FIRST COMPACT DISCOVER REDESIGN & STRICT VIEWPORT CONTAINMENT
+   ========================================================================== */
+
+.disc-shell {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+  box-sizing: border-box !important;
+  padding: 12px 14px calc(112px + env(safe-area-inset-bottom, 0px)) !important;
+  gap: 12px !important;
+}
+
+/* Slim 40px Search Bar with Filter Icon tucked inside right edge */
+.disc-search-bar {
+  height: 40px !important;
+  min-height: 40px !important;
+  padding: 0 5px 0 12px !important;
+  gap: 8px !important;
+}
+
+.disc-search-input {
+  font-size: 14px !important;
+  padding: 0 !important;
+}
+
+.disc-filter-trigger {
+  width: 30px !important;
+  height: 30px !important;
+  min-height: 30px !important;
+}
+
+/* Compact Vibe Chips with snap scroll */
+.disc-vibe-chips {
+  scroll-snap-type: x proximity;
+  gap: 6px !important;
+}
+
+.disc-vibe-chip {
+  scroll-snap-align: start;
+  font-size: 12px !important;
+  padding: 6px 12px !important;
+  min-height: 32px !important;
+}
+
+/* Story-Style Perfect Swaps Strip (80px wide items) */
+.disc-swaps-carousel {
+  gap: 10px !important;
+  scroll-snap-type: x proximity;
+}
+
+.disc-swap-story {
+  flex: 0 0 80px;
+  width: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+  scroll-snap-align: start;
+  cursor: pointer;
+}
+
+.disc-story-ring-wrap {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  padding: 2px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7C3AED, #06B6D4);
+}
+
+.disc-story-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #141821;
+  border: 2px solid #0B0D12;
+  color: #F8FAFC;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.disc-story-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.disc-story-plus {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 20px;
+  height: 20px;
+  min-height: 20px !important;
+  padding: 0;
+  border-radius: 50%;
+  background: #7C3AED;
+  border: 2px solid #0B0D12;
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.disc-story-name {
+  width: 100%;
+  font-size: 12px;
+  font-weight: 500;
+  color: #F8FAFC;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.disc-story-skill {
+  max-width: 100%;
+  font-size: 10px;
+  font-weight: 600;
+  color: #22D3EE;
+  background: rgba(6, 182, 212, 0.12);
+  border: 1px solid rgba(6, 182, 212, 0.25);
+  padding: 2px 6px;
+  border-radius: 999px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Compact High-Density Profile Cards */
+.disc-bento-grid {
+  gap: 10px !important;
+}
+
+.disc-bento-card {
+  background: #141821 !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  border-radius: 16px !important;
+  padding: 14px !important;
+  gap: 8px !important;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.disc-card-top {
+  display: flex;
+  align-items: center !important;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.disc-user-id {
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.disc-avatar-wrap {
+  width: 44px !important;
+  height: 44px !important;
+}
+
+.disc-name-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.disc-name-line h3 {
+  font-size: 14px !important;
+  font-weight: 700;
+  color: #F8FAFC;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.disc-match-inline {
+  flex-shrink: 0;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #22D3EE;
+  background: rgba(6, 182, 212, 0.12);
+  padding: 1px 6px;
+  border-radius: 999px;
+}
+
+.disc-handle-line {
+  font-size: 12px;
+  color: #94A3B8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.disc-connect-pill {
+  flex-shrink: 0;
+  min-height: 34px !important;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: none;
+  background: #7C3AED;
+  color: #FFFFFF;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.disc-connect-pill.sent,
+.disc-connect-pill.connected {
+  background: transparent;
+  border: 1px solid rgba(6, 182, 212, 0.45);
+  color: #22D3EE;
+}
+
+.disc-compact-bio {
+  margin: 0;
+  font-size: 12px;
+  color: #CBD5E1;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.disc-skill-pill {
+  font-size: 11px !important;
+  padding: 2px 8px !important;
+  border-radius: 999px !important;
+}
+
+/* Mobile Header & Deck Viewport Fit (<= 768px) */
+@media (max-width: 768px) {
+  .disc-toggle-btn {
+    padding: 7px 10px !important;
+    min-height: 34px !important;
+  }
+
+  .disc-toggle-btn span {
+    display: none;
+  }
+
+  .disc-deck-container {
+    gap: 12px !important;
+    padding: 4px 0 8px !important;
+  }
+
+  .disc-deck-stage {
+    min-height: 220px !important;
+    height: min(300px, calc(100dvh - 330px)) !important;
+  }
+
+  .disc-deck-card {
+    height: auto !important;
+    min-height: 195px;
+    max-height: 100%;
+  }
+}
+
 .disc-ice-input {
   width: 100%;
   background: #0B0D12;

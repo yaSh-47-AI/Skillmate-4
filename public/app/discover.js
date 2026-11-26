@@ -274,7 +274,7 @@
     }
   }
 
-  // Sub-component 2: SkillCard (Bento Card)
+  // Sub-component 2: Compact High-Density SkillCard
   function createSkillCard(profile) {
     const card = document.createElement('article');
     card.className = 'disc-bento-card';
@@ -286,13 +286,13 @@
       ? `<img src="${escapeHtml(profile.avatar_url)}" alt="${escapeHtml(profile.name)}">`
       : `<span>${escapeHtml(initials)}</span>`;
 
-    // Max 4-5 color-coded skill pills + overflow
+    // Max 3-4 compact micro skill pills + overflow
     const pills = [];
     profile.skillsToTeach.forEach(s => pills.push({ label: s, cls: 'teach', prefix: 'Pro' }));
     profile.skillsToLearn.forEach(s => pills.push({ label: s, cls: 'learn', prefix: 'Learning' }));
     profile.skillsCollab.forEach(s => pills.push({ label: s, cls: 'collab', prefix: 'Collab' }));
 
-    const maxPills = 4;
+    const maxPills = 3;
     const shown = pills.slice(0, maxPills);
     const overflow = Math.max(0, profile.allSkills.length - shown.length);
 
@@ -301,10 +301,10 @@
     ).join('') + (overflow > 0 ? `<span class="disc-skill-pill overflow">+${overflow}</span>` : '');
 
     let ctaLabel = '+ Connect';
-    let ctaClass = 'disc-connect-btn';
+    let ctaClass = 'disc-connect-pill';
     let ctaDisabled = false;
     if (status === 'pending') {
-      ctaLabel = 'Request Sent ✓';
+      ctaLabel = 'Sent ✓';
       ctaClass += ' sent';
       ctaDisabled = true;
     } else if (status === 'accepted') {
@@ -321,29 +321,22 @@
             ${profile.isOnline ? '<span class="disc-online-dot" title="Online now"></span>' : ''}
           </div>
           <div class="disc-user-meta">
-            <h3>${escapeHtml(profile.name)}</h3>
-            <div class="disc-handle-row">
-              <span>${escapeHtml(profile.username)}</span>
-              <span class="disc-loc-pill">📍 ${escapeHtml(profile.location)}</span>
+            <div class="disc-name-line">
+              <h3>${escapeHtml(profile.name)}</h3>
+              <span class="disc-match-inline">${profile.matchPercentage}%</span>
             </div>
+            <div class="disc-handle-line">${escapeHtml(profile.username)} • 📍 ${escapeHtml(profile.location)}</div>
           </div>
         </div>
-        <span class="disc-match-badge">${profile.matchPercentage}% Match</span>
+        <button type="button" class="${ctaClass}" ${ctaDisabled ? 'disabled' : ''}>${ctaLabel}</button>
       </div>
 
-      <div class="disc-status-bar">${escapeHtml(profile.currentlyInto)}</div>
+      <p class="disc-compact-bio">${escapeHtml(profile.currentlyInto || profile.bio || 'Open to collaborate and swap skills')}</p>
 
       <div class="disc-skills-row">${pillsHtml || '<span class="disc-skill-pill collab">Open to Collab</span>'}</div>
-
-      <div class="disc-card-footer">
-        <button type="button" class="${ctaClass}" ${ctaDisabled ? 'disabled' : ''}>${ctaLabel}</button>
-        <button type="button" class="disc-msg-icon-btn message-btn" data-message-user-id="${escapeHtml(profile.id)}" data-message-user-name="${escapeHtml(profile.name)}" data-is-demo="${profile.isDemo ? '1' : '0'}" title="Message ${escapeHtml(profile.name)}" aria-label="Message ${escapeHtml(profile.name)}">
-          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-        </button>
-      </div>
     `;
 
-    card.querySelector('.disc-connect-btn')?.addEventListener('click', e => {
+    card.querySelector('.disc-connect-pill')?.addEventListener('click', e => {
       e.stopPropagation();
       haptic(14);
       openIcebreaker(profile);
@@ -357,7 +350,7 @@
     return card;
   }
 
-  // Sub-component 3: PerfectSwaps Spotlight Carousel
+  // Sub-component 3: PerfectSwaps Story-Style Strip
   function renderPerfectSwaps(allProfiles) {
     const section = $('#discSwapsSection');
     const carousel = $('#discSwapsCarousel');
@@ -378,29 +371,30 @@
 
     carousel.innerHTML = '';
     swaps.forEach(p => {
-      const mini = document.createElement('div');
-      mini.className = 'disc-swap-mini';
+      const story = document.createElement('div');
+      story.className = 'disc-swap-story';
+      const firstName = (p.name || 'Member').trim().split(/\s+/)[0];
       const initials = (p.name || 'M').trim().slice(0, 2).toUpperCase();
       const avatar = p.avatar_url
         ? `<img src="${escapeHtml(p.avatar_url)}" alt="">`
         : `<span>${escapeHtml(initials)}</span>`;
-      mini.innerHTML = `
-        <div class="disc-swap-head">
-          <div class="disc-swap-avatar">${avatar}</div>
-          <button type="button" class="disc-swap-plus" aria-label="Connect with ${escapeHtml(p.name)}">+</button>
+      story.innerHTML = `
+        <div class="disc-story-ring-wrap">
+          <div class="disc-story-avatar">${avatar}</div>
+          <button type="button" class="disc-story-plus" aria-label="Connect with ${escapeHtml(p.name)}">+</button>
         </div>
-        <strong class="disc-swap-name">${escapeHtml(p.name)}</strong>
-        <span class="disc-swap-badge">${escapeHtml(p.swapSkill)}</span>
+        <span class="disc-story-name">${escapeHtml(firstName)}</span>
+        <span class="disc-story-skill">${escapeHtml(p.swapSkill)}</span>
       `;
-      mini.querySelector('.disc-swap-plus')?.addEventListener('click', e => {
+      story.querySelector('.disc-story-plus')?.addEventListener('click', e => {
         e.stopPropagation();
         haptic(14);
         openIcebreaker(p);
       });
-      mini.addEventListener('click', e => {
+      story.addEventListener('click', e => {
         if (!e.target.closest('button')) openProfileSheet(p);
       });
-      carousel.appendChild(mini);
+      carousel.appendChild(story);
     });
   }
 
