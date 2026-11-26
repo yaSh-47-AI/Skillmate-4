@@ -2,9 +2,9 @@
   'use strict';
 
   const VIBE_SKILL_MAP = {
-    tech: ['ai', 'ml', 'python', 'web', 'javascript', 'react', 'node', 'cyber', 'data', 'robotics', 'iot', 'cloud', 'coding'],
-    design: ['design', 'ui', 'ux', 'figma', 'product', 'art', '3d', 'animation', 'branding'],
-    music: ['music', 'audio', 'guitar', 'production', 'singing', 'dj', 'sound']
+    tech: ['ai', 'python', 'web development', 'web dev', 'cybersecurity', 'data science', 'coding', 'tech', 'app dev', 'ml', 'react', 'node', 'javascript', 'robotics', 'iot', 'cloud'],
+    design: ['ui/ux', 'ui', 'ux', 'design', 'photography', 'video', 'art', 'graphics', 'figma', 'product'],
+    music: ['music', 'singing', 'guitar', 'piano', 'audio', 'production', 'dj']
   };
 
   const ICEBREAKER_CHIPS = [
@@ -15,9 +15,11 @@
   ];
 
   const FILTER_SKILL_OPTIONS = [
-    'AI & ML', 'Web Development', 'Python', 'Design', 'Startups',
-    'Cybersecurity', 'Data Science', 'Robotics', 'Music', 'Cloud'
+    'AI', 'Python', 'Web Development', 'Design', 'Startups',
+    'Cybersecurity', 'Data Science', 'Music', 'Photography', 'App Dev'
   ];
+
+  const PAGE_SIZE = 6;
 
   const state = {
     viewMode: 'feed', // 'feed' | 'deck'
@@ -27,9 +29,10 @@
       city: '',
       skills: new Set(),
       onlineOnly: false,
-      collabOnly: false
+      collabOnly: false,
+      minMatch: 0
     },
-    visibleCount: 12,
+    visibleCount: PAGE_SIZE,
     deckIndex: 0,
     isLoading: false,
     optimisticSent: new Set(),
@@ -74,12 +77,30 @@
     return [];
   }
 
+  function cleanText(text) {
+    return String(text || '')
+      .replace(/â€¢|Â·/g, '•')
+      .replace(/\uFFFD+/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
   function splitCity(bio) {
-    const parts = String(bio || '').split('•').map(s => s.trim()).filter(Boolean);
+    const cleaned = cleanText(bio);
+    const parts = cleaned.split(/•|\|/).map(s => s.trim()).filter(Boolean);
     return {
       role: parts[0] || '',
       city: parts[1] || ''
     };
+  }
+
+  function formatUsername(raw) {
+    const base = String(raw.username || raw.name || 'member')
+      .replace(/^@+/, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9_]/g, '')
+      .slice(0, 16) || 'member';
+    return `@${base}`;
   }
 
   function hashSeed(input) {
@@ -126,9 +147,10 @@
       'Exploring AI agents & product design',
       'Open to weekend skill-swap sessions'
     ];
-    const currentlyInto = raw.currentlyInto || role || statusOptions[seed % statusOptions.length];
-    const username = raw.username || `@${String(raw.name || 'member').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 14) || 'member'}`;
-    const location = raw.city || city || 'Remote';
+    const currentlyInto = cleanText(raw.currentlyInto || role || statusOptions[seed % statusOptions.length]);
+    const username = formatUsername(raw);
+    const location = cleanText(raw.city || city || 'Remote') || 'Remote';
+    const cleanBio = cleanText(raw.bio || '');
     const isOnline = typeof raw.isOnline === 'boolean' ? raw.isOnline : (seed % 3 !== 0);
     const openToCollab = typeof raw.openToCollab === 'boolean' ? raw.openToCollab : (seed % 4 !== 0);
 
@@ -137,6 +159,7 @@
 
     return {
       ...raw,
+      bio: cleanBio,
       username,
       location,
       currentlyInto,
@@ -169,27 +192,44 @@
     const me = getCurrentUser();
     const myCity = splitCity(me?.bio).city.toLowerCase();
     const q = state.search.trim().toLowerCase();
+    const qBare = q.replace(/^@+/, '');
 
     let list = getRawProfiles()
       .filter(p => !me || Number(p.id) !== Number(me.id))
       .map(enrichProfile);
 
+    // Exclude already-connected users from default feed unless user explicitly searches their exact name/username
+    list = list.filter(p => {
+      if (getConnectionStatus(p) !== 'accepted') return true;
+      if (!q) return false;
+      const pName = String(p.name || '').trim().toLowerCase();
+      const pUser = String(p.username || '').replace(/^@+/, '').trim().toLowerCase();
+      return pName === q || pUser === qBare;
+    });
+
     if (q) {
       list = list.filter(p => {
-        const hay = `${p.name} ${p.username} ${p.location} ${p.currentlyInto} ${p.allSkills.join(' ')}`.toLowerCase();
+        const bareHandle = String(p.username || '').replace(/^@+/, '');
+        const hay = `${p.name} ${p.username} ${bareHandle} ${p.location} ${p.bio} ${p.currentlyInto} ${p.allSkills.join(' ')}`.toLowerCase();
         return hay.includes(q);
       });
     }
 
     if (state.vibe === 'top') {
-      list = list.filter(p => p.matchPercentage >= 75);
+      const seventyPlus = list.filter(p => p.matchPercentage >= 70);
+      if (seventyPlus.length >= 2) {
+        list = seventyPlus;
+      } else {
+        const sortedTop = [...list].sort((a, b) => b.matchPercentage - a.matchPercentage);
+        list = sortedTop.slice(0, Math.max(1, Math.ceil(sortedTop.length / 2)));
+      }
     } else if (state.vibe === 'online') {
       list = list.filter(p => p.isOnline);
     } else if (state.vibe === 'nearby') {
       list = list.filter(p => myCity ? p.location.toLowerCase().includes(myCity) : p.location !== 'Remote');
     } else if (VIBE_SKILL_MAP[state.vibe]) {
       const keys = VIBE_SKILL_MAP[state.vibe];
-      list = list.filter(p => p.allSkills.some(s => keys.some(k => s.toLowerCase().includes(k))));
+      list = list.filter(p => p.allSkills.some(s => keys.some(k => s.toLowerCase().includes(k) || k.includes(s.toLowerCase()))));
     }
 
     if (state.filters.city.trim()) {
@@ -199,6 +239,9 @@
     if (state.filters.skills.size > 0) {
       const wanted = [...state.filters.skills].map(s => s.toLowerCase());
       list = list.filter(p => p.allSkills.some(s => wanted.some(w => s.toLowerCase().includes(w) || w.includes(s.toLowerCase()))));
+    }
+    if (state.filters.minMatch > 0) {
+      list = list.filter(p => p.matchPercentage >= state.filters.minMatch);
     }
     if (state.filters.onlineOnly) {
       list = list.filter(p => p.isOnline);
@@ -326,7 +369,7 @@
 
     const swaps = allProfiles
       .filter(p => getConnectionStatus(p) === 'none')
-      .slice(0, 8);
+      .slice(0, 6);
 
     if (swaps.length === 0) {
       section.hidden = true;
@@ -506,6 +549,14 @@
           ${FILTER_SKILL_OPTIONS.map(s => `<button type="button" class="disc-filter-tag" data-skill="${escapeHtml(s)}">${escapeHtml(s)}</button>`).join('')}
         </div>
 
+        <span class="disc-field-label">Minimum Match %</span>
+        <div class="disc-filter-toggles" id="discFilterMinMatch">
+          <button type="button" class="disc-match-opt active" data-min="0">Any</button>
+          <button type="button" class="disc-match-opt" data-min="50">50%+</button>
+          <button type="button" class="disc-match-opt" data-min="70">70%+</button>
+          <button type="button" class="disc-match-opt" data-min="85">85%+</button>
+        </div>
+
         <span class="disc-field-label">Availability</span>
         <div class="disc-filter-toggles">
           <button type="button" class="disc-avail-btn" id="discToggleOnline">⚡ Online Now</button>
@@ -547,12 +598,20 @@
       if (!btn) return;
       btn.classList.toggle('active');
     });
+    $('#discFilterMinMatch')?.addEventListener('click', e => {
+      const opt = e.target.closest('.disc-match-opt');
+      if (!opt) return;
+      host.querySelectorAll('#discFilterMinMatch .disc-match-opt').forEach(el => el.classList.toggle('active', el === opt));
+    });
     $('#discToggleOnline')?.addEventListener('click', e => e.currentTarget.classList.toggle('active'));
     $('#discToggleCollab')?.addEventListener('click', e => e.currentTarget.classList.toggle('active'));
     $('#discFilterResetBtn')?.addEventListener('click', () => {
       $('#discFilterCityInput').value = '';
       host.querySelectorAll('.disc-filter-tag, .disc-avail-btn').forEach(el => el.classList.remove('active'));
-      state.filters = { city: '', skills: new Set(), onlineOnly: false, collabOnly: false };
+      host.querySelectorAll('#discFilterMinMatch .disc-match-opt').forEach((el, idx) => el.classList.toggle('active', idx === 0));
+      state.filters = { city: '', skills: new Set(), onlineOnly: false, collabOnly: false, minMatch: 0 };
+      state.visibleCount = PAGE_SIZE;
+      state.deckIndex = 0;
       updateFilterBadge();
       closeFilterSheet();
       DiscoverScreen.render();
@@ -562,9 +621,11 @@
       state.filters.skills = new Set(
         [...host.querySelectorAll('.disc-filter-tag.active')].map(el => el.dataset.skill)
       );
+      const activeMin = host.querySelector('#discFilterMinMatch .disc-match-opt.active');
+      state.filters.minMatch = Number(activeMin?.dataset.min || 0);
       state.filters.onlineOnly = $('#discToggleOnline')?.classList.contains('active') || false;
       state.filters.collabOnly = $('#discToggleCollab')?.classList.contains('active') || false;
-      state.visibleCount = 12;
+      state.visibleCount = PAGE_SIZE;
       state.deckIndex = 0;
       updateFilterBadge();
       closeFilterSheet();
@@ -642,6 +703,9 @@
     document.querySelectorAll('#discFilterSkills .disc-filter-tag').forEach(el => {
       el.classList.toggle('active', state.filters.skills.has(el.dataset.skill));
     });
+    document.querySelectorAll('#discFilterMinMatch .disc-match-opt').forEach(el => {
+      el.classList.toggle('active', Number(el.dataset.min || 0) === state.filters.minMatch);
+    });
     $('#discToggleOnline')?.classList.toggle('active', state.filters.onlineOnly);
     $('#discToggleCollab')?.classList.toggle('active', state.filters.collabOnly);
     $('#discFilterBackdrop')?.classList.add('open');
@@ -658,6 +722,7 @@
     if (!badge) return;
     let count = state.filters.skills.size;
     if (state.filters.city.trim()) count++;
+    if (state.filters.minMatch > 0) count++;
     if (state.filters.onlineOnly) count++;
     if (state.filters.collabOnly) count++;
     badge.textContent = String(count);
@@ -746,19 +811,12 @@
     }, { passive: true });
   }
 
-  function setupInfiniteScroll() {
-    const sentinel = $('#discScrollSentinel');
-    if (!sentinel || typeof IntersectionObserver === 'undefined') return;
-    observer = new IntersectionObserver(entries => {
-      if (entries[0]?.isIntersecting && state.viewMode === 'feed') {
-        const total = getFilteredProfiles().length;
-        if (state.visibleCount < total) {
-          state.visibleCount += 10;
-          DiscoverScreen.renderFeedOnly();
-        }
-      }
-    }, { rootMargin: '200px' });
-    observer.observe(sentinel);
+  function setupLoadMore() {
+    $('#discLoadMoreBtn')?.addEventListener('click', () => {
+      haptic(10);
+      state.visibleCount += PAGE_SIZE;
+      DiscoverScreen.renderFeedOnly();
+    });
   }
 
   const DiscoverScreen = {
@@ -771,7 +829,7 @@
         clearTimeout(searchTimer);
         searchTimer = setTimeout(() => {
           state.search = searchInput.value || '';
-          state.visibleCount = 12;
+          state.visibleCount = PAGE_SIZE;
           state.deckIndex = 0;
           this.render();
         }, 120);
@@ -781,7 +839,7 @@
         if (searchInput) searchInput.value = '';
         clearBtn.hidden = true;
         state.search = '';
-        state.visibleCount = 12;
+        state.visibleCount = PAGE_SIZE;
         state.deckIndex = 0;
         this.render();
       });
@@ -804,7 +862,7 @@
         if (!chip) return;
         haptic(8);
         state.vibe = chip.dataset.vibe || 'all';
-        state.visibleCount = 12;
+        state.visibleCount = PAGE_SIZE;
         state.deckIndex = 0;
         document.querySelectorAll('#discVibeChips .disc-vibe-chip').forEach(el => {
           el.classList.toggle('active', el === chip);
@@ -841,7 +899,7 @@
       });
 
       setupPullToRefresh();
-      setupInfiniteScroll();
+      setupLoadMore();
       this.render();
     },
 
@@ -851,8 +909,8 @@
       if ($('#discSearchClear')) $('#discSearchClear').hidden = true;
       state.search = '';
       state.vibe = 'all';
-      state.filters = { city: '', skills: new Set(), onlineOnly: false, collabOnly: false };
-      state.visibleCount = 12;
+      state.filters = { city: '', skills: new Set(), onlineOnly: false, collabOnly: false, minMatch: 0 };
+      state.visibleCount = PAGE_SIZE;
       state.deckIndex = 0;
       document.querySelectorAll('#discVibeChips .disc-vibe-chip').forEach(el => {
         el.classList.toggle('active', el.dataset.vibe === 'all');
@@ -866,7 +924,7 @@
       if (!val) return;
       state.filters.skills = new Set([val]);
       state.vibe = 'all';
-      state.visibleCount = 12;
+      state.visibleCount = PAGE_SIZE;
       updateFilterBadge();
       this.render();
     },
@@ -879,7 +937,17 @@
       grid.innerHTML = '';
       visible.forEach(p => grid.appendChild(createSkillCard(p)));
       const countEl = $('#profileCount');
-      if (countEl) countEl.textContent = `${visible.length} of ${profiles.length} matches`;
+      if (countEl) countEl.textContent = `Showing ${visible.length} of ${profiles.length} curated matches`;
+
+      const loadWrap = $('#discLoadMoreWrap');
+      const loadBtn = $('#discLoadMoreBtn');
+      if (loadWrap && loadBtn) {
+        const remaining = profiles.length - visible.length;
+        loadWrap.hidden = remaining <= 0;
+        if (remaining > 0) {
+          loadBtn.textContent = `Load More Matches (${remaining} remaining)`;
+        }
+      }
     },
 
     render() {

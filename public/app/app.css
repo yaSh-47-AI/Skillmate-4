@@ -6085,9 +6085,49 @@ footer small { display:block; margin-top:12px; color:#6f6c81; font-size:9px; }
 
 .disc-ice-chip.active,
 .disc-filter-tag.active,
-.disc-avail-btn.active {
+.disc-avail-btn.active,
+.disc-match-opt.active {
   background: rgba(124, 58, 237, 0.24);
   border-color: #7C3AED;
+  color: #FFFFFF;
+}
+
+.disc-match-opt {
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #CBD5E1;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.disc-load-more-wrap {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+}
+
+.disc-deck-pill-btn {
+  min-height: 48px;
+  padding: 0 22px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #151922;
+  color: #F8FAFC;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: transform 0.16s ease;
+}
+.disc-deck-pill-btn:active { transform: scale(0.95); }
+.disc-deck-pill-btn.skip { color: #F87171; border-color: rgba(248, 113, 113, 0.35); }
+.disc-deck-pill-btn.connect {
+  background: linear-gradient(135deg, #7C3AED, #06B6D4);
+  border: none;
   color: #FFFFFF;
 }
 

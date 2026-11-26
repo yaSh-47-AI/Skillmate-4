@@ -628,22 +628,20 @@
             <span id="profileCount">Loading matches...</span>
           </div>
           <div class="disc-bento-grid" id="people"></div>
-          <div class="disc-scroll-sentinel" id="discScrollSentinel" aria-hidden="true"></div>
+          <div class="disc-load-more-wrap" id="discLoadMoreWrap" hidden>
+            <button type="button" class="disc-btn-ghost" id="discLoadMoreBtn">Load More Matches</button>
+          </div>
         </div>
 
         <!-- 5B. Deck / Swipe View -->
         <div class="disc-deck-container" id="discDeckContainer" hidden>
           <div class="disc-deck-stage" id="discDeckStage"></div>
           <div class="disc-deck-actions" id="discDeckActions">
-            <button type="button" class="disc-deck-btn skip" id="discDeckSkipBtn" aria-label="Skip profile">
-              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
+            <button type="button" class="disc-deck-pill-btn skip" id="discDeckSkipBtn" aria-label="Skip profile">✕ Skip</button>
             <button type="button" class="disc-deck-btn info" id="discDeckInfoBtn" aria-label="View profile">
               <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
             </button>
-            <button type="button" class="disc-deck-btn connect" id="discDeckConnectBtn" aria-label="Connect">
-              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            </button>
+            <button type="button" class="disc-deck-pill-btn connect" id="discDeckConnectBtn" aria-label="Connect">⚡ Connect</button>
           </div>
         </div>
 

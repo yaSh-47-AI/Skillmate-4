@@ -1,8 +1,8 @@
 {
-  "appVersion": "3.0.0",
-  "webVersion": "3.0.0",
+  "appVersion": "3.1.0",
+  "webVersion": "3.1.0",
   "nativeVersion": "1.0.0",
   "nativeVersionCode": 5,
   "apkUrl": "https://skillmate-4.onrender.com/downloads/skillmate-latest.apk",
-  "notes": "Decoupled /app mobile bundle: 100% phone-native UI, safe-area layout, and isolated OTA updates"
+  "notes": "Discover upgrade: curated Top-6 feed, working Vibe Chips & Filter Modal, Load More Matches, @username polish, and Deck/Icebreaker flow"
 }
