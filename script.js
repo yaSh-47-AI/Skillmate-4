@@ -858,7 +858,10 @@ function createProfileCard(profile) {
   const messageButton = document.createElement("button");
   messageButton.type = "button";
   messageButton.className = "message-btn";
-  messageButton.textContent = "✉ Message";
+  messageButton.textContent = "Message";
+  messageButton.dataset.messageUserId = String(profile.id || "");
+  messageButton.dataset.messageUserName = profile.name || "Member";
+  messageButton.dataset.isDemo = profile.isDemo ? "1" : "0";
 
   if (demo) {
     // Dummy profiles now work like real profiles (updates to Requested & persists state)
@@ -887,19 +890,11 @@ function createProfileCard(profile) {
         showToast(`Connection request sent to ${profile.name}.`);
       });
     }
-
-    messageButton.addEventListener("click", () => {
-      if (window.GlassChat) {
-        window.GlassChat.openDM(Number(profile.id));
-      } else {
-        openChat(Number(profile.id));
-      }
-    });
   } else {
     const relation = connectionsByUserId.get(Number(profile.id));
 
     if (relation?.status === "accepted") {
-      connectButton.textContent = "✓ Connected";
+      connectButton.textContent = "Connected";
       connectButton.disabled = true;
     } else if (
       relation?.status === "pending" &&
@@ -914,14 +909,6 @@ function createProfileCard(profile) {
       connectButton.textContent = "Connect";
       connectButton.addEventListener("click", () => connectMember(profile));
     }
-
-    messageButton.addEventListener("click", () => {
-      if (window.GlassChat) {
-        window.GlassChat.openDM(Number(profile.id));
-      } else {
-        openChat(Number(profile.id));
-      }
-    });
   }
 
   actions.append(connectButton, messageButton);
@@ -1733,6 +1720,7 @@ function openChat(personId) {
 }
 
 function closeChat() {
+  window.GlassChat?.close();
   chatDrawer?.classList.remove("open");
   chatDrawer?.classList.remove("mobile-view-chat");
   chatDrawer?.setAttribute("aria-hidden","true");
@@ -2143,7 +2131,38 @@ function bindAuthModalListeners() {
     event.preventDefault();
     closeSidebar();
     closeModal();
-    openChat();
+    closeQuickActionSheet();
+    updateNavActiveStates("chat");
+    if (window.GlassChat) {
+      window.GlassChat.open();
+    } else {
+      openChat();
+    }
+  });
+
+  // Event delegation for Discover & Network "Message" buttons (including paginated cards)
+  document.addEventListener("click", event => {
+    const msgBtn = event.target?.closest?.(".message-btn[data-message-user-id]");
+    if (!msgBtn) return;
+    event.preventDefault();
+    const uid = Number(msgBtn.dataset.messageUserId);
+    const uname = msgBtn.dataset.messageUserName || "Member";
+    const isDemo = msgBtn.dataset.isDemo === "1";
+
+    if (!currentUser) {
+      showToast("Sign in to message members.");
+      openModal("login");
+      return;
+    }
+    if (isDemo || !Number.isFinite(uid) || uid <= 0) {
+      showToast("Select a registered member to start a live chat.");
+      return;
+    }
+    if (window.GlassChat) {
+      window.GlassChat.openDM(uid, { name: uname });
+    } else {
+      openChat(uid);
+    }
   });
 
   // Quick Action Bottom Sheet Controls

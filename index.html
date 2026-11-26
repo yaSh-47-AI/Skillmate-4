@@ -15,12 +15,8 @@
 </head>
 <body>
   <div class="bg" aria-hidden="true">
-    <div class="orb orb1"></div>
-    <div class="orb orb2"></div>
-    <div class="orb orb3"></div>
     <div class="grid"></div>
   </div>
-  <canvas id="particles" aria-hidden="true"></canvas>
 
   <nav class="top-nav" id="topNav">
     <div class="nav-left">
@@ -49,8 +45,9 @@
         <span class="notification-badge" id="navNotificationBadge" hidden>0</span>
       </button>
 
-      <button class="nav-chat" onclick="window.GlassChat ? window.GlassChat.open() : openChat()" aria-label="Open Messenger" style="background:rgba(168,85,247,0.15);border-color:rgba(168,85,247,0.4);color:#e9d5ff;">
-        ✉ <span>Messenger</span> <span class="chat-count" id="chatCount">PRO</span>
+      <button class="nav-chat" onclick="window.GlassChat ? window.GlassChat.open() : openChat()" aria-label="Open Messages">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        <span>Messages</span> <span class="chat-count" id="chatCount">0</span>
       </button>
 
       <button class="nav-btn" id="joinButton" onclick="openModal('signup')">
@@ -259,17 +256,7 @@
       </section>
 
       <section class="hero">
-        <div class="floating f1">🤖 AI</div>
-        <div class="floating f2">🎨 DESIGN</div>
-        <div class="floating f3">🚀 STARTUPS</div>
-        <div class="floating f4">🎮 GAMING</div>
-
         <div class="hero-content">
-          <div class="badge">
-            <span class="live"></span>
-            Your next connection starts here
-          </div>
-
           <h1 class="hero-wordmark" aria-label="Find your people">
             <span class="hero-line1" data-word="FIND">FIND</span>
             <span class="hero-line2" data-word="YOUR">YOUR</span>
@@ -277,48 +264,43 @@
           </h1>
 
           <p class="hero-description">
-            Meet people who get what you're passionate about.
-            Find your community, exchange ideas and build something together.
+            Meet people who share your skills and ambitions. Join focused circles, exchange ideas, and build together.
           </p>
 
           <div class="hero-buttons" id="heroButtons">
             <button class="primary" id="heroJoinButton" onclick="openModal('signup')">
-              ✦ Create your profile
+              Create your profile
             </button>
 
             <button class="secondary" onclick="navigateTo('discover')">
-              Explore the community →
+              Explore members
             </button>
           </div>
 
           <div class="hero-welcome-card" id="heroWelcome" hidden>
             <div class="welcome-card-header">
               <div class="welcome-avatar-wrapper">
-                <div class="welcome-large-avatar" id="welcomeBigAvatar">👤</div>
-                <span class="welcome-live-dot" title="Active now"></span>
+                <div class="welcome-large-avatar" id="welcomeBigAvatar">SM</div>
               </div>
               <div class="welcome-headline-box">
-                <div class="welcome-eyebrow-tag">
-                  <span class="sparkle-icon">✦</span> Logged In as Member
-                </div>
                 <h2 class="welcome-big-heading">
-                  Welcome, <span class="welcome-name-gradient" id="welcomeUserName">Member</span>! 👋
+                  Welcome, <span class="welcome-name-gradient" id="welcomeUserName">Member</span>
                 </h2>
                 <p class="welcome-subtext" id="welcomeUserBio">
-                  Find collaborators, join circles, and discover people who share your passions.
+                  Find collaborators, join circles, and message peers directly.
                 </p>
               </div>
             </div>
 
             <div class="welcome-card-actions">
               <button class="primary" onclick="navigateTo('discover')">
-                ✦ Explore people matching your interests →
+                Explore members
               </button>
               <button class="secondary" onclick="openChat()">
-                ✉ Open messages
+                Open messages
               </button>
               <button class="secondary" onclick="openModal('signup')">
-                ✎ Edit profile
+                Edit profile
               </button>
             </div>
           </div>
@@ -326,36 +308,28 @@
           <!-- QUICK ACCESS DASHBOARD HUB -->
           <div class="home-hub-cards">
             <div class="hub-card" onclick="navigateTo('communities')">
-              <div class="hub-card-icon">✦</div>
               <div class="hub-card-info">
-                <strong>Communities & Circles</strong>
-                <p>18 interest circles with live group chats</p>
+                <strong>Communities &amp; Circles</strong>
+                <p>Topic-based circles with live group chats</p>
               </div>
-              <span class="hub-card-arrow">→</span>
+              <span class="hub-card-arrow">&rsaquo;</span>
             </div>
 
             <div class="hub-card" onclick="navigateTo('network')">
-              <div class="hub-card-icon">🌐</div>
               <div class="hub-card-info">
-                <strong>Network & Matching</strong>
-                <p>Visual connection lattice & smart interest matches</p>
+                <strong>Network &amp; Matching</strong>
+                <p>Connection graph and skill-based matches</p>
               </div>
-              <span class="hub-card-arrow">→</span>
+              <span class="hub-card-arrow">&rsaquo;</span>
             </div>
 
             <div class="hub-card" onclick="navigateTo('discover')">
-              <div class="hub-card-icon">👥</div>
               <div class="hub-card-info">
-                <strong>Discover Peers</strong>
-                <p>Browse creators, devs & designers to connect</p>
+                <strong>Discover Members</strong>
+                <p>Browse developers, designers, and builders</p>
               </div>
-              <span class="hub-card-arrow">→</span>
+              <span class="hub-card-arrow">&rsaquo;</span>
             </div>
-          </div>
-
-          <div class="hero-proof">
-            <span class="proof-avatars"><i>S</i><i>K</i><i>M</i><i>+</i></span>
-            <span>Shared interests. Real connections.</span>
           </div>
         </div>
       </section>
@@ -1237,10 +1211,10 @@
 
   <div class="toast" id="toast" role="status"></div>
 
-  <!-- Floating Dark Glassmorphism Messenger Launcher -->
-  <button id="floatingMessengerBtn" onclick="window.GlassChat ? window.GlassChat.open() : openChat()" title="Open Dark Glassmorphism Messenger" style="position:fixed;bottom:24px;right:24px;z-index:9999;background:linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%);color:#fff;border:none;border-radius:28px;padding:12px 20px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;box-shadow:0 8px 25px rgba(168,85,247,0.5);cursor:pointer;transition:transform 0.2s cubic-bezier(0.4,0,0.2,1);" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-    <span style="font-size:18px;">✉</span>
-    <span>Messenger</span>
+  <!-- Floating Messages Launcher (Desktop) -->
+  <button id="floatingMessengerBtn" onclick="window.GlassChat ? window.GlassChat.open() : openChat()" title="Open Messages" style="position:fixed;bottom:24px;right:24px;z-index:9999;background:#C5D9A9;color:#0B110E;border:1px solid rgba(203,224,190,0.35);border-radius:12px;padding:10px 16px;font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:8px;box-shadow:0 8px 24px rgba(0,0,0,0.45);cursor:pointer;transition:transform 0.16s ease;">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+    <span>Messages</span>
   </button>
 
   <script src="/socket.io/socket.io.js"></script>

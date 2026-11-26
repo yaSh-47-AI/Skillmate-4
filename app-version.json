@@ -1,7 +1,7 @@
 {
-  "webVersion": "2.3.0",
+  "webVersion": "2.4.0",
   "nativeVersion": "1.0.0",
   "nativeVersionCode": 5,
   "apkUrl": "https://skillmate-4.onrender.com/downloads/skillmate-latest.apk",
-  "notes": "Major UI Overhaul: Dark Botanical Glassmorphism theme, redesigned Home dashboard, and floating Quick-Action dock"
+  "notes": "Fixed Chat & Discover DM navigation, locked in 0ms messaging speed, and refined studio-grade UI"
 }

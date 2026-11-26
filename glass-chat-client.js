@@ -27,12 +27,8 @@
     #glassChatContainer {
       position: fixed;
       inset: 0;
-      z-index: 99999;
-      background: var(--gc-bg-base);
-      background-image: 
-        radial-gradient(circle at 18% 20%, rgba(74, 118, 86, 0.28) 0%, transparent 50%),
-        radial-gradient(circle at 82% 80%, rgba(197, 217, 169, 0.14) 0%, transparent 50%),
-        radial-gradient(circle at 50% 50%, rgba(45, 90, 64, 0.16) 0%, transparent 65%);
+      z-index: 100005;
+      background: #0B110E;
       color: var(--gc-text-main);
       font-family: var(--gc-font);
       display: flex;
@@ -40,7 +36,7 @@
       overflow: hidden;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: opacity 0.18s cubic-bezier(0.4, 0, 0.2, 1);
     }
     #glassChatContainer.open {
       opacity: 1;
@@ -997,23 +993,19 @@
       font-weight: 600;
     }
 
-    /* Sleek Glassmorphic Skeleton Shimmer */
+    /* Static Lightweight Skeleton (no bouncing/pulsing) */
     .gc-skeleton-row {
       display: flex;
-      gap: 10px;
+      gap: 12px;
       max-width: 68%;
-      animation: gcPulse 1.2s ease-in-out infinite alternate;
+      opacity: 0.7;
     }
     .gc-skeleton-row.right { align-self: flex-end; flex-direction: row-reverse; }
     .gc-skeleton-bubble {
       height: 44px;
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-    @keyframes gcPulse {
-      from { opacity: 0.45; }
-      to { opacity: 0.9; }
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
     .gc-retry-btn {
       background: rgba(239, 68, 68, 0.2);
@@ -1676,6 +1668,10 @@
     async init() {
       ensureDOM();
       this.initSockets();
+      window.addEventListener('auth-updated', async () => {
+        await this.loadCurrentUser();
+        await this.loadConversations();
+      });
       await this.loadCurrentUser();
       await this.loadConversations();
     },
@@ -2052,7 +2048,7 @@
                 </div>
               </div>
               <div style="display:flex;align-items:center;gap:4px;">
-                ${!isMe ? `<button class="gc-act-btn" title="Message 1-on-1" onclick="window.GlassChat.openDM(${m.id})">💬</button>` : ''}
+                ${!isMe ? `<button class="gc-act-btn" title="Message 1-on-1" onclick="window.GlassChat.openDM(${m.id})">${ICONS.reply}</button>` : ''}
                 ${isOwner && !isMe ? `<button class="gc-act-btn" title="Remove Member" style="color:#ef4444;" onclick="window.GlassChat.removeMemberFromChannel(${m.id})">✕</button>` : ''}
               </div>
             `;
@@ -2433,19 +2429,67 @@
       lb.style.display = 'flex';
     },
 
-    // 1-on-1 DM: Wire Message button everywhere
-    async openDM(targetUserId) {
+    // 1-on-1 DM: 0ms instant open + background reconciliation
+    async openDM(targetUserId, previewMeta = null) {
+      const uid = Number(targetUserId);
+      if (!Number.isFinite(uid) || uid <= 0) {
+        showGlassToast('Sign in to message registered members.');
+        return;
+      }
+
       ensureDOM();
       this.open();
 
+      // 1. Check cached conversations for an instant 0ms match
+      const cachedList = conversations.length > 0 ? conversations : (readLocalCache('gc_cache_convs', []) || []);
+      const existing = cachedList.find(c =>
+        c.type === 'personal' && (
+          Number(c.other_user_id) === uid ||
+          Number(c.target_user_id) === uid ||
+          Number(c.partner_id) === uid
+        )
+      );
+
+      if (existing) {
+        this.selectConversation(existing.id);
+        return;
+      }
+
+      // 2. Immediately transition mobile to Screen 2 with preview header & static skeleton
+      if (window.innerWidth <= 768) {
+        document.getElementById('glassChatContainer')?.classList.add('gc-mobile-view-chat');
+        document.body.classList.add('gc-chat-active');
+      }
+      if (previewMeta?.name) {
+        const titleEl = document.getElementById('gcActiveTitle');
+        const avatarEl = document.getElementById('gcActiveAvatar');
+        if (titleEl) titleEl.textContent = previewMeta.name;
+        if (avatarEl) avatarEl.textContent = previewMeta.name.charAt(0).toUpperCase();
+      }
+      this.renderSkeletonMessages();
+
+      // 3. Create/fetch DM room in background and reconcile
       try {
-        const res = await api(`/api/chat/dm/${targetUserId}`, { method: 'POST' });
+        const res = await api(`/api/chat/dm/${uid}`, { method: 'POST' });
         if (res.conversation) {
-          await this.loadConversations();
+          if (!conversations.some(c => Number(c.id) === Number(res.conversation.id))) {
+            conversations.unshift(res.conversation);
+            writeLocalCache('gc_cache_convs', conversations);
+            this.renderSidebar();
+          }
           await this.selectConversation(res.conversation.id);
+          this.loadConversations().catch(() => {});
         }
       } catch (err) {
         console.error('Error opening DM:', err);
+        const msg = String(err.message || '');
+        if (msg.includes('401') || msg.toLowerCase().includes('auth') || msg.toLowerCase().includes('log in')) {
+          this.close();
+          showGlassToast('Sign in to send direct messages.');
+          if (typeof window.openModal === 'function') window.openModal('login');
+        } else {
+          showGlassToast(msg || 'Could not open conversation.');
+        }
       }
     },
 
@@ -2667,6 +2711,19 @@
           c.classList.remove('gc-mobile-view-chat');
           document.body.classList.remove('gc-chat-active');
         }
+      }
+      // Render cached sidebar immediately (<10ms) and refresh in background
+      if (conversations.length === 0) {
+        const cached = readLocalCache('gc_cache_convs', null);
+        if (Array.isArray(cached) && cached.length > 0) {
+          conversations = cached;
+        }
+      }
+      this.renderSidebar();
+      if (!currentUser) {
+        this.loadCurrentUser().then(() => this.loadConversations()).catch(() => {});
+      } else if (conversations.length === 0) {
+        this.loadConversations().catch(() => {});
       }
       if (targetId) this.selectConversation(targetId);
     },

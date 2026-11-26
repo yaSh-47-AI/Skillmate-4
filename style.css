@@ -5151,3 +5151,220 @@ footer small { display:block; margin-top:12px; color:#6f6c81; font-size:9px; }
   }
 }
 
+/* ==========================================================================
+   HANDCRAFTED STUDIO-GRADE UI CRAFT OVERRIDES (DE-SLOP)
+   ========================================================================== */
+
+:root {
+  --bg-base: #0B110E;
+  --bg: #0B110E;
+  --panel: #121A16;
+  --panel2: #16201B;
+  --glass-surface: #121A16;
+  --glass-elevated: #17221C;
+  --line: rgba(255, 255, 255, 0.08);
+  --text-primary: #F3F6F1;
+  --text-secondary: #A3B1A6;
+  --text-muted: rgba(163, 177, 166, 0.58);
+}
+
+.bg {
+  background: #0B110E !important;
+}
+
+.orb,
+.auth-orb,
+#particles,
+.welcome-live-dot,
+.live {
+  display: none !important;
+  animation: none !important;
+}
+
+/* Kill all gradient-clipped text & purple leftovers */
+.hero-line1,
+.hero-line2,
+.hero-line3,
+.welcome-name-gradient,
+.section-title,
+.view-title,
+.auth-wordmark,
+.logo {
+  background: none !important;
+  -webkit-background-clip: border-box !important;
+  background-clip: border-box !important;
+  -webkit-text-fill-color: currentColor !important;
+  color: #F3F6F1 !important;
+}
+
+.hero-dot,
+.logo span,
+.footer-logo span,
+.auth-wordmark span {
+  color: #C5D9A9 !important;
+  -webkit-text-fill-color: #C5D9A9 !important;
+}
+
+/* Architectural Radii & Matte Surfaces (No bloated 999px pills or neon halos) */
+.primary,
+.nav-btn,
+.auth-submit,
+.network-tab-btn.active,
+.community-tab-btn.active,
+.community-join-btn.joined,
+.channel-join-btn.joined {
+  background: #C5D9A9 !important;
+  color: #0B110E !important;
+  border: 1px solid #C5D9A9 !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  transition: transform 0.16s ease, background-color 0.16s ease !important;
+}
+
+.secondary,
+.person-action,
+.community-join-btn,
+.channel-join-btn,
+.message-btn,
+.network-tab-btn,
+.community-tab-btn {
+  background: rgba(255, 255, 255, 0.04) !important;
+  color: #F3F6F1 !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  transition: transform 0.16s ease, border-color 0.16s ease, background-color 0.16s ease !important;
+}
+
+.filter-pill,
+.community-chip,
+.tag,
+.interest-tag {
+  border-radius: 8px !important;
+}
+
+.person,
+.community-card,
+.channel-card,
+.panel,
+.hub-card,
+.hero-welcome-card,
+.notifications-drawer,
+.sidebar-drawer,
+.auth-box {
+  background: #121A16 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.auth-aurora-bg {
+  background: #0B110E !important;
+}
+
+.input-wrap {
+  border-radius: 12px !important;
+}
+
+@media (max-width: 768px) {
+  .mobile-home-dashboard {
+    padding: calc(env(safe-area-inset-top, 0px) + 16px) 16px 24px !important;
+    gap: 16px !important;
+    text-align: left !important;
+  }
+
+  .mh-stat-card {
+    background: #121A16 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 14px !important;
+    padding: 12px !important;
+    box-shadow: none !important;
+    gap: 4px !important;
+  }
+
+  .mh-stat-icon {
+    display: none !important;
+  }
+
+  .mh-spotlight-card {
+    background: #15221B !important;
+    border: 1px solid rgba(197, 217, 169, 0.24) !important;
+    border-radius: 16px !important;
+    padding: 16px !important;
+    box-shadow: none !important;
+    gap: 12px !important;
+  }
+
+  .mh-spotlight-cta {
+    border-radius: 12px !important;
+    box-shadow: none !important;
+  }
+
+  .mh-cat-squircle {
+    width: 52px !important;
+    height: 52px !important;
+    border-radius: 14px !important;
+    background: #121A16 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: none !important;
+  }
+
+  .mh-activity-row {
+    background: #121A16 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 14px !important;
+    padding: 12px 16px !important;
+    box-shadow: none !important;
+  }
+
+  .mobile-bottom-bar {
+    left: 12px !important;
+    right: 12px !important;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+    height: 64px !important;
+    border-radius: 16px !important;
+    background: rgba(15, 23, 19, 0.96) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55) !important;
+    z-index: 100006 !important;
+  }
+
+  .mobile-tab.active .mobile-tab-icon,
+  .mobile-tab.active .mobile-tab-icon-wrap {
+    filter: none !important;
+    background: rgba(197, 217, 169, 0.14) !important;
+    border-radius: 10px !important;
+    padding: 4px 10px !important;
+  }
+
+  .mobile-fab-circle {
+    border-radius: 14px !important;
+    background: #C5D9A9 !important;
+    color: #0B110E !important;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45), 0 0 0 4px #0B110E !important;
+  }
+
+  .quick-action-sheet,
+  .auth-box {
+    border-radius: 16px 16px 0 0 !important;
+    background: #121A16 !important;
+  }
+
+  .quick-sheet-item {
+    border-radius: 12px !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+  }
+
+  /* Left-align headers & cards on Discover, Communities, Network */
+  .section-head,
+  .section-title,
+  .section-description,
+  .person,
+  .community-card,
+  .channel-card {
+    text-align: left !important;
+  }
+}
+
