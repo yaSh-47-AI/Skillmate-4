@@ -995,6 +995,36 @@
       font-size: 11px;
       font-weight: 600;
     }
+
+    /* Sleek Glassmorphic Skeleton Shimmer */
+    .gc-skeleton-row {
+      display: flex;
+      gap: 10px;
+      max-width: 68%;
+      animation: gcPulse 1.2s ease-in-out infinite alternate;
+    }
+    .gc-skeleton-row.right { align-self: flex-end; flex-direction: row-reverse; }
+    .gc-skeleton-bubble {
+      height: 44px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    @keyframes gcPulse {
+      from { opacity: 0.45; }
+      to { opacity: 0.9; }
+    }
+    .gc-retry-btn {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      color: #fca5a5;
+      border-radius: 8px;
+      padding: 2px 8px;
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .gc-retry-btn:hover { background: rgba(239, 68, 68, 0.4); color: #fff; }
   `;
   document.head.appendChild(styleEl);
 
@@ -1043,7 +1073,7 @@
     return div.innerHTML;
   }
 
-  // 3. STATE
+  // 3. STATE & STALE-WHILE-REVALIDATE CACHE
   let currentUser = null;
   let conversations = [];
   let activeConvId = null;
@@ -1051,6 +1081,38 @@
   let currentMessages = [];
   let socket = null;
   let stagedReply = null; // { id, senderName, content }
+  const memMessages = new Map(); // convId -> messages[]
+  const memDetails = new Map();  // convId -> conversation details
+
+  function readLocalCache(key, fallback) {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch (_) {
+      return fallback;
+    }
+  }
+
+  function writeLocalCache(key, value) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch (_) {}
+  }
+
+  function getCachedMessages(convId) {
+    const id = Number(convId);
+    if (memMessages.has(id)) return memMessages.get(id);
+    const stored = readLocalCache(`gc_msgs_${id}`, null);
+    if (Array.isArray(stored)) memMessages.set(id, stored);
+    return stored;
+  }
+
+  function setCachedMessages(convId, msgs) {
+    const id = Number(convId);
+    const trimmed = Array.isArray(msgs) ? msgs.slice(-30) : [];
+    memMessages.set(id, trimmed);
+    writeLocalCache(`gc_msgs_${id}`, trimmed);
+  }
 
   async function api(endpoint, options = {}) {
     const res = await fetch(endpoint, {
@@ -1403,11 +1465,33 @@
 
     initSockets() {
       if (typeof io !== 'undefined' && !socket) {
-        socket = io({ credentials: true });
+        socket = io({
+          credentials: true,
+          transports: ['websocket', 'polling']
+        });
 
         socket.on('chat:message:new', msg => {
-          if (activeConvId && Number(msg.conversation_id) === Number(activeConvId)) {
-            this.appendMessage(msg);
+          const cid = Number(msg.conversation_id);
+          // Update local cache in place for any conversation
+          const cached = getCachedMessages(cid) || [];
+          const alreadyExists = cached.some(m => Number(m.id) === Number(msg.id));
+          if (!alreadyExists) {
+            // Check if this matches an optimistic temp message sent by me
+            const tempIdx = cached.findIndex(m =>
+              String(m.id).startsWith('temp-') &&
+              Number(m.sender_id) === Number(msg.sender_id) &&
+              m.content === msg.content
+            );
+            if (tempIdx >= 0) {
+              cached[tempIdx] = msg;
+            } else {
+              cached.push(msg);
+            }
+            setCachedMessages(cid, cached);
+          }
+
+          if (activeConvId && cid === Number(activeConvId)) {
+            this.reconcileIncomingMessage(msg);
           }
           // Update snippet in sidebar
           this.updateSidebarSnippet(msg.conversation_id, msg.content);
@@ -1481,18 +1565,37 @@
     },
 
     async loadConversations() {
+      // 1. Instant render from localStorage cache (< 10ms)
+      const cached = readLocalCache('gc_cache_convs', null);
+      if (Array.isArray(cached) && cached.length > 0 && conversations.length === 0) {
+        conversations = cached;
+        this.renderSidebar();
+        if (!activeConvId) {
+          this.selectConversation(conversations[0].id);
+        }
+      }
+
+      // 2. Stale-while-revalidate fetch in background
       try {
         const res = await api('/api/chat/conversations?type=personal');
         conversations = res.conversations || [];
-      } catch (_) {
-        conversations = [];
-      }
+        writeLocalCache('gc_cache_convs', conversations);
+      } catch (_) {}
 
       this.renderSidebar();
 
       if (!activeConvId && conversations.length > 0) {
         await this.selectConversation(conversations[0].id);
       }
+
+      // 3. Background prefetch top 3 chats so switching is 0ms
+      conversations.slice(0, 3).forEach(c => {
+        if (!getCachedMessages(c.id)) {
+          api(`/api/chat/conversations/${c.id}/messages?limit=30`)
+            .then(r => { if (r?.messages) setCachedMessages(c.id, r.messages); })
+            .catch(() => {});
+        }
+      });
     },
 
     renderSidebar() {
@@ -1563,48 +1666,112 @@
 
       if (socket) socket.emit('chat:join', activeConvId);
 
-      try {
-        const res = await api(`/api/chat/conversations/${activeConvId}`);
-        activeConv = res.conversation;
-      } catch (_) {
-        activeConv = conversations.find(c => Number(c.id) === activeConvId);
+      // 1. Instant header & cached messages render (< 20ms)
+      const cachedConv = memDetails.get(activeConvId) || conversations.find(c => Number(c.id) === activeConvId);
+      if (cachedConv) {
+        activeConv = cachedConv;
+        this.renderChatHeader(activeConv);
+        this.updateInspector(activeConv);
       }
 
-      if (!activeConv) return;
+      const cachedMsgs = getCachedMessages(activeConvId);
+      if (Array.isArray(cachedMsgs)) {
+        currentMessages = cachedMsgs;
+        this.renderMessages();
+      } else {
+        this.renderSkeletonMessages();
+      }
 
-      // Update Center Header
+      // 2. Parallel background revalidation (Details + Latest 30 Messages + Files)
+      try {
+        const [detailRes, msgRes, filesRes] = await Promise.all([
+          api(`/api/chat/conversations/${activeConvId}`).catch(() => null),
+          api(`/api/chat/conversations/${activeConvId}/messages?limit=30`).catch(() => null),
+          api(`/api/chat/conversations/${activeConvId}/files`).catch(() => null)
+        ]);
+
+        // Ignore stale response if user already switched to another chat
+        if (Number(activeConvId) !== Number(id)) return;
+
+        if (detailRes?.conversation) {
+          activeConv = detailRes.conversation;
+          memDetails.set(activeConvId, activeConv);
+          this.renderChatHeader(activeConv);
+          this.updateInspector(activeConv);
+        }
+
+        if (msgRes?.messages) {
+          currentMessages = msgRes.messages;
+          setCachedMessages(activeConvId, currentMessages);
+          this.renderMessages();
+        } else if (!Array.isArray(cachedMsgs)) {
+          currentMessages = [];
+          this.renderMessages();
+        }
+
+        if (filesRes) {
+          this.renderFiles(filesRes);
+        }
+      } catch (_) {}
+    },
+
+    renderChatHeader(conv) {
+      if (!conv) return;
       const activeTitle = document.getElementById('gcActiveTitle');
       const activeHandle = document.getElementById('gcActiveHandle');
       const activeAvatar = document.getElementById('gcActiveAvatar');
       const activeStatusText = document.getElementById('gcActiveStatusText');
 
-      if (activeConv.type === 'team') {
-        activeTitle.textContent = `#${activeConv.name}`;
-        activeHandle.textContent = activeConv.visibility === 'private' ? '🔒 Private Channel' : '🌐 Public Channel';
+      if (conv.type === 'team') {
+        activeTitle.textContent = `#${conv.name}`;
+        activeHandle.textContent = conv.visibility === 'private' ? '🔒 Private Channel' : '🌐 Public Channel';
         activeAvatar.textContent = '#';
         activeAvatar.className = 'gc-user-avatar channel-hash';
-        activeStatusText.textContent = `${activeConv.members?.length || 0} Members`;
+        activeStatusText.textContent = `${conv.members?.length || 0} Members`;
       } else {
-        activeTitle.textContent = activeConv.name;
-        activeHandle.textContent = activeConv.handle || activeConv.recipient?.handle || '';
-        activeAvatar.textContent = (activeConv.name || '✦')[0].toUpperCase();
+        activeTitle.textContent = conv.name;
+        activeHandle.textContent = conv.handle || conv.recipient?.handle || '';
+        activeAvatar.textContent = (conv.name || '✦')[0].toUpperCase();
         activeAvatar.className = 'gc-user-avatar';
         activeStatusText.textContent = 'Active Now';
       }
+    },
 
-      // Update Right Inspector
-      this.updateInspector(activeConv);
+    renderSkeletonMessages() {
+      const container = document.getElementById('gcChatMessages');
+      if (!container) return;
+      container.innerHTML = `
+        <div class="gc-skeleton-row"><div class="gc-skeleton-bubble" style="width:180px;"></div></div>
+        <div class="gc-skeleton-row right"><div class="gc-skeleton-bubble" style="width:220px;"></div></div>
+        <div class="gc-skeleton-row"><div class="gc-skeleton-bubble" style="width:250px;"></div></div>
+      `;
+    },
 
-      // Load Messages
-      try {
-        const res = await api(`/api/chat/conversations/${activeConvId}/messages`);
-        currentMessages = res.messages || [];
-      } catch (_) {
-        currentMessages = [];
+    reconcileIncomingMessage(msg) {
+      // Avoid duplicates if optimistic bubble already rendered
+      const existingEl = document.getElementById(`gc-msg-${msg.id}`);
+      if (existingEl) return;
+
+      const tempIndex = currentMessages.findIndex(m =>
+        String(m.id).startsWith('temp-') &&
+        Number(m.sender_id) === Number(msg.sender_id) &&
+        m.content === msg.content
+      );
+
+      if (tempIndex >= 0) {
+        const tempId = currentMessages[tempIndex].id;
+        currentMessages[tempIndex] = msg;
+        const tempEl = document.getElementById(`gc-msg-${tempId}`);
+        if (tempEl) {
+          tempEl.id = `gc-msg-${msg.id}`;
+          const statusEl = tempEl.querySelector('.gc-send-state');
+          if (statusEl) statusEl.textContent = msg.created_at ? new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '✓';
+          return;
+        }
       }
 
-      this.renderMessages();
-      this.loadFiles(activeConvId);
+      currentMessages.push(msg);
+      this.appendMessage(msg);
     },
 
     updateInspector(conv) {
@@ -1788,7 +1955,7 @@
             ${contentHtml}
           </div>
           <div class="gc-msg-bottom-meta">
-            <span>${msg.created_at ? new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Just now'}</span>
+            <span class="gc-send-state">${msg._sending ? '⏱ Sending...' : (msg.created_at ? new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Just now')}</span>
             ${msg.is_edited ? '<span style="font-size:9px;opacity:0.6;">(edited)</span>' : ''}
             ${reactionsHtml}
           </div>
@@ -1824,22 +1991,71 @@
       if (bar) bar.style.display = 'none';
     },
 
-    async sendMessage() {
+    async sendMessage(retryPayload = null) {
       const input = document.getElementById('gcMessageInput');
-      const text = (input?.value || '').trim();
-      if (!text || !activeConvId) return;
+      const text = retryPayload ? retryPayload.content : (input?.value || '').trim();
+      const targetConvId = retryPayload ? retryPayload.conversationId : activeConvId;
+      if (!text || !targetConvId) return;
 
-      const replyToId = stagedReply?.id || null;
-      this.cancelReply();
-      input.value = '';
+      const replyToId = retryPayload ? retryPayload.replyToId : (stagedReply?.id || null);
+      const tempId = retryPayload ? retryPayload.tempId : `temp-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+
+      if (!retryPayload) {
+        this.cancelReply();
+        if (input) input.value = '';
+
+        // 0ms Optimistic Render
+        const optimisticMsg = {
+          id: tempId,
+          conversation_id: targetConvId,
+          sender_id: currentUser?.id || 1,
+          sender_name: currentUser?.name || 'You',
+          content: text,
+          type: 'text',
+          reply_to_id: replyToId,
+          reactions: [],
+          _sending: true,
+          created_at: new Date().toISOString()
+        };
+        currentMessages.push(optimisticMsg);
+        setCachedMessages(targetConvId, currentMessages);
+        this.appendMessage(optimisticMsg);
+        this.updateSidebarSnippet(targetConvId, text);
+      } else {
+        const retryEl = document.getElementById(`gc-msg-${tempId}`);
+        const statusEl = retryEl?.querySelector('.gc-send-state');
+        if (statusEl) statusEl.textContent = '⏱ Retrying...';
+      }
 
       try {
-        await api(`/api/chat/conversations/${activeConvId}/messages`, {
+        const res = await api(`/api/chat/conversations/${targetConvId}/messages`, {
           method: 'POST',
           body: JSON.stringify({ content: text, type: 'text', replyToId })
         });
+
+        if (res?.message) {
+          const realMsg = res.message;
+          const idx = currentMessages.findIndex(m => String(m.id) === String(tempId));
+          if (idx >= 0) currentMessages[idx] = realMsg;
+          setCachedMessages(targetConvId, currentMessages);
+
+          const domRow = document.getElementById(`gc-msg-${tempId}`);
+          if (domRow) {
+            domRow.id = `gc-msg-${realMsg.id}`;
+            const statusEl = domRow.querySelector('.gc-send-state');
+            if (statusEl) {
+              statusEl.textContent = realMsg.created_at
+                ? new Date(realMsg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                : '✓';
+            }
+          }
+        }
       } catch (err) {
-        console.error('Send error:', err);
+        const domRow = document.getElementById(`gc-msg-${tempId}`);
+        const statusEl = domRow?.querySelector('.gc-send-state');
+        if (statusEl) {
+          statusEl.innerHTML = `<button class="gc-retry-btn" onclick='window.GlassChat.sendMessage(${JSON.stringify({ tempId, conversationId: targetConvId, content: text, replyToId })})'>Failed • Retry</button>`;
+        }
       }
     },
 
@@ -1933,47 +2149,51 @@
     async loadFiles(convId) {
       try {
         const res = await api(`/api/chat/conversations/${convId}/files`);
-        const docList = document.getElementById('gcUploadedFilesList');
-        const mediaGrid = document.getElementById('gcAttachmentsGrid');
-
-        if (docList) {
-          docList.innerHTML = '';
-          const docs = res.docs || [];
-          if (docs.length === 0) {
-            docList.innerHTML = '<div style="font-size:11.5px;color:#64748b;padding:8px 0;">No shared documents yet.</div>';
-          } else {
-            docs.forEach(d => {
-              const item = document.createElement('div');
-              item.className = 'gc-file-item';
-              item.innerHTML = `
-                <span>${ICONS.paperclip}</span>
-                <div class="gc-file-info">
-                  <div class="gc-file-name">${escapeText(d.file_name)}</div>
-                  <div class="gc-file-size">${Math.round((d.file_size||0)/1024)} KB</div>
-                </div>
-                <a href="${d.file_url}" download style="color:#c084fc;font-size:12px;font-weight:700;">↓</a>
-              `;
-              docList.appendChild(item);
-            });
-          }
-        }
-
-        if (mediaGrid) {
-          mediaGrid.innerHTML = '';
-          const media = res.media || [];
-          if (media.length === 0) {
-            mediaGrid.innerHTML = '<div style="grid-column:1/-1;font-size:11.5px;color:#64748b;padding:8px 0;">No media attachments yet.</div>';
-          } else {
-            media.forEach(m => {
-              const thumb = document.createElement('div');
-              thumb.className = 'gc-grid-thumb';
-              thumb.innerHTML = `<img src="${m.file_url}" alt="">`;
-              thumb.onclick = () => window.GlassChat.openLightbox(m.file_url);
-              mediaGrid.appendChild(thumb);
-            });
-          }
-        }
+        this.renderFiles(res);
       } catch (_) {}
+    },
+
+    renderFiles(res) {
+      const docList = document.getElementById('gcUploadedFilesList');
+      const mediaGrid = document.getElementById('gcAttachmentsGrid');
+
+      if (docList) {
+        docList.innerHTML = '';
+        const docs = res.docs || [];
+        if (docs.length === 0) {
+          docList.innerHTML = '<div style="font-size:11.5px;color:#64748b;padding:8px 0;">No shared documents yet.</div>';
+        } else {
+          docs.forEach(d => {
+            const item = document.createElement('div');
+            item.className = 'gc-file-item';
+            item.innerHTML = `
+              <span>${ICONS.paperclip}</span>
+              <div class="gc-file-info">
+                <div class="gc-file-name">${escapeText(d.file_name)}</div>
+                <div class="gc-file-size">${Math.round((d.file_size||0)/1024)} KB</div>
+              </div>
+              <a href="${d.file_url}" download style="color:#c084fc;font-size:12px;font-weight:700;">↓</a>
+            `;
+            docList.appendChild(item);
+          });
+        }
+      }
+
+      if (mediaGrid) {
+        mediaGrid.innerHTML = '';
+        const media = res.media || [];
+        if (media.length === 0) {
+          mediaGrid.innerHTML = '<div style="grid-column:1/-1;font-size:11.5px;color:#64748b;padding:8px 0;">No media attachments yet.</div>';
+        } else {
+          media.forEach(m => {
+            const thumb = document.createElement('div');
+            thumb.className = 'gc-grid-thumb';
+            thumb.innerHTML = `<img src="${m.file_url}" alt="">`;
+            thumb.onclick = () => window.GlassChat.openLightbox(m.file_url);
+            mediaGrid.appendChild(thumb);
+          });
+        }
+      }
     },
 
     openLightbox(url) {

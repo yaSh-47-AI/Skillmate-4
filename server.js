@@ -4,6 +4,7 @@ const session = require("express-session");
 const bcrypt = require("bcryptjs");
 const multer = require("multer");
 const helmet = require("helmet");
+const compression = require("compression");
 const { rateLimit } = require("express-rate-limit");
 const http = require("http");
 const path = require("path");
@@ -23,9 +24,11 @@ const {
 
 const app = express();
 app.set("trust proxy", 1);
+app.use(compression());
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: { origin: false }
+  cors: { origin: false },
+  transports: ["websocket", "polling"]
 });
 app.set("io", io);
 
@@ -406,22 +409,55 @@ app.get("/api/profiles", async (req, res, next) => {
     const currentUserId = Number(req.session?.userId || 0);
     const pattern = `%${search}%`;
 
-    const userRows = await db.all(`
-      SELECT id
-      FROM users
-      WHERE id != ?
-        AND email NOT LIKE '%@skillmate.io'
+    const rows = await db.all(`
+      SELECT
+        u.id,
+        u.name,
+        u.email,
+        u.username,
+        u.bio,
+        u.city,
+        u.photo_url,
+        u.is_demo,
+        u.created_at,
+        COALESCE(
+          json_agg(i.name ORDER BY i.name) FILTER (WHERE i.name IS NOT NULL),
+          '[]'::json
+        ) AS interests
+      FROM users u
+      LEFT JOIN user_interests ui ON ui.user_id = u.id
+      LEFT JOIN interests i ON i.id = ui.interest_id
+      WHERE u.id != ?
+        AND u.email NOT LIKE '%@skillmate.io'
         AND (
           ? = ''
-          OR name ILIKE ?
-          OR COALESCE(username, '') ILIKE ?
-          OR bio ILIKE ?
+          OR u.name ILIKE ?
+          OR COALESCE(u.username, '') ILIKE ?
+          OR u.bio ILIKE ?
         )
-      ORDER BY name
+      GROUP BY u.id
+      ORDER BY u.name
       LIMIT 100
     `, currentUserId, search, pattern, pattern, pattern);
 
-    let users = (await Promise.all(userRows.map(u => getPublicProfile(u.id)))).filter(Boolean);
+    let users = rows.map(u => {
+      const storedBio = String(u.bio || "");
+      const sep = storedBio.lastIndexOf(" • ");
+      const bio = sep >= 0 ? storedBio.slice(0, sep) : storedBio;
+      const parsedCity = sep >= 0 ? storedBio.slice(sep + 3) : "";
+      const username = u.username || (u.email ? u.email.split("@")[0].toLowerCase().replace(/[^a-z0-9_]/g, "") : "user");
+      return {
+        id: u.id,
+        name: u.name,
+        username,
+        bio,
+        city: u.city || parsedCity || "India",
+        photo_url: u.photo_url,
+        is_demo: Boolean(u.is_demo),
+        created_at: u.created_at,
+        interests: Array.isArray(u.interests) ? u.interests : []
+      };
+    });
 
     if (interest) {
       users = users.filter(user =>
@@ -844,25 +880,30 @@ app.get("/api/communities/:id/messages", requireLogin, async (req, res, next) =>
       return res.status(400).json({ error: "Invalid community." });
     }
 
-    if (!(await isCommunityMember(communityId, req.session.userId))) {
+    const [isMem, rows] = await Promise.all([
+      isCommunityMember(communityId, req.session.userId),
+      db.all(`
+        SELECT
+          cm.id,
+          cm.community_id,
+          cm.user_id,
+          cm.body,
+          cm.created_at,
+          u.name AS sender_name,
+          u.photo_url AS sender_photo_url
+        FROM community_messages cm
+        JOIN users u ON u.id = cm.user_id
+        WHERE cm.community_id = ?
+        ORDER BY cm.id DESC
+        LIMIT 30
+      `, communityId)
+    ]);
+
+    if (!isMem) {
       return res.status(403).json({ error: "Join this community to view its group chat." });
     }
 
-    const messages = (await db.all(`
-      SELECT
-        cm.id,
-        cm.community_id,
-        cm.user_id,
-        cm.body,
-        cm.created_at,
-        u.name AS sender_name,
-        u.photo_url AS sender_photo_url
-      FROM community_messages cm
-      JOIN users u ON u.id = cm.user_id
-      WHERE cm.community_id = ?
-      ORDER BY cm.id DESC
-      LIMIT 200
-    `, communityId)).reverse();
+    const messages = rows.reverse();
 
     res.json({ messages });
   } catch (error) {

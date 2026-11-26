@@ -139,14 +139,17 @@ router.post("/conversations", async (req, res, next) => {
   }
 });
 
-// 5. Get Conversation Details
+// 5. Get Conversation Details (Parallelized)
 router.get("/conversations/:id", async (req, res, next) => {
   try {
     const convId = Number(req.params.id);
-    if (!(await isMember(convId, req.session.userId))) {
+    const [authorized, conversation] = await Promise.all([
+      isMember(convId, req.session.userId),
+      getConversationDetails(convId, req.session.userId)
+    ]);
+    if (!authorized) {
       return res.status(403).json({ error: "Access denied. You are not a member of this conversation." });
     }
-    const conversation = await getConversationDetails(convId, req.session.userId);
     if (!conversation) return res.status(404).json({ error: "Conversation not found." });
     res.json({ conversation });
   } catch (err) {
@@ -271,18 +274,21 @@ router.delete("/conversations/:id/members/:targetUserId", async (req, res, next)
   }
 });
 
-// 11. Get Messages (with cursor pagination)
+// 11. Get Messages (with cursor pagination, default 30, parallelized)
 router.get("/conversations/:id/messages", async (req, res, next) => {
   try {
     const convId = Number(req.params.id);
-    if (!(await isMember(convId, req.session.userId))) {
+    const limit = Math.min(Number(req.query.limit) || 30, 100);
+    const beforeId = req.query.before ? Number(req.query.before) : null;
+
+    const [authorized, messages] = await Promise.all([
+      isMember(convId, req.session.userId),
+      getMessages(convId, limit, beforeId)
+    ]);
+    if (!authorized) {
       return res.status(403).json({ error: "Access denied. You are not a member of this conversation." });
     }
 
-    const limit = Math.min(Number(req.query.limit) || 50, 100);
-    const beforeId = req.query.before ? Number(req.query.before) : null;
-
-    const messages = await getMessages(convId, limit, beforeId);
     res.json({ messages });
   } catch (err) {
     next(err);
@@ -451,14 +457,17 @@ router.post("/polls/:id/vote", async (req, res, next) => {
   }
 });
 
-// 18. Right Sidebar [Files] Inspector
+// 18. Right Sidebar [Files] Inspector (Parallelized)
 router.get("/conversations/:id/files", async (req, res, next) => {
   try {
     const convId = Number(req.params.id);
-    if (!(await isMember(convId, req.session.userId))) {
+    const [authorized, files] = await Promise.all([
+      isMember(convId, req.session.userId),
+      getConversationFiles(convId)
+    ]);
+    if (!authorized) {
       return res.status(403).json({ error: "Access denied." });
     }
-    const files = await getConversationFiles(convId);
     res.json(files);
   } catch (err) {
     next(err);

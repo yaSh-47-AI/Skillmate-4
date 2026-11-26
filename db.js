@@ -9,7 +9,11 @@ const DATABASE_URL = process.env.DATABASE_URL || "postgresql://postgres.cuzscmxl
 
 const pool = new Pool({
   connectionString: DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
+  ssl: { rejectUnauthorized: false },
+  max: 15,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000,
+  keepAlive: true
 });
 
 function formatSql(sql) {
@@ -306,6 +310,7 @@ async function initDb() {
 
   CREATE INDEX IF NOT EXISTS idx_community_members_user ON community_members(user_id);
   CREATE INDEX IF NOT EXISTS idx_community_members_community ON community_members(community_id);
+  CREATE INDEX IF NOT EXISTS idx_community_members_user_comm ON community_members(user_id, community_id);
 
   CREATE TABLE IF NOT EXISTS community_messages (
     id SERIAL PRIMARY KEY,
@@ -316,6 +321,7 @@ async function initDb() {
   );
 
   CREATE INDEX IF NOT EXISTS idx_community_messages_history ON community_messages(community_id, id);
+  CREATE INDEX IF NOT EXISTS idx_community_messages_comm_created ON community_messages(community_id, created_at DESC);
   `;
 
   await pool.query(schema);

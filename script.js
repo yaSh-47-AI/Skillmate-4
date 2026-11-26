@@ -1576,21 +1576,47 @@ async function joinCommunity(id) {
     return;
   }
 
+  // 0ms Optimistic UI Update
+  const target = communities.find(c => Number(c.id) === Number(id));
+  const prevState = target ? { is_member: target.is_member, member_count: target.member_count } : null;
+  if (target && !target.is_member) {
+    target.is_member = true;
+    target.member_count = Number(target.member_count || 0) + 1;
+    renderCommunities();
+  }
+  showToast("You joined the community!");
+
   try {
     await apiRequest(`${API}/communities/${id}/join`, {method:"POST"});
-    await loadCommunities();
-    showToast("You joined the community!");
   } catch (error) {
+    if (target && prevState) {
+      target.is_member = prevState.is_member;
+      target.member_count = prevState.member_count;
+      renderCommunities();
+    }
     showToast(error.message);
   }
 }
 
 async function leaveCommunity(id) {
+  // 0ms Optimistic UI Update
+  const target = communities.find(c => Number(c.id) === Number(id));
+  const prevState = target ? { is_member: target.is_member, member_count: target.member_count } : null;
+  if (target && target.is_member) {
+    target.is_member = false;
+    target.member_count = Math.max(0, Number(target.member_count || 1) - 1);
+    renderCommunities();
+  }
+  showToast("You left the community.");
+
   try {
     await apiRequest(`${API}/communities/${id}/leave`, {method:"POST"});
-    await loadCommunities();
-    showToast("You left the community.");
   } catch (error) {
+    if (target && prevState) {
+      target.is_member = prevState.is_member;
+      target.member_count = prevState.member_count;
+      renderCommunities();
+    }
     showToast(error.message);
   }
 }
@@ -1631,7 +1657,7 @@ function initializeSocket() {
   if (!currentUser || typeof window.io !== "function") return;
   if (socket) socket.disconnect();
 
-  socket = window.io();
+  socket = window.io({ transports: ["websocket", "polling"] });
   socket.on("message:new", message => {
     const otherId = Number(message.sender_id) === Number(currentUser.id)
       ? Number(message.recipient_id)

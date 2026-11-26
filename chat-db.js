@@ -85,7 +85,7 @@ async function initChatDb() {
 
   await pool.query(schema);
 
-  // Column safety migrations & Row-Level Security
+  // Column safety migrations, composite performance indexes & Row-Level Security
   await pool.query(`
     ALTER TABLE public.chat_conversations ENABLE ROW LEVEL SECURITY;
     ALTER TABLE public.chat_members ENABLE ROW LEVEL SECURITY;
@@ -97,6 +97,14 @@ async function initChatDb() {
     ALTER TABLE chat_conversations ADD COLUMN IF NOT EXISTS visibility VARCHAR(10) DEFAULT 'public';
     ALTER TABLE chat_messages ADD COLUMN IF NOT EXISTS is_edited BOOLEAN DEFAULT FALSE;
     ALTER TABLE chat_messages ADD COLUMN IF NOT EXISTS edited_at TIMESTAMPTZ;
+
+    CREATE INDEX IF NOT EXISTS idx_chat_members_user_conv ON chat_members(user_id, conversation_id);
+    CREATE INDEX IF NOT EXISTS idx_chat_members_conv_user ON chat_members(conversation_id, user_id);
+    CREATE INDEX IF NOT EXISTS idx_chat_messages_conv_created ON chat_messages(conversation_id, created_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_chat_reactions_msg ON chat_reactions(message_id);
+    CREATE INDEX IF NOT EXISTS idx_chat_attachments_conv_created ON chat_attachments(conversation_id, created_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_community_members_user_comm ON community_members(user_id, community_id);
+    CREATE INDEX IF NOT EXISTS idx_community_messages_comm_created ON community_messages(community_id, created_at DESC);
   `);
 
   await seedChatData();
@@ -219,7 +227,7 @@ async function isMember(conversationId, userId) {
   return Boolean(row);
 }
 
-// 4. Get User Conversations (Pure DMs or All)
+// 4. Get User Conversations (Single SQL Query with LATERAL Joins — Zero N+1 Loops)
 async function getUserConversations(userId, filterType = null) {
   let query = `
     SELECT
@@ -234,24 +242,50 @@ async function getUserConversations(userId, filterType = null) {
       m.role,
       m.unread_count,
       m.last_read_at,
-      (
-        SELECT json_build_object(
-          'id', lm.id,
-          'content', lm.content,
-          'type', lm.type,
-          'sender_id', lm.sender_id,
-          'created_at', lm.created_at
-        )
-        FROM chat_messages lm
-        WHERE lm.conversation_id = c.id
-        ORDER BY lm.created_at DESC
-        LIMIT 1
-      ) as last_message,
-      (
-        SELECT COUNT(*)::int FROM chat_members cm WHERE cm.conversation_id = c.id
-      ) as member_count
+      lm.last_message,
+      mc.member_count,
+      rec.recipient_data
     FROM chat_conversations c
     JOIN chat_members m ON m.conversation_id = c.id AND m.user_id = $1
+    LEFT JOIN LATERAL (
+      SELECT json_build_object(
+        'id', msg.id,
+        'content', msg.content,
+        'type', msg.type,
+        'sender_id', msg.sender_id,
+        'created_at', msg.created_at
+      ) AS last_message
+      FROM chat_messages msg
+      WHERE msg.conversation_id = c.id
+      ORDER BY msg.created_at DESC
+      LIMIT 1
+    ) lm ON true
+    LEFT JOIN LATERAL (
+      SELECT COUNT(*)::int AS member_count
+      FROM chat_members cm
+      WHERE cm.conversation_id = c.id
+    ) mc ON true
+    LEFT JOIN LATERAL (
+      SELECT json_build_object(
+        'id', u.id,
+        'name', u.name,
+        'email', u.email,
+        'username', u.username,
+        'bio', u.bio,
+        'city', u.city,
+        'photo_url', u.photo_url,
+        'interests', COALESCE((
+          SELECT json_agg(i.name ORDER BY i.name)
+          FROM user_interests ui
+          JOIN interests i ON i.id = ui.interest_id
+          WHERE ui.user_id = u.id
+        ), '[]'::json)
+      ) AS recipient_data
+      FROM chat_members cm2
+      JOIN users u ON u.id = cm2.user_id
+      WHERE c.type = 'personal' AND cm2.conversation_id = c.id AND cm2.user_id != $1
+      LIMIT 1
+    ) rec ON true
   `;
 
   const params = [userId];
@@ -261,125 +295,128 @@ async function getUserConversations(userId, filterType = null) {
   }
 
   query += `
-    ORDER BY (
-      SELECT COALESCE(MAX(created_at), c.created_at) FROM chat_messages WHERE conversation_id = c.id
-    ) DESC
+    ORDER BY COALESCE((lm.last_message->>'created_at')::timestamptz, c.created_at) DESC
   `;
 
   const rows = await db.all(query, ...params);
 
-  // For personal DMs, load real recipient profile
-  for (const conv of rows) {
-    if (conv.type === 'personal') {
-      const recipient = await db.get(`
-        SELECT u.id, u.name, u.email, u.username, u.bio, u.city, u.photo_url
-        FROM chat_members cm
-        JOIN users u ON u.id = cm.user_id
-        WHERE cm.conversation_id = ? AND cm.user_id != ?
-        LIMIT 1
-      `, conv.id, userId);
+  return rows.map(row => {
+    const conv = {
+      id: row.id,
+      type: row.type,
+      name: row.name,
+      description: row.description,
+      avatar_url: row.avatar_url,
+      visibility: row.visibility,
+      pinned_message_ids: row.pinned_message_ids,
+      created_at: row.created_at,
+      role: row.role,
+      unread_count: row.unread_count,
+      last_read_at: row.last_read_at,
+      last_message: row.last_message || null,
+      member_count: row.member_count || 0
+    };
 
-      if (recipient) {
-        const username = recipient.username || recipient.email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '');
-        conv.name = recipient.name;
-        conv.handle = `@${username}`;
-        conv.recipient = {
-          ...recipient,
-          username,
-          handle: `@${username}`
-        };
-        conv.avatar_url = recipient.photo_url || '';
-
-        // Load interests
-        const intRows = await db.all(`
-          SELECT i.name FROM user_interests ui
-          JOIN interests i ON i.id = ui.interest_id
-          WHERE ui.user_id = ?
-          ORDER BY i.name
-        `, recipient.id);
-        conv.recipient.interests = intRows.map(r => r.name);
-      }
+    if (conv.type === 'personal' && row.recipient_data) {
+      const r = row.recipient_data;
+      const username = r.username || (r.email ? r.email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '') : 'user');
+      conv.name = r.name;
+      conv.handle = `@${username}`;
+      conv.avatar_url = r.photo_url || '';
+      conv.recipient = {
+        ...r,
+        username,
+        handle: `@${username}`,
+        interests: Array.isArray(r.interests) ? r.interests : []
+      };
     }
-  }
 
-  return rows;
+    return conv;
+  });
 }
 
-// 5. Get Channels List for Network (Joined + Explore)
+// 5. Get Channels List for Network (Joined + Explore in Parallel)
 async function getChannelsForUser(userId) {
-  // Joined Channels
-  const joined = await db.all(`
-    SELECT
-      c.id,
-      c.type,
-      c.name,
-      c.description,
-      c.visibility,
-      c.created_by,
-      c.created_at,
-      m.role,
-      (SELECT COUNT(*)::int FROM chat_members cm WHERE cm.conversation_id = c.id) as member_count,
-      (
-        SELECT json_build_object(
-          'id', lm.id,
-          'content', lm.content,
-          'sender_name', u.name,
-          'created_at', lm.created_at
-        )
-        FROM chat_messages lm
-        JOIN users u ON u.id = lm.sender_id
-        WHERE lm.conversation_id = c.id
-        ORDER BY lm.created_at DESC
-        LIMIT 1
-      ) as last_message
-    FROM chat_conversations c
-    JOIN chat_members m ON m.conversation_id = c.id AND m.user_id = ?
-    WHERE c.type = 'team'
-    ORDER BY c.name ASC
-  `, userId);
-
-  // Explore Channels (Public channels that the user hasn't joined)
-  const explore = await db.all(`
-    SELECT
-      c.id,
-      c.type,
-      c.name,
-      c.description,
-      c.visibility,
-      c.created_by,
-      c.created_at,
-      u.name as creator_name,
-      (SELECT COUNT(*)::int FROM chat_members cm WHERE cm.conversation_id = c.id) as member_count
-    FROM chat_conversations c
-    LEFT JOIN users u ON u.id = c.created_by
-    WHERE c.type = 'team'
-      AND c.visibility = 'public'
-      AND c.id NOT IN (SELECT conversation_id FROM chat_members WHERE user_id = ?)
-    ORDER BY c.created_at DESC
-  `, userId);
+  const [joined, explore] = await Promise.all([
+    db.all(`
+      SELECT
+        c.id,
+        c.type,
+        c.name,
+        c.description,
+        c.visibility,
+        c.created_by,
+        c.created_at,
+        m.role,
+        (SELECT COUNT(*)::int FROM chat_members cm WHERE cm.conversation_id = c.id) as member_count,
+        (
+          SELECT json_build_object(
+            'id', lm.id,
+            'content', lm.content,
+            'sender_name', u.name,
+            'created_at', lm.created_at
+          )
+          FROM chat_messages lm
+          JOIN users u ON u.id = lm.sender_id
+          WHERE lm.conversation_id = c.id
+          ORDER BY lm.created_at DESC
+          LIMIT 1
+        ) as last_message
+      FROM chat_conversations c
+      JOIN chat_members m ON m.conversation_id = c.id AND m.user_id = ?
+      WHERE c.type = 'team'
+      ORDER BY c.name ASC
+    `, userId),
+    db.all(`
+      SELECT
+        c.id,
+        c.type,
+        c.name,
+        c.description,
+        c.visibility,
+        c.created_by,
+        c.created_at,
+        u.name as creator_name,
+        (SELECT COUNT(*)::int FROM chat_members cm WHERE cm.conversation_id = c.id) as member_count
+      FROM chat_conversations c
+      LEFT JOIN users u ON u.id = c.created_by
+      WHERE c.type = 'team'
+        AND c.visibility = 'public'
+        AND c.id NOT IN (SELECT conversation_id FROM chat_members WHERE user_id = ?)
+      ORDER BY c.created_at DESC
+    `, userId)
+  ]);
 
   return { joined, explore };
 }
 
-// 6. Get Conversation Details
+// 6. Get Conversation Details (Parallelized + Single-Query Interests)
 async function getConversationDetails(conversationId, userId) {
-  const conv = await db.get("SELECT * FROM chat_conversations WHERE id = ?", conversationId);
+  const [conv, members] = await Promise.all([
+    db.get("SELECT id, type, name, description, avatar_url, visibility, created_by, pinned_message_ids, created_at FROM chat_conversations WHERE id = ?", conversationId),
+    db.all(`
+      SELECT u.id, u.name, u.email, u.username, u.bio, u.city, u.photo_url, cm.role, cm.joined_at,
+        COALESCE((
+          SELECT json_agg(i.name ORDER BY i.name)
+          FROM user_interests ui
+          JOIN interests i ON i.id = ui.interest_id
+          WHERE ui.user_id = u.id
+        ), '[]'::json) as interests
+      FROM chat_members cm
+      JOIN users u ON u.id = cm.user_id
+      WHERE cm.conversation_id = ?
+      ORDER BY 
+        CASE cm.role WHEN 'owner' THEN 1 WHEN 'admin' THEN 2 ELSE 3 END,
+        u.name ASC
+    `, conversationId)
+  ]);
+
   if (!conv) return null;
 
-  const members = await db.all(`
-    SELECT u.id, u.name, u.email, u.username, u.bio, u.city, u.photo_url, cm.role, cm.joined_at
-    FROM chat_members cm
-    JOIN users u ON u.id = cm.user_id
-    WHERE cm.conversation_id = ?
-    ORDER BY 
-      CASE cm.role WHEN 'owner' THEN 1 WHEN 'admin' THEN 2 ELSE 3 END,
-      u.name ASC
-  `, conversationId);
-
-  // Ensure handles on all members
   members.forEach(m => {
-    m.username = m.username || m.email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '');
+    m.username = m.username || (m.email ? m.email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '') : 'user');
     m.handle = `@${m.username}`;
+    m.interests = Array.isArray(m.interests) ? m.interests : [];
   });
 
   let recipient = null;
@@ -388,13 +425,6 @@ async function getConversationDetails(conversationId, userId) {
     if (recipient) {
       conv.name = recipient.name;
       conv.handle = recipient.handle;
-      const intRows = await db.all(`
-        SELECT i.name FROM user_interests ui
-        JOIN interests i ON i.id = ui.interest_id
-        WHERE ui.user_id = ?
-        ORDER BY i.name
-      `, recipient.id);
-      recipient.interests = intRows.map(r => r.name);
     }
   }
 
@@ -408,8 +438,8 @@ async function getConversationDetails(conversationId, userId) {
   };
 }
 
-// 7. Get Messages with Cursor Pagination
-async function getMessages(conversationId, limit = 50, beforeId = null) {
+// 7. Get Messages with Cursor Pagination (Default 30 for fast initial open)
+async function getMessages(conversationId, limit = 30, beforeId = null) {
   let query = `
     SELECT
       m.id,
@@ -657,32 +687,39 @@ async function votePoll(pollId, userId, optionId) {
   return updatedOptions;
 }
 
-// 12. Files & Attachments Inspector
+// 12. Files & Attachments Inspector (Parallelized)
 async function getConversationFiles(conversationId) {
-  const docs = await db.all(`
-    SELECT id, file_name, file_url, file_type, file_size, created_at
-    FROM chat_attachments
-    WHERE conversation_id = ? AND (file_type NOT LIKE 'image/%' AND file_type NOT LIKE 'video/%')
-    ORDER BY created_at DESC
-    LIMIT 20
-  `, conversationId);
-
-  const media = await db.all(`
-    SELECT id, file_name, file_url, file_type, file_size, created_at
-    FROM chat_attachments
-    WHERE conversation_id = ? AND (file_type LIKE 'image/%' OR file_type LIKE 'video/%' OR file_url LIKE '%.jpg%' OR file_url LIKE '%.png%' OR file_url LIKE '%.webp%')
-    ORDER BY created_at DESC
-    LIMIT 20
-  `, conversationId);
+  const [docs, media] = await Promise.all([
+    db.all(`
+      SELECT id, file_name, file_url, file_type, file_size, created_at
+      FROM chat_attachments
+      WHERE conversation_id = ? AND (file_type NOT LIKE 'image/%' AND file_type NOT LIKE 'video/%')
+      ORDER BY created_at DESC
+      LIMIT 20
+    `, conversationId),
+    db.all(`
+      SELECT id, file_name, file_url, file_type, file_size, created_at
+      FROM chat_attachments
+      WHERE conversation_id = ? AND (file_type LIKE 'image/%' OR file_type LIKE 'video/%' OR file_url LIKE '%.jpg%' OR file_url LIKE '%.png%' OR file_url LIKE '%.webp%')
+      ORDER BY created_at DESC
+      LIMIT 20
+    `, conversationId)
+  ]);
 
   return { docs, media };
 }
 
-// 13. Search Real Registered Users (With Full Name + @username)
+// 13. Search Real Registered Users (Single SQL Query — Zero N+1 Loops)
 async function searchUsers(query, currentUserId) {
   const cleanQ = `%${String(query || '').trim()}%`;
   const rows = await db.all(`
-    SELECT u.id, u.name, u.email, u.username, u.bio, u.city, u.photo_url
+    SELECT u.id, u.name, u.email, u.username, u.bio, u.city, u.photo_url,
+      COALESCE((
+        SELECT json_agg(i.name ORDER BY i.name)
+        FROM user_interests ui
+        JOIN interests i ON i.id = ui.interest_id
+        WHERE ui.user_id = u.id
+      ), '[]'::json) as interests
     FROM users u
     WHERE u.id != ?
       AND u.email NOT LIKE '%@skillmate.io'
@@ -696,19 +733,15 @@ async function searchUsers(query, currentUserId) {
     LIMIT 25
   `, currentUserId, cleanQ, cleanQ, cleanQ, cleanQ);
 
-  for (const u of rows) {
-    u.username = u.username || u.email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '');
-    u.handle = `@${u.username}`;
-    const intRows = await db.all(`
-      SELECT i.name FROM user_interests ui
-      JOIN interests i ON i.id = ui.interest_id
-      WHERE ui.user_id = ?
-      ORDER BY i.name
-    `, u.id);
-    u.interests = intRows.map(r => r.name);
-  }
-
-  return rows;
+  return rows.map(u => {
+    const username = u.username || (u.email ? u.email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '') : 'user');
+    return {
+      ...u,
+      username,
+      handle: `@${username}`,
+      interests: Array.isArray(u.interests) ? u.interests : []
+    };
+  });
 }
 
 // 14. Find or Create Personal 1-on-1 DM
