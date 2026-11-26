@@ -70,6 +70,7 @@ const sessionMiddleware = session({
   resave: false,
   saveUninitialized: false,
   cookie: {
+    path: "/",
     maxAge: 30 * 24 * 60 * 60 * 1000,
     httpOnly: true,
     sameSite: "lax",
@@ -172,41 +173,30 @@ async function getCommunityMessage(messageId) {
   `, messageId);
 }
 
-// Routes
+const WEB_DIR = path.join(ROOT, "public", "web");
+const APP_DIR = path.join(ROOT, "public", "app");
+
+// Mobile App Frontend (/app)
+app.get(["/app", "/app/"], (req, res, next) => {
+  res.sendFile(path.join(APP_DIR, "index.html"), err => {
+    if (err) next(err);
+  });
+});
+app.use("/app", express.static(APP_DIR));
+
+// Website Frontend (/)
 app.get("/", (req, res, next) => {
-  fs.readFile(path.join(ROOT, "index.html"), "utf8", (err, html) => {
-    if (err) return next(err);
-    const chatScript = '<script src="/glass-chat-client.js"></script>';
-    const page = html.includes("/glass-chat-client.js")
-      ? html
-      : html.replace("</body>", `  ${chatScript}\n</body>`);
-    res.setHeader("Content-Type", "text/html; charset=utf-8");
-    res.send(page);
+  res.sendFile(path.join(WEB_DIR, "index.html"), err => {
+    if (err) next(err);
   });
 });
 
 app.get("/community-chat-client.js", (req, res) => {
-  res.sendFile(path.join(ROOT, "glass-chat-client.js"));
-});
-
-app.get("/glass-chat-client.js", (req, res) => {
-  res.sendFile(path.join(ROOT, "glass-chat-client.js"));
-});
-
-app.get("/style.css", (req, res) => {
-  res.sendFile(path.join(ROOT, "style.css"));
-});
-
-app.get("/script.js", (req, res) => {
-  res.sendFile(path.join(ROOT, "script.js"));
-});
-
-app.get("/favicon.png", (req, res) => {
-  res.sendFile(path.join(ROOT, "favicon.png"));
+  res.sendFile(path.join(WEB_DIR, "glass-chat-client.js"));
 });
 
 app.use("/uploads", express.static(uploadDir));
-app.use(express.static(ROOT));
+app.use("/", express.static(WEB_DIR));
 
 app.get("/api/health", (req, res) => {
   res.json({
@@ -216,21 +206,27 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-// Mobile App OTA Version & APK Download
+// Mobile App OTA Version & APK Download (dedicated for /app)
 function sendAppVersion(req, res) {
   try {
     const versionFile = path.join(ROOT, "app-version.json");
     if (fs.existsSync(versionFile)) {
       const data = JSON.parse(fs.readFileSync(versionFile, "utf8"));
-      return res.json(data);
+      const appVer = data.appVersion || data.webVersion || "3.0.0";
+      return res.json({
+        ...data,
+        appVersion: appVer,
+        webVersion: appVer
+      });
     }
   } catch (_) {}
   res.json({
-    webVersion: "2.1.0",
+    appVersion: "3.0.0",
+    webVersion: "3.0.0",
     nativeVersion: "1.0.0",
     nativeVersionCode: 5,
     apkUrl: "https://skillmate-4.onrender.com/downloads/skillmate-latest.apk",
-    notes: "Latest SkillMate release"
+    notes: "Latest SkillMate mobile app release"
   });
 }
 

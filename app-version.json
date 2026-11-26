@@ -1,7 +1,8 @@
 {
-  "webVersion": "2.5.0",
+  "appVersion": "3.0.0",
+  "webVersion": "3.0.0",
   "nativeVersion": "1.0.0",
   "nativeVersionCode": 5,
   "apkUrl": "https://skillmate-4.onrender.com/downloads/skillmate-latest.apk",
-  "notes": "Rebuilt Discover: Dark-mode Bento Skill Cards, Swipe Deck, Perfect Swaps carousel, Filter Sheet & 1-Tap Icebreakers"
+  "notes": "Decoupled /app mobile bundle: 100% phone-native UI, safe-area layout, and isolated OTA updates"
 }

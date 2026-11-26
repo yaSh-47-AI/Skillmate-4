@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0B1410">
+  <meta name="description" content="Discover people who share your interests, skills and ambitions.">
+  <title>SkillMate — Find Your People</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="/favicon.png?v=2">
+  <link rel="apple-touch-icon" href="/favicon.png?v=2">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="bg" aria-hidden="true">
+    <div class="grid"></div>
+  </div>
+
+  <nav class="top-nav" id="topNav">
+    <div class="nav-left">
+      <button class="nav-hamburger" id="sidebarTrigger" type="button" aria-label="Open menu" title="Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <a class="logo" id="topNavLogo" href="#/" onclick="navigateTo('home'); return false;">Skill<span>Mate.</span></a>
+      <span class="mobile-page-title" id="mobilePageTitle" aria-live="polite"></span>
+    </div>
+
+    <div class="nav-center">
+      <a href="#/network" onclick="navigateTo('network'); return false;">Network</a>
+      <a href="#/network" onclick="navigateTo('network'); return false;">Interests</a>
+      <a href="#/communities" onclick="navigateTo('communities'); return false;">Communities</a>
+      <a href="#/discover" onclick="navigateTo('discover'); return false;">Discover</a>
+    </div>
+
+    <div class="nav-actions">
+      <button class="nav-bell" id="navNotificationBtn" type="button" onclick="toggleNotifications(event)" aria-label="Notifications" title="Notifications">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        <span class="notification-badge" id="navNotificationBadge" hidden>0</span>
+      </button>
+
+      <button class="nav-chat" onclick="window.GlassChat ? window.GlassChat.open() : openChat()" aria-label="Open Messages">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        <span>Messages</span> <span class="chat-count" id="chatCount">0</span>
+      </button>
+
+      <button class="nav-btn" id="joinButton" onclick="openModal('signup')">
+        Join ↗
+      </button>
+
+      <div class="user-menu" id="userMenu" hidden>
+        <button
+          class="nav-avatar-btn"
+          id="navAvatarBtn"
+          type="button"
+          onclick="toggleUserMenu(event)"
+          title="Account menu"
+          aria-label="Account menu"
+        >
+          <div class="nav-avatar" id="navAvatar">👤</div>
+        </button>
+
+        <button
+          class="menu-dots-btn"
+          id="userMenuTrigger"
+          type="button"
+          aria-expanded="false"
+          aria-label="Account options"
+          title="Account menu"
+          onclick="toggleUserMenu(event)"
+        >
+          ⋮
+        </button>
+
+        <div class="user-menu-dropdown" id="userMenuDropdown" hidden>
+          <div class="dropdown-user-header">
+            <div class="dropdown-avatar" id="dropdownAvatar">👤</div>
+            <div class="dropdown-user-details">
+              <strong id="dropdownUserName">Member</strong>
+              <small id="dropdownUserRole">Community member</small>
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+          <button type="button" class="dropdown-action" onclick="openModal('signup'); closeUserMenu();">
+            ✎ <span>Edit profile</span>
+          </button>
+          <button type="button" class="dropdown-action" onclick="openChat(); closeUserMenu();">
+            ✉ <span>Messages</span>
+          </button>
+          <div class="dropdown-divider"></div>
+          <button type="button" class="dropdown-action menu-logout" onclick="logoutUser()">
+            ↪ <span>Logout</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="top">
+    <!-- ==================== VIEW 1: HOME (COMPACT & PRECISE) ==================== -->
+    <div class="app-view active" id="view-home">
+      <!-- NATIVE MOBILE HOME DASHBOARD (<= 768px) -->
+      <section class="mobile-home-dashboard" id="mobileHomeDashboard" aria-label="SkillMate Mobile Home">
+        <!-- 1. Top Utility & Greeting Header -->
+        <div class="mh-header">
+          <div class="mh-top-row">
+            <span class="mh-time-greeting" id="mhTimeGreeting">Good Morning</span>
+            <div class="mh-utility-actions">
+              <button type="button" class="mh-icon-btn" id="mhSearchBtn" aria-label="Search peers">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+              </button>
+              <button type="button" class="mh-icon-btn" id="mhNotifBtn" onclick="toggleNotifications(event)" aria-label="Notifications">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                <span class="mh-notif-dot" id="mhNotifDot" hidden></span>
+              </button>
+            </div>
+          </div>
+
+          <div class="mh-greeting-row">
+            <div class="mh-greeting-copy">
+              <h1 class="mh-hello">Hello, <span id="mhFirstName">Explorer</span></h1>
+              <p class="mh-subtitle" id="mhSubtitle">Connect, build, and grow with your peers.</p>
+            </div>
+            <button type="button" class="mh-avatar-ring" id="mhAvatarBtn" aria-label="Profile and settings">
+              <span class="mh-avatar-inner" id="mhUserAvatar">✦</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. 3-Column Bento Stat Cards Row -->
+        <div class="mh-bento-row">
+          <button type="button" class="mh-stat-card" onclick="navigateTo('network')">
+            <span class="mh-stat-icon sage">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <polyline points="16 11 18 13 22 9"></polyline>
+              </svg>
+            </span>
+            <strong class="mh-stat-val" id="mhStatConnections">0</strong>
+            <span class="mh-stat-label">Connections</span>
+          </button>
+
+          <button type="button" class="mh-stat-card" onclick="navigateTo('communities')">
+            <span class="mh-stat-icon emerald">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8">
+                <circle cx="12" cy="12" r="3"></circle>
+                <circle cx="5" cy="7" r="2.5"></circle>
+                <circle cx="19" cy="7" r="2.5"></circle>
+                <circle cx="5" cy="17" r="2.5"></circle>
+                <circle cx="19" cy="17" r="2.5"></circle>
+              </svg>
+            </span>
+            <strong class="mh-stat-val" id="mhStatCircles">0</strong>
+            <span class="mh-stat-label">My Circles</span>
+          </button>
+
+          <button type="button" class="mh-stat-card" onclick="openChat()">
+            <span class="mh-stat-icon mint">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+            </span>
+            <strong class="mh-stat-val" id="mhStatUnread">0</strong>
+            <span class="mh-stat-label">Unread DMs</span>
+          </button>
+        </div>
+
+        <!-- 3. Featured Spotlight / Progress Card -->
+        <div class="mh-spotlight-card" id="mhSpotlightCard">
+          <div class="mh-spotlight-top">
+            <div class="mh-spotlight-copy">
+              <span class="mh-spotlight-eyebrow">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+                <span id="mhSpotlightLabel">Your Match Pulse</span>
+              </span>
+              <h2 class="mh-spotlight-title" id="mhSpotlightTitle">Keep Building!</h2>
+              <p class="mh-spotlight-desc" id="mhSpotlightDesc">Complete your profile to unlock stronger peer matches.</p>
+            </div>
+            <button type="button" class="mh-spotlight-cta" id="mhSpotlightBtn" aria-label="Open spotlight action">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          </div>
+          <div class="mh-progress-wrap">
+            <div class="mh-progress-track">
+              <div class="mh-progress-fill" id="mhProgressFill" style="width: 72%"></div>
+            </div>
+            <span class="mh-progress-pct" id="mhProgressPct">72%</span>
+          </div>
+        </div>
+
+        <!-- 4. Horizontal Quick-Filter / Category Tiles -->
+        <div class="mh-categories-row" id="mhCategoriesRow" aria-label="Quick interest filters">
+          <button type="button" class="mh-cat-tile" data-interest="AI">
+            <span class="mh-cat-squircle">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 2a4 4 0 0 1 4 4v2h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2v2a4 4 0 0 1-8 0v-2H6a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2h2V6a4 4 0 0 1 4-4z"/><circle cx="9.5" cy="13" r="1"/><circle cx="14.5" cy="13" r="1"/></svg>
+            </span>
+            <span class="mh-cat-label">AI</span>
+          </button>
+          <button type="button" class="mh-cat-tile" data-interest="Web Dev">
+            <span class="mh-cat-squircle">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.75"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            </span>
+            <span class="mh-cat-label">Web Dev</span>
+          </button>
+          <button type="button" class="mh-cat-tile" data-interest="Python">
+            <span class="mh-cat-squircle">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            </span>
+            <span class="mh-cat-label">Python</span>
+          </button>
+          <button type="button" class="mh-cat-tile" data-interest="Startups">
+            <span class="mh-cat-squircle">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/></svg>
+            </span>
+            <span class="mh-cat-label">Startups</span>
+          </button>
+          <button type="button" class="mh-cat-tile" data-interest="Cyber">
+            <span class="mh-cat-squircle">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </span>
+            <span class="mh-cat-label">Cyber</span>
+          </button>
+          <button type="button" class="mh-cat-tile" data-interest="IoT">
+            <span class="mh-cat-squircle">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M9 1v3m6-3v3M9 20v3m6-3v3M1 9h3m-3 6h3m16-6h3m-3 6h3"/></svg>
+            </span>
+            <span class="mh-cat-label">IoT</span>
+          </button>
+        </div>
+
+        <!-- 5. Stacked Activity / Quick-Access List -->
+        <div class="mh-section-head">
+          <h3>Active Chats &amp; Circles</h3>
+          <button type="button" class="mh-see-all" onclick="openChat()">See All &rsaquo;</button>
+        </div>
+        <div class="mh-activity-list" id="mhActivityList">
+          <div class="mh-activity-empty">Loading your active chats and circles...</div>
+        </div>
+      </section>
+
+      <section class="hero">
+        <div class="hero-content">
+          <h1 class="hero-wordmark" aria-label="Find your people">
+            <span class="hero-line1" data-word="FIND">FIND</span>
+            <span class="hero-line2" data-word="YOUR">YOUR</span>
+            <span class="hero-line3" data-word="PEOPLE.">PEOPLE<span class="hero-dot">.</span></span>
+          </h1>
+
+          <p class="hero-description">
+            Meet people who share your skills and ambitions. Join focused circles, exchange ideas, and build together.
+          </p>
+
+          <div class="hero-buttons" id="heroButtons">
+            <button class="primary" id="heroJoinButton" onclick="openModal('signup')">
+              Create your profile
+            </button>
+
+            <button class="secondary" onclick="navigateTo('discover')">
+              Explore members
+            </button>
+          </div>
+
+          <div class="hero-welcome-card" id="heroWelcome" hidden>
+            <div class="welcome-card-header">
+              <div class="welcome-avatar-wrapper">
+                <div class="welcome-large-avatar" id="welcomeBigAvatar">SM</div>
+              </div>
+              <div class="welcome-headline-box">
+                <h2 class="welcome-big-heading">
+                  Welcome, <span class="welcome-name-gradient" id="welcomeUserName">Member</span>
+                </h2>
+                <p class="welcome-subtext" id="welcomeUserBio">
+                  Find collaborators, join circles, and message peers directly.
+                </p>
+              </div>
+            </div>
+
+            <div class="welcome-card-actions">
+              <button class="primary" onclick="navigateTo('discover')">
+                Explore members
+              </button>
+              <button class="secondary" onclick="openChat()">
+                Open messages
+              </button>
+              <button class="secondary" onclick="openModal('signup')">
+                Edit profile
+              </button>
+            </div>
+          </div>
+
+          <!-- QUICK ACCESS DASHBOARD HUB -->
+          <div class="home-hub-cards">
+            <div class="hub-card" onclick="navigateTo('communities')">
+              <div class="hub-card-info">
+                <strong>Communities &amp; Circles</strong>
+                <p>Topic-based circles with live group chats</p>
+              </div>
+              <span class="hub-card-arrow">&rsaquo;</span>
+            </div>
+
+            <div class="hub-card" onclick="navigateTo('network')">
+              <div class="hub-card-info">
+                <strong>Network &amp; Matching</strong>
+                <p>Connection graph and skill-based matches</p>
+              </div>
+              <span class="hub-card-arrow">&rsaquo;</span>
+            </div>
+
+            <div class="hub-card" onclick="navigateTo('discover')">
+              <div class="hub-card-info">
+                <strong>Discover Members</strong>
+                <p>Browse developers, designers, and builders</p>
+              </div>
+              <span class="hub-card-arrow">&rsaquo;</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ==================== VIEW 2: COMMUNITIES ==================== -->
+    <div class="app-view" id="view-communities">
+      <div class="view-header">
+        <button class="view-back-btn" type="button" onclick="navigateTo('home')">← Back to Home</button>
+        <span class="view-tag">COMMUNITIES & GROUP CHATS</span>
+      </div>
+
+      <section class="section" id="communities">
+        <div class="section-eyebrow">YOUR PEOPLE, YOUR CIRCLE</div>
+        <h2 class="section-title">Find your corner<br>of the internet.</h2>
+        <p class="section-description">
+          Every passion has a place. Join the circles that match your interests and meet people who are into the same things.
+        </p>
+
+        <!-- Clean Tabs: My Circles vs Explore -->
+        <div class="community-tabs-bar">
+          <button type="button" class="community-tab-btn active" id="commTabBtnJoined" onclick="switchCommunityTab('joined')">
+            ✦ My Circles (<span id="myCirclesCount">0</span>)
+          </button>
+          <button type="button" class="community-tab-btn" id="commTabBtnExplore" onclick="switchCommunityTab('explore')">
+            🧭 Explore Circles
+          </button>
+        </div>
+
+        <!-- Search & Filter Chips Bar -->
+        <div class="search-row" style="margin-bottom:12px;">
+          <div class="search-wrap">
+            <span>⌕</span>
+            <input class="search" id="communitySearch" placeholder="Search circles by name, topic or description..." aria-label="Search circles" oninput="handleCommunitySearch(this.value)">
+          </div>
+          <button class="filter" type="button" onclick="clearCommunitySearch()">Clear search</button>
+        </div>
+
+        <div class="community-chips-bar" id="communityChipsBar">
+          <button type="button" class="community-chip active" onclick="selectCommunityCategory('all')">All</button>
+          <button type="button" class="community-chip" onclick="selectCommunityCategory('AI')">AI & ML</button>
+          <button type="button" class="community-chip" onclick="selectCommunityCategory('Python')">Python</button>
+          <button type="button" class="community-chip" onclick="selectCommunityCategory('Web Development')">Web Dev</button>
+          <button type="button" class="community-chip" onclick="selectCommunityCategory('Startups')">Startups</button>
+          <button type="button" class="community-chip" onclick="selectCommunityCategory('Cybersecurity')">Cybersecurity</button>
+          <button type="button" class="community-chip" onclick="selectCommunityCategory('Data Science')">Data Science</button>
+          <button type="button" class="community-chip" onclick="selectCommunityCategory('Design')">Design</button>
+          <button type="button" class="community-chip" onclick="selectCommunityCategory('Robotics')">Robotics</button>
+          <button type="button" class="community-chip" onclick="selectCommunityCategory('Gaming')">Gaming</button>
+          <button type="button" class="community-chip" onclick="selectCommunityCategory('Finance')">Finance</button>
+          <button type="button" class="community-chip" onclick="selectCommunityCategory('IoT')">IoT</button>
+        </div>
+
+        <div class="community-toolbar">
+          <div class="community-toolbar-copy">
+            <span class="recommendation-icon">✦</span>
+            <div>
+              <strong id="communityToolbarTitle">My Joined Circles</strong>
+              <span id="communitySummary">Choose your interests and join the communities that fit.</span>
+            </div>
+          </div>
+          <button class="primary community-join-all" id="joinInterestCommunities" type="button" onclick="joinMyInterestCommunities()">Join my interest circles ↗</button>
+        </div>
+
+        <div class="communities-grid" id="communitiesGrid" aria-live="polite"></div>
+        <p class="no-results" id="noCommunitiesMsg" hidden style="text-align:center;padding:30px;color:#94a3b8;">No circles found in this view.</p>
+
+        <!-- Pagination Controls (6 at a time) -->
+        <div class="load-more-wrap" style="margin-top:20px;">
+          <span id="communityPaginationCount">Showing 6 circles</span>
+          <button class="secondary" id="showMoreCommunitiesBtn" onclick="showMoreCommunities()" style="display:none;">Show More Circles ↓</button>
+        </div>
+      </section>
+    </div>
+
+    <!-- ==================== VIEW 3: NETWORK & MATCHING ==================== -->
+    <div class="app-view" id="view-network">
+      <div class="view-header">
+        <button class="view-back-btn" type="button" onclick="navigateTo('home')">← Back to Home</button>
+        <span class="view-tag">INTERACTIVE NETWORK & MATCHING</span>
+      </div>
+
+      <!-- Network Top Tabs: Connections vs Team Channels -->
+      <div class="network-tabs-bar">
+        <button type="button" class="network-tab-btn active" id="netTabBtnConnections" onclick="switchNetworkTab('connections')">
+          🔗 Connections & Lattice
+        </button>
+        <button type="button" class="network-tab-btn" id="netTabBtnChannels" onclick="switchNetworkTab('channels')">
+          💬 Team Channels (<span id="netJoinedChannelsCount">0</span>)
+        </button>
+      </div>
+
+      <!-- TAB 1: CONNECTIONS & LATTICE -->
+      <div id="netTabContentConnections">
+        <section class="section" id="network">
+        <div class="section-eyebrow">A DIFFERENT KIND OF NETWORK</div>
+        <h2 class="section-title">Your interests can<br>bring people together.</h2>
+
+        <div class="network">
+          <div class="network-center">YOU</div>
+          <div class="node node1">Artificial Intelligence</div>
+          <div class="node node2">Python</div>
+          <div class="node node3">Music</div>
+          <div class="node node4">Startups</div>
+          <div class="node node5">Robotics</div>
+          <div class="node node6">Photography</div>
+
+          <svg class="network-lines" viewBox="0 0 1000 500" preserveAspectRatio="none" aria-hidden="true">
+            <line x1="500" y1="250" x2="190" y2="120"/>
+            <line x1="500" y1="250" x2="810" y2="110"/>
+            <line x1="500" y1="250" x2="180" y2="390"/>
+            <line x1="500" y1="250" x2="820" y2="380"/>
+            <line x1="500" y1="250" x2="500" y2="65"/>
+            <line x1="500" y1="250" x2="500" y2="440"/>
+          </svg>
+        </div>
+      </section>
+
+      <section class="section" id="matching">
+        <div class="section-eyebrow">PERSONALISED DISCOVERY</div>
+        <h2 class="section-title">What are you<br>into these days?</h2>
+        <p class="section-description">
+          Pick a few interests. We'll bring people with similar passions closer to the top.
+        </p>
+
+        <div class="matching-layout">
+          <div class="panel interests-panel">
+            <div class="panel-heading">
+              <div>
+                <h3>Your interests</h3>
+                <p>Select as many as you like.</p>
+              </div>
+              <span class="selection-count" id="interestCount">3 selected</span>
+            </div>
+
+            <div class="interest-grid" id="filterInterests">
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="AI" checked><span>AI & ML</span></label>
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="Python" checked><span>Python</span></label>
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="Web Development" checked><span>Web development</span></label>
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="Startups"><span>Startups</span></label>
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="Music"><span>Music</span></label>
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="Gaming"><span>Gaming</span></label>
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="Design"><span>Design</span></label>
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="Robotics"><span>Robotics</span></label>
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="Psychology"><span>Psychology</span></label>
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="Photography"><span>Photography</span></label>
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="Finance"><span>Finance</span></label>
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="Movies"><span>Movies</span></label>
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="Data Science"><span>Data science</span></label>
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="Cybersecurity"><span>Cybersecurity</span></label>
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="IoT"><span>IoT & electronics</span></label>
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="Writing"><span>Writing</span></label>
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="Fitness"><span>Fitness</span></label>
+              <label class="interest-option"><input type="checkbox" name="filterInterest" value="Astronomy"><span>Astronomy</span></label>
+            </div>
+
+            <div class="interest-actions">
+              <button class="text-button" type="button" onclick="clearInterestFilters()">Clear selection</button>
+              <button class="text-button" type="button" onclick="selectRecommendedFilters()">Use recommendations ✦</button>
+            </div>
+          </div>
+
+          <div class="panel match-panel">
+            <div class="match-orbit"><span>✦</span></div>
+            <div class="match-label">YOUR BEST COMMUNITY MATCH</div>
+            <strong id="match">100+</strong>
+            <h3>People to discover</h3>
+            <p id="matchInfo">Choose your interests to personalise your recommendations.</p>
+            <button class="primary small-primary" onclick="navigateTo('discover')">See recommendations →</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Connected Members List -->
+      <section class="section" id="connectedMembersSection" style="padding-top:20px;">
+        <div class="section-eyebrow">YOUR DIRECT NETWORK</div>
+        <h2 class="section-title">Connected Members</h2>
+        <div id="connectedMembersGrid" class="people" style="margin-top:16px;"></div>
+        <p id="noConnectionsMsg" style="color:#64748b;font-size:13px;text-align:center;padding:20px;">No accepted connections yet. Explore peers in Discover to connect!</p>
+      </section>
+    </div>
+
+    <!-- TAB 2: TEAM CHANNELS -->
+    <div id="netTabContentChannels" style="display:none;">
+      <section class="section" style="padding-top:10px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
+          <div>
+            <div class="section-eyebrow">TOPIC ROOMS & GROUP CHAT</div>
+            <h2 class="section-title" style="margin:4px 0;">Team Channels</h2>
+            <p style="color:#94a3b8;font-size:13.5px;margin:0;">Topic-based discussion spaces. Chat, share code & files, or jump into live voice/video calls.</p>
+          </div>
+          <button class="primary" type="button" onclick="window.GlassChat ? window.GlassChat.openCreateChannelModal() : null" style="display:flex;align-items:center;gap:6px;font-weight:700;">
+            <span>＋</span> Create Channel
+          </button>
+        </div>
+
+        <!-- Sub-section: Joined Channels -->
+        <div style="margin-bottom:28px;">
+          <div style="font-size:14px;font-weight:800;color:#fff;display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <span>💬 Your Channels</span>
+            <span id="joinedChannelsBadge" style="font-size:11px;background:rgba(168,85,247,0.2);color:#c084fc;padding:2px 8px;border-radius:10px;">0</span>
+          </div>
+          <div class="channels-grid" id="joinedChannelsGrid"></div>
+          <p id="noJoinedChannelsMsg" style="color:#64748b;font-size:13px;padding:16px 0;display:none;">You haven't joined any team channels yet. Check out explore channels below!</p>
+        </div>
+
+        <!-- Sub-section: Explore Channels -->
+        <div>
+          <div style="font-size:14px;font-weight:800;color:#fff;display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <span>🧭 Discover Public Channels</span>
+          </div>
+          <div class="channels-grid" id="exploreChannelsGrid"></div>
+          <p id="noExploreChannelsMsg" style="color:#64748b;font-size:13px;padding:16px 0;display:none;">No additional public channels to explore right now.</p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+    <!-- ==================== VIEW 4: DISCOVER PEERS ==================== -->
+    <div class="app-view" id="view-discover">
+      <section class="disc-shell" id="discover" aria-label="Skill Matchmaking and Discovery">
+        <!-- Pull-to-refresh indicator -->
+        <div class="disc-ptr-indicator" id="discPtrIndicator" aria-hidden="true">
+          <span class="disc-ptr-dot"></span>
+          <span>Release to refresh</span>
+        </div>
+
+        <!-- 1. Top Header Row with Dual View Toggle -->
+        <header class="disc-header">
+          <div class="disc-header-left">
+            <h1 class="disc-title">Discover</h1>
+          </div>
+          <div class="disc-view-toggle" id="discViewToggle" role="tablist" aria-label="Discover layout">
+            <button type="button" class="disc-toggle-btn active" data-mode="feed" role="tab" aria-selected="true" title="Feed View">
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+                <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+                <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+                <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+              </svg>
+              <span>Feed</span>
+            </button>
+            <button type="button" class="disc-toggle-btn" data-mode="deck" role="tab" aria-selected="false" title="Swipe Deck View">
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="5" y="4" width="14" height="17" rx="2.5"></rect>
+                <path d="M8 2h8"></path>
+              </svg>
+              <span>Deck</span>
+            </button>
+          </div>
+        </header>
+
+        <!-- 2. Floating Pill Search Bar + Filter Trigger -->
+        <div class="disc-search-bar">
+          <span class="disc-search-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </span>
+          <input type="search" class="disc-search-input" id="search" placeholder="Search @username, skill, or city..." aria-label="Search members by username, skill, or city" autocomplete="off">
+          <button type="button" class="disc-search-clear" id="discSearchClear" aria-label="Clear search" hidden>✕</button>
+          <button type="button" class="disc-filter-trigger" id="discFilterTrigger" aria-label="Open filters">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="4" y1="6" x2="20" y2="6"></line>
+              <line x1="7" y1="12" x2="17" y2="12"></line>
+              <line x1="10" y1="18" x2="14" y2="18"></line>
+            </svg>
+            <span class="disc-filter-badge" id="discFilterBadge" hidden>0</span>
+          </button>
+        </div>
+
+        <!-- 3. Horizontal Vibe Chips -->
+        <div class="disc-vibe-chips" id="discVibeChips" role="list">
+          <button type="button" class="disc-vibe-chip active" data-vibe="all">All</button>
+          <button type="button" class="disc-vibe-chip" data-vibe="top">🔥 Top Matches</button>
+          <button type="button" class="disc-vibe-chip" data-vibe="online">⚡ Online Now</button>
+          <button type="button" class="disc-vibe-chip" data-vibe="nearby">📍 Nearby</button>
+          <button type="button" class="disc-vibe-chip" data-vibe="tech">💻 Tech</button>
+          <button type="button" class="disc-vibe-chip" data-vibe="design">🎨 Design</button>
+          <button type="button" class="disc-vibe-chip" data-vibe="music">🎵 Music</button>
+        </div>
+
+        <!-- 4. Perfect Skill Swaps Spotlight Carousel -->
+        <section class="disc-swaps-section" id="discSwapsSection" aria-label="Perfect Skill Swaps">
+          <div class="disc-section-head">
+            <h2>⚡ Perfect Swaps</h2>
+            <span class="disc-section-meta" id="discSwapsMeta">Complementary skills</span>
+          </div>
+          <div class="disc-swaps-carousel" id="discSwapsCarousel"></div>
+        </section>
+
+        <!-- 5A. Feed / Bento Grid View -->
+        <div class="disc-feed-container" id="discFeedContainer">
+          <div class="disc-feed-meta">
+            <span id="profileCount">Loading matches...</span>
+          </div>
+          <div class="disc-bento-grid" id="people"></div>
+          <div class="disc-scroll-sentinel" id="discScrollSentinel" aria-hidden="true"></div>
+        </div>
+
+        <!-- 5B. Deck / Swipe View -->
+        <div class="disc-deck-container" id="discDeckContainer" hidden>
+          <div class="disc-deck-stage" id="discDeckStage"></div>
+          <div class="disc-deck-actions" id="discDeckActions">
+            <button type="button" class="disc-deck-btn skip" id="discDeckSkipBtn" aria-label="Skip profile">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <button type="button" class="disc-deck-btn info" id="discDeckInfoBtn" aria-label="View profile">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            </button>
+            <button type="button" class="disc-deck-btn connect" id="discDeckConnectBtn" aria-label="Connect">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- 6. Smart Empty State -->
+        <div class="disc-empty-state" id="discEmptyState" hidden>
+          <div class="disc-empty-graphic" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+          </div>
+          <h3>No exact matches found</h3>
+          <p id="discEmptySub">Try widening your filters or clearing your search query.</p>
+          <button type="button" class="disc-btn-primary" id="discClearFiltersBtn">Clear Filters</button>
+          <div class="disc-suggested-wrap" id="discSuggestedWrap" hidden>
+            <span class="disc-suggested-label">Suggested peers you might like</span>
+            <div class="disc-bento-grid" id="discSuggestedGrid"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <a class="footer-logo" href="#top">Skill<span>Mate.</span></a>
+    <p>Built for curious minds.</p>
+    <small>SkillMate © 2026</small>
+  </footer>
+
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="SkillMate account">
+    <!-- Animated Aurora Background Orbs & Futuristic Dot Grid -->
+    <div class="auth-aurora-bg" aria-hidden="true">
+      <div class="auth-orb auth-orb-1"></div>
+      <div class="auth-orb auth-orb-2"></div>
+      <div class="auth-orb auth-orb-3"></div>
+      <div class="auth-grid-overlay"></div>
+    </div>
+
+    <div class="auth-box" id="authBox">
+      <button class="auth-close" onclick="closeModal()" aria-label="Close dialog">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+
+      <!-- Hero Brand Header -->
+      <div class="auth-hero-brand">
+        <div class="auth-wordmark">Skill<span>Mate.</span></div>
+        <p class="auth-tagline">Connect. Build. Level up.</p>
+      </div>
+
+      <!-- Sliding Segmented Toggle -->
+      <div class="auth-tabs" id="authTabs">
+        <div class="auth-tab-slider" aria-hidden="true"></div>
+        <button id="loginTab" class="auth-tab active" type="button" onclick="switchAuth('login')">Log In</button>
+        <button id="signupTab" class="auth-tab" type="button" onclick="switchAuth('signup')">Create Account</button>
+      </div>
+
+      <!-- Inline Error / Success Banner -->
+      <div id="authInlineBanner" class="auth-inline-banner" role="alert" hidden></div>
+
+      <div id="loginForm" class="auth-form">
+        <label for="loginEmail">Email address</label>
+        <div class="input-wrap">
+          <span class="input-svg">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          </span>
+          <input id="loginEmail" type="email" inputmode="email" placeholder="you@example.com" autocomplete="email">
+        </div>
+
+        <label for="loginPassword">Password</label>
+        <div class="input-wrap">
+          <span class="input-svg">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </span>
+          <input id="loginPassword" type="password" placeholder="Your password" autocomplete="current-password">
+          <button class="eye" type="button" onclick="togglePassword('loginPassword',this)" aria-label="Show password">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+
+        <button class="auth-submit" type="button" onclick="loginUser()"><span>Log In to SkillMate</span></button>
+        <p class="switch-text">New here? <button type="button" onclick="switchAuth('signup')">Create your account</button></p>
+      </div>
+
+      <div id="signupForm" class="auth-form" style="display:none">
+        <div class="auth-step-indicator" id="signupStepIndicator">
+          <span class="step-pill active" id="signupStepPill1">1. Account</span>
+          <span class="step-pill" id="signupStepPill2">2. Profile &amp; Skills</span>
+        </div>
+
+        <!-- Step 1: Clean Account Credentials -->
+        <div id="signupStep1">
+          <label for="signupName">Full name</label>
+          <div class="input-wrap">
+            <span class="input-svg">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </span>
+            <input id="signupName" placeholder="Your full name" autocomplete="name">
+          </div>
+
+          <label for="signupEmail">Email address</label>
+          <div class="input-wrap">
+            <span class="input-svg">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            </span>
+            <input id="signupEmail" type="email" inputmode="email" placeholder="you@example.com" autocomplete="email">
+          </div>
+
+          <label for="signupPassword">Password</label>
+          <div class="input-wrap">
+            <span class="input-svg">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </span>
+            <input id="signupPassword" type="password" placeholder="At least 8 characters" autocomplete="new-password">
+            <button class="eye" type="button" onclick="togglePassword('signupPassword',this)" aria-label="Show password">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+
+          <button class="auth-submit" type="button" onclick="nextSignupStep()"><span>Continue</span></button>
+        </div>
+
+        <!-- Step 2: Profile & Interests -->
+        <div id="signupStep2" style="display:none">
+          <div class="photo-upload-row">
+            <div class="photo-preview" id="photoPreview"><span>👤</span></div>
+            <div class="photo-upload-copy">
+              <strong>Profile photo <span class="optional-label">Optional</span></strong>
+              <small>JPG, PNG or WEBP. Max 5 MB.</small>
+              <label class="upload-trigger" for="signupPhoto">＋ Add a photo</label>
+              <input class="file-input" type="file" id="signupPhoto" accept="image/jpeg,image/png,image/webp,image/gif">
+            </div>
+          </div>
+
+          <div class="name-row">
+            <div>
+              <label for="signupCity">City</label>
+              <div class="input-wrap">
+                <span class="input-svg">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                </span>
+                <input id="signupCity" placeholder="Your city" autocomplete="address-level2">
+              </div>
+            </div>
+            <div>
+              <label for="signupRole">Role</label>
+              <div class="input-wrap">
+                <span class="input-svg">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                </span>
+                <input id="signupRole" placeholder="Developer, Student...">
+              </div>
+            </div>
+          </div>
+
+          <div class="signup-interest-heading">
+            <div>
+              <label>Your interests</label>
+              <p>Pick topics to personalize matches.</p>
+            </div>
+            <span class="selection-count" id="signupInterestCount">3 selected</span>
+          </div>
+
+          <div class="signup-interest-grid" id="signupInterests">
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="AI" checked><span>AI & ML</span></label>
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="Python" checked><span>Python</span></label>
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="Web Development" checked><span>Web Dev</span></label>
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="Startups"><span>Startups</span></label>
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="Music"><span>Music</span></label>
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="Gaming"><span>Gaming</span></label>
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="Design"><span>Design</span></label>
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="Robotics"><span>Robotics</span></label>
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="Psychology"><span>Psychology</span></label>
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="Photography"><span>Photography</span></label>
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="Finance"><span>Finance</span></label>
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="Movies"><span>Movies</span></label>
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="Data Science"><span>Data Science</span></label>
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="Cybersecurity"><span>Security</span></label>
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="IoT"><span>IoT</span></label>
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="Writing"><span>Writing</span></label>
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="Fitness"><span>Fitness</span></label>
+            <label class="interest-option"><input type="checkbox" name="signupInterest" value="Astronomy"><span>Astronomy</span></label>
+          </div>
+
+          <div class="interest-actions signup-interest-actions">
+            <button class="text-button" type="button" onclick="setRecommendedSignupInterests()">Use recommended ✦</button>
+          </div>
+
+          <div class="auth-step-actions">
+            <button class="auth-back-btn" type="button" onclick="prevSignupStep()">← Back</button>
+            <button class="auth-submit signup-submit" type="button" onclick="signupUser()"><span>Create Account</span></button>
+          </div>
+        </div>
+
+        <p class="switch-text">Already a member? <button type="button" onclick="switchAuth('login')">Log in</button></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-backdrop" id="chatBackdrop" onclick="closeChat()"></div>
+
+  <aside class="chat-drawer" id="chatDrawer" aria-label="Chats" aria-hidden="true">
+    <div class="chat-topbar">
+      <div class="chat-top-brand">
+        <span class="chat-brand-logo">Skill<span>Mate.</span></span>
+      </div>
+      <div class="chat-top-nav">
+        <button type="button" class="chat-nav-pill" onclick="navigateTo('discover'); closeChat();">Designer</button>
+        <button type="button" class="chat-nav-pill" onclick="navigateTo('discover'); closeChat();">Explore</button>
+        <button type="button" class="chat-nav-pill" onclick="navigateTo('communities'); closeChat();">Blog</button>
+        <button type="button" class="chat-nav-pill active" id="chatPillMessages">Chats</button>
+      </div>
+      <div class="chat-topbar-right">
+        <button type="button" class="chat-new-btn" onclick="navigateTo('discover'); closeChat();">＋ New recruitment</button>
+        <div class="chat-top-avatar" id="chatTopUserAvatar">👤</div>
+        <button class="chat-close" onclick="closeChat()" aria-label="Close chats">✕</button>
+      </div>
+    </div>
+
+    <div class="chat-layout" id="chatLayout">
+      <!-- LEFT SIDEBAR: Contacts & Search -->
+      <div class="chat-sidebar" id="chatSidebar">
+        <div class="chat-sidebar-header">
+          <div class="chat-sidebar-me">
+            <div class="sidebar-user-avatar" id="sidebarUserAvatar">👤</div>
+            <span class="chat-title-heading">Chat</span>
+          </div>
+          <div class="chat-sidebar-actions">
+            <button type="button" class="sidebar-icon-btn" title="Circles" onclick="navigateTo('communities'); closeChat();">💬</button>
+          </div>
+        </div>
+
+        <div class="chat-search-wrap">
+          <span>⌕</span>
+          <input id="chatSearch" placeholder="Search conversations..." aria-label="Find conversations">
+        </div>
+
+        <div class="chat-section-divider">
+          <span>Personal</span>
+        </div>
+        <div id="chatContacts" class="chat-contacts"></div>
+        <div class="chat-sidebar-note">Connected members you can message appear here.</div>
+      </div>
+
+      <!-- CENTER: Conversation Stream -->
+      <div class="chat-main" id="chatMain">
+        <div class="chat-conversation-head">
+          <button class="chat-back-mobile" id="chatMobileBack" type="button" onclick="showContactsMobile()" aria-label="Back to contacts">←</button>
+          <div id="activeChatAvatar" class="chat-avatar">✦</div>
+          <div class="chat-contact-meta">
+            <strong id="activeChatName">Select a conversation</strong>
+            <span id="activeChatStatus"><i class="status-dot"></i> Active now</span>
+          </div>
+          <div class="chat-head-actions">
+            <button class="chat-action-btn phone-btn" type="button" title="Audio call" onclick="showToast('Voice calls coming soon!')">📞</button>
+            <button class="chat-action-btn video-btn" type="button" title="Video call" onclick="showToast('Video calls coming soon!')">📹</button>
+            <button class="chat-more" title="Conversation info" onclick="toggleDetailsPanel()">···</button>
+            <button class="chat-close-mobile" type="button" onclick="closeChat()" aria-label="Close chat">✕</button>
+          </div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages" aria-live="polite"></div>
+
+        <form class="chat-composer" id="chatForm">
+          <button class="composer-attach" type="button" onclick="document.getElementById('chatAttachment').click()" title="Attach an image">＋</button>
+          <input type="file" id="chatAttachment" accept="image/*" hidden>
+          <input id="chatInput" placeholder="Type something for sent..." autocomplete="off" aria-label="Write a message">
+          <button class="composer-mic" type="button" title="Voice note" onclick="showToast('Voice messages coming soon!')">🎙</button>
+          <button class="send-button" type="submit" aria-label="Send message">➤</button>
+        </form>
+
+        <div class="chat-footnote">End-to-end connected on SkillMate.</div>
+      </div>
+
+      <!-- RIGHT PANEL: Contact Details & Media (matches reference image) -->
+      <div class="chat-details-panel" id="chatDetailsPanel">
+        <div class="details-user-section">
+          <div class="details-avatar-wrap">
+            <div class="details-avatar" id="detailsAvatar">👤</div>
+          </div>
+          <strong class="details-name" id="detailsName">Member</strong>
+          <span class="details-role" id="detailsRole">Community Member</span>
+          <div class="details-socials">
+            <span class="social-circle" title="Google verified">G</span>
+            <span class="social-circle" title="LinkedIn / Network">in</span>
+            <span class="social-circle" title="Portfolio">✦</span>
+          </div>
+        </div>
+
+        <div class="details-tabs">
+          <button type="button" class="details-tab active">Product</button>
+          <button type="button" class="details-tab">Files</button>
+        </div>
+
+        <div class="details-section">
+          <div class="details-section-head">
+            <span>SHARED INTERESTS</span>
+          </div>
+          <div class="details-tags" id="detailsInterests">
+            <span class="detail-tag">AI</span>
+            <span class="detail-tag">Python</span>
+            <span class="detail-tag">Web Development</span>
+          </div>
+        </div>
+
+        <div class="details-section">
+          <div class="details-section-head">
+            <span>Uploaded Files</span>
+            <small>View all</small>
+          </div>
+          <div class="details-files-list">
+            <div class="detail-file-item">
+              <span class="file-icon folder">📁</span>
+              <div class="file-info">
+                <strong>Case study Outline file</strong>
+                <small>Shared workspace</small>
+              </div>
+            </div>
+            <div class="detail-file-item">
+              <span class="file-icon doc">📄</span>
+              <div class="file-info">
+                <strong>Design portfolio review pdf</strong>
+                <small>PDF • 1.4 MB</small>
+              </div>
+            </div>
+            <div class="detail-file-item">
+              <span class="file-icon img">🖼</span>
+              <div class="file-info">
+                <strong>Photo's file</strong>
+                <small>3 items</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="details-section">
+          <div class="details-section-head">
+            <span>Attachment's</span>
+            <small>View all</small>
+          </div>
+          <div class="details-attachments-row">
+            <div class="attach-thumb thumb-1"><span>✦</span><small>Share skills</small></div>
+            <div class="attach-thumb thumb-2"><span>⚡</span><small>Live chat</small></div>
+            <div class="attach-thumb thumb-3"><span>💎</span><small>Build together</small></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ==================== NOTIFICATIONS DRAWER / PANEL ==================== -->
+  <aside class="notifications-drawer" id="notificationsDrawer" aria-label="Notifications" aria-hidden="true">
+    <div class="notif-header">
+      <div class="notif-header-left">
+        <span class="notif-icon">🔔</span>
+        <h3>Notifications</h3>
+        <span class="notif-badge-pill" id="notifPanelBadge" hidden>0</span>
+      </div>
+      <button class="notif-close-btn" id="notifCloseBtn" type="button" onclick="closeNotifications()" aria-label="Close notifications">✕</button>
+    </div>
+
+    <div class="notif-body" id="notifBody">
+      <!-- Requests Section -->
+      <div class="notif-section" id="notifRequestsSection" hidden>
+        <div class="notif-section-title">
+          <span>CONNECTION REQUESTS</span>
+          <span class="notif-section-count" id="notifRequestsCount">0</span>
+        </div>
+        <div class="notif-list" id="notifRequestsList"></div>
+      </div>
+
+      <!-- Activity Section -->
+      <div class="notif-section" id="notifActivitySection">
+        <div class="notif-section-title">
+          <span>RECENT ACTIVITY</span>
+        </div>
+        <div class="notif-list" id="notifActivityList"></div>
+      </div>
+
+      <!-- Empty State -->
+      <div class="notif-empty" id="notifEmpty">
+        <div class="notif-empty-icon">✨</div>
+        <h4>All caught up!</h4>
+        <p>No new connection requests or notifications right now.</p>
+      </div>
+    </div>
+  </aside>
+  <div class="notifications-backdrop" id="notificationsBackdrop" onclick="closeNotifications()"></div>
+
+  <!-- ==================== INSTAGRAM-STYLE LEFT SIDEBAR DRAWER ==================== -->
+  <aside class="sidebar-drawer" id="sidebarDrawer" aria-label="Main navigation menu" aria-hidden="true">
+    <div class="sidebar-top">
+      <div class="sidebar-brand">
+        <span class="logo">Skill<span>Mate.</span></span>
+        <span class="sidebar-version-badge">PRO</span>
+      </div>
+      <button class="sidebar-close-btn" id="sidebarCloseBtn" type="button" aria-label="Close menu">✕</button>
+    </div>
+
+    <div class="sidebar-user-card" id="sidebarUserCard">
+      <div class="sidebar-user-avatar" id="sidebarDrawerAvatar">👤</div>
+      <div class="sidebar-user-info">
+        <strong id="sidebarDrawerName">Guest Explorer</strong>
+        <small id="sidebarDrawerRole">Join to connect with peers</small>
+      </div>
+    </div>
+
+    <div class="sidebar-nav-list">
+      <a href="#/" class="sidebar-nav-item" onclick="navigateTo('home'); closeSidebar(); return false;">
+        <span class="sidebar-nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+        </span>
+        <span class="sidebar-nav-text">Home Feed</span>
+      </a>
+
+      <a href="#/communities" class="sidebar-nav-item" onclick="navigateTo('communities'); closeSidebar(); return false;">
+        <span class="sidebar-nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </span>
+        <span class="sidebar-nav-text">Communities & Circles</span>
+        <span class="sidebar-badge-pill">18 circles</span>
+      </a>
+
+      <button type="button" class="sidebar-nav-item" id="sidebarNotificationsAction" onclick="closeSidebar(); toggleNotifications(event);">
+        <span class="sidebar-nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+        </span>
+        <span class="sidebar-nav-text">Notifications</span>
+        <span class="sidebar-badge-pill notification-count" id="sidebarNotificationCount" hidden>0</span>
+      </button>
+
+      <button type="button" class="sidebar-nav-item" id="sidebarChatsAction">
+        <span class="sidebar-nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+        </span>
+        <span class="sidebar-nav-text">Chats</span>
+        <span class="sidebar-badge-pill chat-count" id="sidebarChatCount">0</span>
+      </button>
+
+      <a href="#/network" class="sidebar-nav-item" onclick="navigateTo('network'); closeSidebar(); return false;">
+        <span class="sidebar-nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </span>
+        <span class="sidebar-nav-text">Interactive Network</span>
+      </a>
+
+      <a href="#/discover" class="sidebar-nav-item" onclick="navigateTo('discover'); closeSidebar(); return false;">
+        <span class="sidebar-nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </span>
+        <span class="sidebar-nav-text">Discover Peers</span>
+      </a>
+
+      <a href="#/network" class="sidebar-nav-item" onclick="navigateTo('network'); closeSidebar(); return false;">
+        <span class="sidebar-nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+        </span>
+        <span class="sidebar-nav-text">Interests & Skills</span>
+      </a>
+
+      <div class="sidebar-separator"></div>
+
+      <button type="button" class="sidebar-nav-item" id="sidebarProfileBtn">
+        <span class="sidebar-nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </span>
+        <span class="sidebar-nav-text" id="sidebarProfileLabel">Edit My Profile</span>
+      </button>
+
+      <button type="button" class="sidebar-nav-item sidebar-auth-action" id="sidebarAuthAction">
+        <span class="sidebar-nav-icon" id="sidebarAuthIcon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+            <polyline points="10 17 15 12 10 7"></polyline>
+            <line x1="15" y1="12" x2="3" y2="12"></line>
+          </svg>
+        </span>
+        <span class="sidebar-nav-text" id="sidebarAuthLabel">Log in / Join</span>
+      </button>
+    </div>
+
+    <div class="sidebar-bottom-credit">
+      <small>SkillMate © 2026 · Find your people</small>
+    </div>
+  </aside>
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <!-- ==================== QUICK ACTION GLASS BOTTOM SHEET ==================== -->
+  <div class="quick-sheet-backdrop" id="quickActionBackdrop" aria-hidden="true"></div>
+  <div class="quick-action-sheet" id="quickActionSheet" role="dialog" aria-modal="true" aria-label="Quick Actions" aria-hidden="true">
+    <div class="quick-sheet-handle" aria-hidden="true"></div>
+    <div class="quick-sheet-header">
+      <h3>Quick Actions</h3>
+      <button type="button" class="quick-sheet-close" id="quickActionCloseBtn" aria-label="Close">✕</button>
+    </div>
+    <div class="quick-sheet-list">
+      <button type="button" class="quick-sheet-item" id="qaNewDM">
+        <span class="qa-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="12" y1="8" x2="12" y2="14"/><line x1="9" y1="11" x2="15" y2="11"/></svg>
+        </span>
+        <span class="qa-copy">
+          <strong>New 1-on-1 Chat</strong>
+          <small>Search peers and start a direct conversation</small>
+        </span>
+        <span class="qa-chevron">&rsaquo;</span>
+      </button>
+      <button type="button" class="quick-sheet-item" id="qaCreateChannel">
+        <span class="qa-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 9h16M4 15h16M10 3L8 21M16 3l-2 18"/></svg>
+        </span>
+        <span class="qa-copy">
+          <strong>Create Team Channel</strong>
+          <small>Launch a public or private group workspace</small>
+        </span>
+        <span class="qa-chevron">&rsaquo;</span>
+      </button>
+      <button type="button" class="quick-sheet-item" id="qaExploreCircles">
+        <span class="qa-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+        </span>
+        <span class="qa-copy">
+          <strong>Explore Circles</strong>
+          <small>Browse active skill communities near you</small>
+        </span>
+        <span class="qa-chevron">&rsaquo;</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== FLOATING FROSTED GLASS BOTTOM DOCK ==================== -->
+  <div class="mobile-bottom-bar" id="mobileBottomBar" role="navigation" aria-label="Mobile Navigation">
+    <button type="button" class="mobile-tab active" id="mobileTabHome" aria-label="Home">
+      <span class="mobile-tab-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"></path>
+        </svg>
+      </span>
+      <span class="mobile-tab-text">Home</span>
+    </button>
+
+    <button type="button" class="mobile-tab" id="mobileTabDiscover" aria-label="Discover">
+      <span class="mobile-tab-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"></circle>
+          <polygon points="15.8 8.2 14 14 8.2 15.8 10 10 15.8 8.2"></polygon>
+        </svg>
+      </span>
+      <span class="mobile-tab-text">Discover</span>
+    </button>
+
+    <button type="button" class="mobile-tab mobile-tab-fab" id="mobileTabQuickAdd" aria-label="Quick Actions">
+      <span class="mobile-fab-circle">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+      </span>
+    </button>
+
+    <button type="button" class="mobile-tab" id="mobileTabCommunities" aria-label="Circles">
+      <span class="mobile-tab-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="2.7"></circle>
+          <circle cx="5.5" cy="7.5" r="2.2"></circle>
+          <circle cx="18.5" cy="7.5" r="2.2"></circle>
+          <circle cx="5.5" cy="16.5" r="2.2"></circle>
+          <circle cx="18.5" cy="16.5" r="2.2"></circle>
+          <line x1="9.7" y1="10.5" x2="7.3" y2="8.8"></line>
+          <line x1="14.3" y1="10.5" x2="16.7" y2="8.8"></line>
+          <line x1="9.7" y1="13.5" x2="7.3" y2="15.2"></line>
+          <line x1="14.3" y1="13.5" x2="16.7" y2="15.2"></line>
+        </svg>
+      </span>
+      <span class="mobile-tab-text">Circles</span>
+    </button>
+
+    <button type="button" class="mobile-tab" id="mobileTabChat" aria-label="Chats">
+      <span class="mobile-tab-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 14.5a2.5 2.5 0 0 1-2.5 2.5H8l-4 3.5V6.5A2.5 2.5 0 0 1 6.5 4h12A2.5 2.5 0 0 1 21 6.5z"></path>
+        </svg>
+        <span class="mobile-badge" id="mobileChatBadge" hidden>0</span>
+      </span>
+      <span class="mobile-tab-text">Chats</span>
+    </button>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <!-- Floating Messages Launcher (Desktop) -->
+  <button id="floatingMessengerBtn" onclick="window.GlassChat ? window.GlassChat.open() : openChat()" title="Open Messages" style="position:fixed;bottom:24px;right:24px;z-index:9999;background:#C5D9A9;color:#0B110E;border:1px solid rgba(203,224,190,0.35);border-radius:12px;padding:10px 16px;font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:8px;box-shadow:0 8px 24px rgba(0,0,0,0.45);cursor:pointer;transition:transform 0.16s ease;">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+    <span>Messages</span>
+  </button>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/script.js"></script>
+  <script src="/discover.js"></script>
+  <script src="/glass-chat-client.js"></script>
+</body>
+</html>
