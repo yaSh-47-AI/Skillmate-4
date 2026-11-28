@@ -1,0 +1,322 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-28T20:11:00+05:30",
+  "title": "Design System: SkillMate",
+  "extensions": {
+    "colorMeta": {
+      "sage-leaf": {
+        "role": "primary",
+        "displayName": "Sage Leaf",
+        "canonical": "#C5D9A9",
+        "tonalRamp": [
+          "oklch(22% 0.035 125)",
+          "oklch(32% 0.048 125)",
+          "oklch(44% 0.062 125)",
+          "oklch(58% 0.072 125)",
+          "oklch(72% 0.075 125)",
+          "oklch(85% 0.068 122)",
+          "oklch(91% 0.045 122)",
+          "oklch(96% 0.020 122)"
+        ]
+      },
+      "meadow-mint": {
+        "role": "secondary",
+        "displayName": "Meadow Mint",
+        "canonical": "#8CC084",
+        "tonalRamp": [
+          "oklch(20% 0.040 140)",
+          "oklch(30% 0.060 140)",
+          "oklch(42% 0.080 140)",
+          "oklch(56% 0.095 140)",
+          "oklch(68% 0.100 140)",
+          "oklch(76% 0.095 140)",
+          "oklch(86% 0.060 140)",
+          "oklch(94% 0.025 140)"
+        ]
+      },
+      "moss-emerald": {
+        "role": "tertiary",
+        "displayName": "Moss Emerald",
+        "canonical": "#84C99A",
+        "tonalRamp": [
+          "oklch(20% 0.042 152)",
+          "oklch(32% 0.064 152)",
+          "oklch(44% 0.082 152)",
+          "oklch(58% 0.095 152)",
+          "oklch(70% 0.098 152)",
+          "oklch(78% 0.092 152)",
+          "oklch(88% 0.055 152)",
+          "oklch(95% 0.022 152)"
+        ]
+      },
+      "forest-obsidian": {
+        "role": "neutral",
+        "displayName": "Forest Obsidian",
+        "canonical": "#0B110E",
+        "tonalRamp": [
+          "oklch(14% 0.012 155)",
+          "oklch(17% 0.014 155)",
+          "oklch(22% 0.016 155)",
+          "oklch(32% 0.016 155)",
+          "oklch(46% 0.015 155)",
+          "oklch(62% 0.014 155)",
+          "oklch(78% 0.010 155)",
+          "oklch(92% 0.006 155)"
+        ]
+      },
+      "deep-canopy": {
+        "role": "neutral",
+        "displayName": "Deep Canopy",
+        "canonical": "#0B1410",
+        "tonalRamp": [
+          "oklch(15% 0.016 155)",
+          "oklch(19% 0.018 155)",
+          "oklch(25% 0.020 155)",
+          "oklch(36% 0.020 155)",
+          "oklch(50% 0.018 155)",
+          "oklch(66% 0.015 155)",
+          "oklch(80% 0.011 155)",
+          "oklch(93% 0.006 155)"
+        ]
+      },
+      "matte-pine": {
+        "role": "neutral",
+        "displayName": "Matte Pine",
+        "canonical": "#121A16",
+        "tonalRamp": [
+          "oklch(16% 0.014 155)",
+          "oklch(21% 0.016 155)",
+          "oklch(28% 0.018 155)",
+          "oklch(40% 0.018 155)",
+          "oklch(54% 0.016 155)",
+          "oklch(68% 0.013 155)",
+          "oklch(82% 0.009 155)",
+          "oklch(94% 0.005 155)"
+        ]
+      },
+      "elevated-fern": {
+        "role": "neutral",
+        "displayName": "Elevated Fern",
+        "canonical": "#16201B",
+        "tonalRamp": [
+          "oklch(18% 0.016 155)",
+          "oklch(23% 0.018 155)",
+          "oklch(30% 0.020 155)",
+          "oklch(42% 0.019 155)",
+          "oklch(56% 0.017 155)",
+          "oklch(70% 0.014 155)",
+          "oklch(84% 0.010 155)",
+          "oklch(94% 0.005 155)"
+        ]
+      },
+      "spotlight-moss": {
+        "role": "neutral",
+        "displayName": "Spotlight Moss",
+        "canonical": "#15221B",
+        "tonalRamp": [
+          "oklch(18% 0.022 155)",
+          "oklch(24% 0.024 155)",
+          "oklch(32% 0.026 155)",
+          "oklch(44% 0.024 155)",
+          "oklch(58% 0.021 155)",
+          "oklch(72% 0.017 155)",
+          "oklch(85% 0.012 155)",
+          "oklch(95% 0.006 155)"
+        ]
+      },
+      "ivory-mist": {
+        "role": "neutral",
+        "displayName": "Ivory Mist",
+        "canonical": "#F3F6F1",
+        "tonalRamp": [
+          "oklch(20% 0.008 135)",
+          "oklch(32% 0.009 135)",
+          "oklch(46% 0.010 135)",
+          "oklch(60% 0.010 135)",
+          "oklch(74% 0.009 135)",
+          "oklch(86% 0.008 135)",
+          "oklch(94% 0.007 135)",
+          "oklch(97% 0.006 135)"
+        ]
+      },
+      "lichen-gray": {
+        "role": "neutral",
+        "displayName": "Lichen Gray",
+        "canonical": "#A3B1A6",
+        "tonalRamp": [
+          "oklch(20% 0.014 148)",
+          "oklch(32% 0.016 148)",
+          "oklch(45% 0.018 148)",
+          "oklch(58% 0.018 148)",
+          "oklch(70% 0.017 148)",
+          "oklch(74% 0.016 148)",
+          "oklch(86% 0.011 148)",
+          "oklch(94% 0.006 148)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Hero headlines, mobile home greeting, and primary view titles."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section headings, spotlight card titles, and quick-sheet headers."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Card headings, drawer titles, and section subheads."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Bios, circle descriptions, and chat message copy."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Buttons, navigation tabs, skill pills, and eyebrow tags."
+      }
+    },
+    "shadows": [
+      {
+        "name": "surface-resting",
+        "value": "none",
+        "purpose": "Resting cards, stat tiles, and list items rely on 1px hairline borders instead of shadows."
+      },
+      {
+        "name": "overlay-elevation",
+        "value": "0 12px 32px rgba(0, 0, 0, 0.4)",
+        "purpose": "Floating auth modals, side drawers, and elevated panels."
+      },
+      {
+        "name": "dock-elevation",
+        "value": "0 12px 32px rgba(0, 0, 0, 0.55)",
+        "purpose": "Floating mobile bottom navigation dock."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-studio",
+        "value": "cubic-bezier(0.2, 0.8, 0.2, 1)",
+        "purpose": "Default easing for view entrances and hover transitions."
+      },
+      {
+        "name": "ease-sheet",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Bottom sheet and drawer slide transitions."
+      }
+    ],
+    "breakpoints": [
+      { "name": "xs", "value": "520px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1050px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Main call to action across onboarding, matching, and circle joins.",
+      "html": "<button type=\"button\" class=\"ds-btn-primary\">Create your profile</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 10px 18px; border-radius: 12px; border: 1px solid #C5D9A9; background: #C5D9A9; color: #0B110E; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: transform 0.16s ease, background-color 0.16s ease; } .ds-btn-primary:hover { background: #D2E4B8; transform: translateY(-1px); } .ds-btn-primary:focus-visible { outline: 2px solid #8CC084; outline-offset: 3px; } .ds-btn-primary:active { transform: scale(0.98); }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Low-emphasis ghost button for secondary navigation and alternate actions.",
+      "html": "<button type=\"button\" class=\"ds-btn-secondary\">Explore members</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 10px 16px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.12); background: rgba(255, 255, 255, 0.04); color: #F3F6F1; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: transform 0.16s ease, border-color 0.16s ease, background-color 0.16s ease; } .ds-btn-secondary:hover { background: rgba(197, 217, 169, 0.12); border-color: rgba(197, 217, 169, 0.35); transform: translateY(-1px); } .ds-btn-secondary:focus-visible { outline: 2px solid #8CC084; outline-offset: 3px; }"
+    },
+    {
+      "name": "Interest & Filter Chip",
+      "kind": "chip",
+      "refersTo": "chip-filter",
+      "description": "Compact 8px tag for selecting skills, topics, and circle categories.",
+      "html": "<div class=\"ds-chip-group\"><button type=\"button\" class=\"ds-chip active\">AI &amp; ML</button><button type=\"button\" class=\"ds-chip\">Web Dev</button></div>",
+      "css": ".ds-chip-group { display: flex; gap: 8px; flex-wrap: wrap; } .ds-chip { padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.08); background: rgba(255, 255, 255, 0.04); color: #A3B1A6; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: background-color 0.16s ease, color 0.16s ease, border-color 0.16s ease; } .ds-chip:hover { color: #F3F6F1; border-color: rgba(255, 255, 255, 0.16); } .ds-chip.active { background: rgba(197, 217, 169, 0.16); color: #C5D9A9; border-color: rgba(197, 217, 169, 0.38); } .ds-chip:focus-visible { outline: 2px solid #8CC084; outline-offset: 2px; }"
+    },
+    {
+      "name": "Matte Peer Card",
+      "kind": "card",
+      "refersTo": "card-surface",
+      "description": "Core resting card surface used across Discover peers, Circles, and Network.",
+      "html": "<article class=\"ds-card\"><div class=\"ds-card-head\"><div class=\"ds-avatar\">AM</div><div class=\"ds-meta\"><strong>Aanya Mehta</strong><span>@aanyamehta · Raipur</span></div><button type=\"button\" class=\"ds-card-cta\">Connect</button></div><p class=\"ds-card-bio\">Student developer exploring AI-powered apps and Python projects.</p><div class=\"ds-tags\"><span class=\"ds-tag\">AI</span><span class=\"ds-tag\">Python</span></div></article>",
+      "css": ".ds-card { background: #121A16; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #F3F6F1; max-width: 340px; } .ds-card-head { display: flex; align-items: center; gap: 10px; } .ds-avatar { width: 42px; height: 42px; border-radius: 50%; background: rgba(197, 217, 169, 0.16); border: 1px solid rgba(197, 217, 169, 0.25); color: #C5D9A9; font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; } .ds-meta { flex: 1; min-width: 0; } .ds-meta strong { display: block; font-size: 14px; font-weight: 700; color: #F3F6F1; } .ds-meta span { display: block; font-size: 12px; color: #A3B1A6; } .ds-card-cta { padding: 7px 12px; border-radius: 12px; border: 1px solid #C5D9A9; background: #C5D9A9; color: #0B110E; font-size: 12px; font-weight: 700; cursor: pointer; } .ds-card-cta:hover { background: #D2E4B8; } .ds-card-bio { margin: 0; font-size: 13px; color: #A3B1A6; line-height: 1.5; } .ds-tags { display: flex; gap: 6px; flex-wrap: wrap; } .ds-tag { padding: 3px 9px; border-radius: 8px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); color: #F3F6F1; font-size: 11px; font-weight: 600; }"
+    },
+    {
+      "name": "Text & Search Input",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Search and form field wrapper with hairline border and sage focus ring.",
+      "html": "<label class=\"ds-input-wrap\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><line x1=\"21\" y1=\"21\" x2=\"16.65\" y2=\"16.65\"/></svg><input type=\"search\" class=\"ds-input\" placeholder=\"Search @username, skill, or city...\"/></label>",
+      "css": ".ds-input-wrap { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(203, 224, 190, 0.14); color: #A3B1A6; transition: border-color 0.16s ease, box-shadow 0.16s ease; } .ds-input-wrap:focus-within { border-color: rgba(197, 217, 169, 0.5); box-shadow: 0 0 0 3px rgba(197, 217, 169, 0.14); color: #C5D9A9; } .ds-input { flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: #F3F6F1; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 14px; } .ds-input::placeholder { color: rgba(163, 177, 166, 0.58); }"
+    },
+    {
+      "name": "Spotlight Match Pulse Card",
+      "kind": "custom",
+      "refersTo": "card-spotlight",
+      "description": "Signature mobile dashboard progress card highlighting profile and match readiness.",
+      "html": "<div class=\"ds-spotlight\"><div class=\"ds-spotlight-top\"><div><span class=\"ds-eyebrow\">Your Match Pulse</span><h3 class=\"ds-spotlight-title\">Keep Building!</h3><p class=\"ds-spotlight-desc\">Complete your profile to unlock stronger peer matches.</p></div><button type=\"button\" class=\"ds-spotlight-btn\" aria-label=\"Open\"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\"><polyline points=\"9 18 15 12 9 6\"/></svg></button></div><div class=\"ds-progress-row\"><div class=\"ds-progress-track\"><div class=\"ds-progress-fill\" style=\"width:72%\"></div></div><span class=\"ds-progress-pct\">72%</span></div></div>",
+      "css": ".ds-spotlight { background: #15221B; border: 1px solid rgba(197, 217, 169, 0.24); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; max-width: 360px; } .ds-spotlight-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; } .ds-eyebrow { display: block; font-size: 11.5px; font-weight: 600; color: #C5D9A9; margin-bottom: 4px; } .ds-spotlight-title { margin: 0 0 4px; font-family: 'Playfair Display', Georgia, serif; font-size: 22px; font-weight: 700; color: #F3F6F1; line-height: 1.15; } .ds-spotlight-desc { margin: 0; font-size: 12.5px; color: #A3B1A6; line-height: 1.4; } .ds-spotlight-btn { width: 40px; height: 40px; border-radius: 12px; border: none; background: #C5D9A9; color: #0B110E; display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; } .ds-spotlight-btn:hover { background: #D2E4B8; } .ds-progress-row { display: flex; align-items: center; gap: 10px; } .ds-progress-track { flex: 1; height: 8px; border-radius: 999px; background: rgba(255, 255, 255, 0.12); overflow: hidden; } .ds-progress-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #84C99A, #C5D9A9); } .ds-progress-pct { font-size: 12px; font-weight: 700; color: #C5D9A9; }"
+    },
+    {
+      "name": "Mobile Floating Dock",
+      "kind": "nav",
+      "refersTo": "nav-dock",
+      "description": "Bottom navigation bar for mobile viewports and /app with centered quick-add action.",
+      "html": "<nav class=\"ds-dock\" aria-label=\"Mobile Navigation\"><button type=\"button\" class=\"ds-dock-tab active\">Home</button><button type=\"button\" class=\"ds-dock-tab\">Discover</button><button type=\"button\" class=\"ds-dock-fab\" aria-label=\"Quick Actions\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\"><line x1=\"12\" y1=\"5\" x2=\"12\" y2=\"19\"/><line x1=\"5\" y1=\"12\" x2=\"19\" y2=\"12\"/></svg></button><button type=\"button\" class=\"ds-dock-tab\">Circles</button><button type=\"button\" class=\"ds-dock-tab\">Chats</button></nav>",
+      "css": ".ds-dock { display: flex; align-items: center; justify-content: space-around; height: 64px; padding: 6px 8px; border-radius: 16px; background: rgba(15, 23, 19, 0.96); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55); font-family: 'Plus Jakarta Sans', system-ui, sans-serif; max-width: 380px; } .ds-dock-tab { background: transparent; border: none; color: rgba(255, 255, 255, 0.45); font-size: 11px; font-weight: 600; padding: 6px 10px; border-radius: 10px; cursor: pointer; } .ds-dock-tab.active { color: #C5D9A9; background: rgba(197, 217, 169, 0.14); } .ds-dock-fab { width: 46px; height: 46px; border-radius: 14px; border: none; background: #C5D9A9; color: #0B110E; display: flex; align-items: center; justify-content: center; transform: translateY(-8px); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45), 0 0 0 4px #0B110E; cursor: pointer; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Quiet Studio",
+    "overview": "SkillMate's interface is modeled after a focused, distraction-free study studio at night—deep matte forest surfaces, crisp 1px hairline boundaries, calm hierarchy, and zero neon glow. Editorial serif display titles lend human warmth to student profiles and greetings, while clean geometric sans-serif controls keep matchmaking, circle browsing, and live chat fast to scan.\n\nThis system locks in the Botanical Forest & Sage palette and studio-grade matte surface overrides already established in the codebase (style.css / app.css and glass-chat-client.js), replacing earlier purple/cyan gradients, animated ambient orbs, and gradient-clipped headings. Legacy slate/violet rules remaining in older sections and the Discover overhaul (#0B0D12, #7C3AED, #06B6D4) are deprecated drift and should be converged onto these canonical tokens whenever those views are touched.",
+    "keyCharacteristics": [
+      "Matte dark forest canvas (#0B110E) paired with stepped pine surfaces (#121A16, #15221B) instead of blurred neon glass.",
+      "Restrained muted-sage accent (#C5D9A9) with dark forest ink (#0B110E) for crisp, high-contrast primary actions.",
+      "Crisp 1px structural hairline borders (rgba(255, 255, 255, 0.08)) defining cards, panels, and navigation containers.",
+      "Architectural corner geometry (12px controls, 16px cards, 8px skill/filter chips) with zero decorative particles or pulsing glows."
+    ],
+    "rules": [
+      {
+        "name": "The One Accent Rule",
+        "body": "Sage Leaf is reserved strictly for primary calls to action, active navigation states, and key brand punctuation; never flood whole card backgrounds with solid sage.",
+        "section": "colors"
+      },
+      {
+        "name": "The No-Neon Rule",
+        "body": "Purple/magenta/cyan gradients (#7C3AED, #06B6D4, #8658f3), ambient floating orbs, and colored box-shadow halos are prohibited in new or refactored UI.",
+        "section": "colors"
+      },
+      {
+        "name": "The Serif-Display Rule",
+        "body": "Playfair Display is used only for brand wordmarks and section/greeting headings; never set dense UI controls, body paragraphs, or badges in serif.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat-By-Default Rule",
+        "body": "Resting cards, stat tiles, and list rows carry no drop shadow (box-shadow: none); depth comes from surface step (#0B110E -> #121A16 -> #15221B) and 1px borders.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Architectural Radius Rule",
+        "body": "Use 12px for interactive buttons/inputs and 16px for cards/drawers; reserve 999px strictly for progress tracks and compact inline status badges.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "Do use Matte Pine (#121A16) over Forest Obsidian (#0B110E) with 1px solid rgba(255, 255, 255, 0.08) borders for all new cards and panels.",
+      "Do preserve every existing DOM ID, data-* attribute, JS callback (navigateTo, openModal, openChat, window.GlassChat), and REST/Socket.IO hook when refactoring HTML/CSS.",
+      "Do keep interactive button/input touch targets at least 44px tall and form inputs at 16px font-size on mobile (<= 768px and /app).",
+      "Do migrate legacy #0B0D12 / #7C3AED / #06B6D4 rules in Discover or older sections to the canonical Botanical Forest & Sage tokens when editing those components."
+    ],
+    "donts": [
+      "Don't reintroduce purple/cyan gradients, animated background orbs (.orb, .auth-orb), #particles, or glowing text/button shadows.",
+      "Don't use gradient-clipped text (background-clip: text) on headings or wordmarks; keep text solid Ivory Mist (#F3F6F1) with Sage Leaf (#C5D9A9) strictly on accent spans.",
+      "Don't apply backdrop-filter blur to dense scrollable card grids—reserve translucency for floating navigation docks and overlay sheets.",
+      "Don't use 999px pill borders on primary CTA buttons or large cards; stick to 12px controls and 16px containers."
+    ]
+  }
+}
