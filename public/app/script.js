@@ -1031,6 +1031,7 @@ async function loadConnections() {
   try {
     const result = await apiRequest(`${API}/connections`);
     connectionRows = result.connections || [];
+    try { localStorage.setItem("sm_cache_conns", JSON.stringify(connectionRows)); } catch (_) {}
     connectionsByUserId = new Map();
 
     connectionRows.forEach(row => {
@@ -1318,7 +1319,9 @@ async function loadCommunities() {
   try {
     const result = await apiRequest(`${API}/communities`);
     communities = result.communities || [];
+    try { localStorage.setItem("sm_cache_comms", JSON.stringify(communities)); } catch (_) {}
     renderCommunities();
+    if (typeof renderMobileHomeDashboard === "function") renderMobileHomeDashboard();
     window.dispatchEvent(new CustomEvent('community-updated', { detail: communities }));
   } catch (error) {
     showToast(`Couldn't load communities: ${error.message}`);
@@ -2202,8 +2205,8 @@ function renderMobileHomeDashboard() {
   const acceptedCount = Array.isArray(connectionRows)
     ? connectionRows.filter(r => r.status === "accepted").length
     : 0;
-  const circlesCount = typeof joinedCommunityIds !== "undefined" && joinedCommunityIds?.size
-    ? joinedCommunityIds.size
+  const circlesCount = Array.isArray(communities)
+    ? communities.filter(cm => cm.joined).length
     : 0;
 
   let cachedConvs = [];
@@ -2247,24 +2250,27 @@ function renderMobileHomeDashboard() {
   if (!listEl) return;
   const items = [];
   cachedConvs.slice(0, 3).forEach(c => {
+    const snippet = typeof c.last_message === "string"
+      ? c.last_message
+      : (c.last_message?.content || "Tap to continue conversation");
     items.push({
       type: "dm",
       id: c.id,
       name: c.name || c.title || "Direct Message",
-      sub: c.last_message || "Tap to continue conversation",
-      avatar: c.avatar_url || "",
+      sub: snippet,
+      avatar: c.avatar_url || c.recipient?.photo_url || "",
       initial: (c.name || "C").charAt(0).toUpperCase()
     });
   });
 
-  if (typeof COMMUNITIES !== "undefined" && Array.isArray(COMMUNITIES)) {
-    const joinedList = COMMUNITIES.filter(cm => joinedCommunityIds?.has?.(cm.id)).slice(0, 3);
+  if (Array.isArray(communities)) {
+    const joinedList = communities.filter(cm => cm.joined).slice(0, 3);
     joinedList.forEach(cm => {
       items.push({
         type: "circle",
         id: cm.id,
         name: cm.name,
-        sub: `${cm.members || "Active"} members · Circle`,
+        sub: `${cm.member_count || cm.members || "Active"} members · Circle`,
         avatar: "",
         initial: "#"
       });
@@ -2424,11 +2430,26 @@ async function initializeApp() {
   // 0ms Cache Hydration so Home & Discover never flash/jump after 2 seconds
   try {
     const cachedUser = JSON.parse(localStorage.getItem("sm_cache_user") || "null");
+    const cachedConns = JSON.parse(localStorage.getItem("sm_cache_conns") || "[]");
+    const cachedComms = JSON.parse(localStorage.getItem("sm_cache_comms") || "[]");
+    if (Array.isArray(cachedConns) && cachedConns.length > 0) {
+      connectionRows = cachedConns;
+      connectionsByUserId = new Map();
+      connectionRows.forEach(row => {
+        if (row.user) connectionsByUserId.set(Number(row.user.id), row);
+      });
+    }
+    if (Array.isArray(cachedComms) && cachedComms.length > 0) {
+      communities = cachedComms;
+      renderCommunities();
+    }
     if (cachedUser) {
       setAuthenticatedUser(cachedUser);
       syncFiltersToUser();
     }
   } catch (_) {}
+
+  window.updateNavActiveStates = updateNavActiveStates;
 
   renderMembers();
 

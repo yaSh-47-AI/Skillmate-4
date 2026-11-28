@@ -1688,6 +1688,10 @@
           transports: ['websocket', 'polling']
         });
 
+        socket.on('connect', () => {
+          if (activeConvId) socket.emit('chat:join', activeConvId);
+        });
+
         socket.on('chat:message:new', msg => {
           const cid = Number(msg.conversation_id);
           // Update local cache in place for any conversation
@@ -2449,6 +2453,7 @@
       const cachedList = conversations.length > 0 ? conversations : (readLocalCache('gc_cache_convs', []) || []);
       const existing = cachedList.find(c =>
         c.type === 'personal' && (
+          Number(c.recipient?.id) === uid ||
           Number(c.other_user_id) === uid ||
           Number(c.target_user_id) === uid ||
           Number(c.partner_id) === uid
