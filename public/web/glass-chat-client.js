@@ -27,7 +27,7 @@
     #glassChatContainer {
       position: fixed;
       inset: 0;
-      z-index: 100005;
+      z-index: 100020;
       background: #0B110E;
       color: var(--gc-text-main);
       font-family: var(--gc-font);
@@ -249,9 +249,10 @@
     /* Conversations Scroll Area */
     .gc-conversations-scroll {
       flex: 1;
+      min-height: 0;
       overflow-y: auto;
       overflow-x: hidden;
-      padding: 0 10px 16px;
+      padding: 0 10px 24px;
       display: flex;
       flex-direction: column;
       gap: 4px;
@@ -1669,8 +1670,16 @@
       ensureDOM();
       this.initSockets();
       window.addEventListener('auth-updated', async () => {
+        if (socket) {
+          socket.disconnect();
+          socket = null;
+        }
+        this.initSockets();
         await this.loadCurrentUser();
         await this.loadConversations();
+        if (activeConvId && socket) {
+          socket.emit('chat:join', activeConvId);
+        }
       });
       await this.loadCurrentUser();
       await this.loadConversations();
@@ -1767,13 +1776,13 @@
     async loadCurrentUser() {
       try {
         const res = await api('/api/auth/me');
-        currentUser = res.user;
+        currentUser = res.user || { id: 1, name: 'Member', username: 'member' };
         if (currentUser) {
           const myAv = document.getElementById('gcMyAvatar');
           if (myAv) myAv.textContent = (currentUser.name || '✦')[0].toUpperCase();
         }
       } catch (_) {
-        currentUser = { id: 1, name: 'Punit', username: 'punit' };
+        currentUser = { id: 1, name: 'Member', username: 'member' };
       }
     },
 
@@ -2743,6 +2752,10 @@
       }
       document.body.classList.remove('gc-chat-active');
       document.getElementById('gcColInspector')?.classList.remove('gc-mobile-inspector-open');
+      if (typeof window.updateNavActiveStates === 'function') {
+        const activeView = document.querySelector('.app-view.active')?.id?.replace('view-', '') || 'home';
+        window.updateNavActiveStates(activeView);
+      }
     },
 
     handleSearch(val) {

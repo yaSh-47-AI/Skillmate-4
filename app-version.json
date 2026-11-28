@@ -1,8 +1,8 @@
 {
-  "appVersion": "3.4.1",
-  "webVersion": "3.4.1",
+  "appVersion": "3.4.2",
+  "webVersion": "3.4.2",
   "nativeVersion": "1.0.0",
   "nativeVersionCode": 5,
   "apkUrl": "https://skillmate-4.onrender.com/downloads/skillmate-latest.apk",
-  "notes": "Fixed Video Intro Splash autoplay, sessionStorage timing, 8s buffer timeout, and cache busting"
+  "notes": "Fixed chat overlay z-index, socket reconnect on login, guest session fallback, and mobile chat scroll/button sizing"
 }

@@ -5328,7 +5328,7 @@ footer small { display:block; margin-top:12px; color:#6f6c81; font-size:9px; }
     background: rgba(15, 23, 19, 0.96) !important;
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55) !important;
-    z-index: 100006 !important;
+    z-index: 9000 !important;
   }
 
   .mobile-tab.active .mobile-tab-icon,
