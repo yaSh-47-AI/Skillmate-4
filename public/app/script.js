@@ -458,6 +458,10 @@ function togglePassword(id, button) {
 
 function setAuthenticatedUser(user) {
   currentUser = user || null;
+  try {
+    if (currentUser) localStorage.setItem("sm_cache_user", JSON.stringify(currentUser));
+    else localStorage.removeItem("sm_cache_user");
+  } catch (_) {}
 
   const joinBtn = $("#joinButton");
   const userMenu = $("#userMenu");
@@ -2309,7 +2313,7 @@ function renderMobileHomeDashboard() {
 
 /* ---------- SPA VIEW NAVIGATION ---------- */
 
-function navigateTo(viewName) {
+function navigateTo(viewName, options = {}) {
   // Always close any active modal, drawer, or backdrop to prevent UI locking
   closeChat();
   closeSidebar();
@@ -2329,8 +2333,10 @@ function navigateTo(viewName) {
     activeView.classList.add("active");
   }
 
-  // Smooth scroll to top of page
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  // Smooth scroll to top of page (skip on initial boot so home never jumps)
+  if (options.scroll !== false) {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
 
   // Update URL hash
   const newHash = target === "home" ? "#/" : `#/${target}`;
@@ -2392,41 +2398,55 @@ function updateNavActiveStates(target) {
   });
 }
 
-function handleHashChange() {
+function handleHashChange(isInitial = false) {
   const rawHash = (window.location.hash || "").replace(/^#\/?/, "").toLowerCase();
+  const opts = isInitial ? { scroll: false } : {};
   if (rawHash === "communities" || rawHash === "circles") {
-    navigateTo("communities");
+    navigateTo("communities", opts);
   } else if (rawHash === "network" || rawHash === "matching") {
-    navigateTo("network");
+    navigateTo("network", opts);
   } else if (rawHash === "discover" || rawHash === "people") {
-    navigateTo("discover");
+    navigateTo("discover", opts);
   } else {
-    navigateTo("home");
+    navigateTo("home", opts);
   }
 }
 
-window.addEventListener("hashchange", handleHashChange);
+window.addEventListener("hashchange", () => handleHashChange(false));
 
 /* ---------- INITIALISE ---------- */
 
 async function initializeApp() {
   bindAuthModalListeners();
-  handleHashChange();
+  handleHashChange(true);
   updateInterestCounts();
+
+  // 0ms Cache Hydration so Home & Discover never flash/jump after 2 seconds
+  try {
+    const cachedUser = JSON.parse(localStorage.getItem("sm_cache_user") || "null");
+    if (cachedUser) {
+      setAuthenticatedUser(cachedUser);
+      syncFiltersToUser();
+    }
+  } catch (_) {}
+
   renderMembers();
 
+  // Fetch session + data in parallel instead of 4 sequential blocking awaits
   try {
     const result = await apiRequest(`${API}/auth/me`);
     setAuthenticatedUser(result.user);
     syncFiltersToUser();
-    await loadConnections();
   } catch (_) {
     setAuthenticatedUser(null);
     renderContacts();
   }
 
-  await refreshMembers();
-  await loadCommunities();
+  await Promise.allSettled([
+    currentUser ? loadConnections() : Promise.resolve(),
+    refreshMembers(),
+    loadCommunities()
+  ]);
 }
 
 initializeApp();
@@ -2588,7 +2608,7 @@ window.leaveNetworkChannel = async function(channelId, name) {
   let updateDismissed = false;
 
   async function checkWebVersion() {
-    if (updateDismissed || window.SkillMateNativeOta) return;
+    if (updateDismissed || window.SkillMateNativeOta || /; wv\)/i.test(navigator.userAgent)) return;
     try {
       const res = await fetch(`/api/app/version?_t=${Date.now()}`, { cache: "no-store" });
       if (!res.ok) return;

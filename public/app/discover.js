@@ -671,17 +671,30 @@
     closeIcebreaker();
     DiscoverScreen.render();
 
-    // Handle preview/demo profiles locally without broken network call
+    // Handle preview/demo profiles locally and persist in localStorage
     if (!Number.isFinite(Number(profile.id)) || profile.isDemo || String(profile.id).startsWith('preview-')) {
       const demoSet = getBridge().requestedDemoProfiles;
-      if (demoSet) demoSet.add(String(profile.id));
+      if (demoSet) {
+        demoSet.add(String(profile.id));
+        try {
+          localStorage.setItem('skillmate_demo_requests', JSON.stringify([...demoSet]));
+        } catch (_) {}
+      }
       if (typeof window.showToast === 'function') window.showToast(`Request sent to ${profile.name}: "${note}"`);
       return;
     }
 
     // 2. Persist to existing backend API
     try {
-      const api = window.apiRequest || ((url, opts) => fetch(url, opts).then(r => r.json()));
+      const api = window.apiRequest || ((url, opts) => fetch(url, {
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json', ...(opts?.headers || {}) },
+        ...opts
+      }).then(async r => {
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok) { const e = new Error(d.error || `HTTP ${r.status}`); e.status = r.status; throw e; }
+        return d;
+      }));
       const result = await api(`/api/connections/request/${profile.id}`, {
         method: 'POST',
         body: JSON.stringify({ note })
@@ -692,6 +705,13 @@
       }
       DiscoverScreen.render();
     } catch (err) {
+      if (err && err.status === 409) {
+        // Already requested or already connected — sync state instead of rolling back
+        if (typeof window.loadConnections === 'function') await window.loadConnections();
+        if (typeof window.showToast === 'function') window.showToast(err.message || 'Request already sent.');
+        DiscoverScreen.render();
+        return;
+      }
       state.optimisticSent.delete(String(profile.id));
       DiscoverScreen.render();
       if (typeof window.showToast === 'function') window.showToast(err.message || 'Could not send request.');

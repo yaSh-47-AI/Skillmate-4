@@ -1,8 +1,8 @@
 {
-  "appVersion": "3.4.2",
-  "webVersion": "3.4.2",
+  "appVersion": "3.5.0",
+  "webVersion": "3.5.0",
   "nativeVersion": "1.0.0",
   "nativeVersionCode": 5,
   "apkUrl": "https://skillmate-4.onrender.com/downloads/skillmate-latest.apk",
-  "notes": "Fixed chat overlay z-index, socket reconnect on login, guest session fallback, and mobile chat scroll/button sizing"
+  "notes": "App-wide stability & speed fix: eliminated 2s home refresh, parallel startup loading, reliable connection requests & instant mobile chat"
 }

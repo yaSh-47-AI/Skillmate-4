@@ -403,17 +403,12 @@
     /* COLUMN 2: CENTER ACTIVE CHAT */
     .gc-col-chat {
       flex: 1;
+      min-height: 0;
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      background-color: rgba(10, 8, 16, 0.55);
-      background-image: 
-        radial-gradient(circle at 30% 75%, rgba(139, 92, 246, 0.28), transparent 55%),
-        radial-gradient(circle at 75% 25%, rgba(217, 70, 239, 0.18), transparent 50%),
-        radial-gradient(circle at 50% 90%, rgba(168, 85, 247, 0.12), transparent 60%);
+      background-color: #0B110E;
       position: relative;
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
     }
 
     /* Header */
@@ -1077,8 +1072,9 @@
         width: 100vw;
         max-width: 100vw;
         flex: 1;
+        min-height: 0;
         border-right: none;
-        padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+        padding-bottom: env(safe-area-inset-bottom, 0px);
       }
 
       .gc-conv-item {
@@ -1435,7 +1431,7 @@
             </div>
 
             <button class="gc-pill-btn" id="gcBtnMic" type="button" onclick="window.GlassChat.toggleVoiceRecord()" title="Voice Note">${ICONS.mic}</button>
-            <button class="gc-btn-send" type="button" onclick="window.GlassChat.sendMessage()" title="Send">${ICONS.send}</button>
+            <button class="gc-btn-send" type="button" onpointerdown="event.preventDefault();" onclick="window.GlassChat.sendMessage()" title="Send">${ICONS.send}</button>
           </div>
         </main>
 
