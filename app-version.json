@@ -1,8 +1,8 @@
 {
-  "appVersion": "3.6.0",
-  "webVersion": "3.6.0",
+  "appVersion": "3.6.1",
+  "webVersion": "3.6.1",
   "nativeVersion": "1.0.0",
   "nativeVersionCode": 5,
   "apkUrl": "https://skillmate-4.onrender.com/downloads/skillmate-latest.apk",
-  "notes": "Fundamental stability overhaul: fixed Home [object Object] & My Circles data, 0ms cached startup, recipient.id DM matching, Socket.IO room rejoin, and overflow-x clip"
+  "notes": "Obsidian + Sage mobile UI overhaul: fixed Home top-nav clearance, dark matte skill tiles and See All CTA, Match Pulse progress bar fill, and clean chat row alignment"
 }
