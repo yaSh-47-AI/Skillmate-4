@@ -319,21 +319,34 @@
           <div class="disc-user-meta">
             <div class="disc-name-line">
               <h3>${escapeHtml(profile.name)}</h3>
-              <span class="disc-match-inline">${profile.matchPercentage}%</span>
             </div>
-            <div class="disc-handle-line">${escapeHtml(profile.username)} • 📍 ${escapeHtml(profile.location)}</div>
+            <div class="disc-handle-line">
+              <span class="disc-handle-text">${escapeHtml(profile.username)}</span>
+              <span class="disc-handle-sep" aria-hidden="true">·</span>
+              <span class="disc-city-text">${escapeHtml(profile.location)}</span>
+            </div>
           </div>
         </div>
-        <button type="button" class="${ctaClass}" ${ctaDisabled ? 'disabled' : ''}>${ctaLabel}</button>
+        <span class="disc-match-badge">${profile.matchPercentage}% match</span>
       </div>
 
       <p class="disc-compact-bio">${escapeHtml(profile.currentlyInto || profile.bio || 'Open to collaborate and swap skills')}</p>
 
       <div class="disc-skills-row">${pillsHtml || '<span class="disc-skill-pill collab">Open to Collab</span>'}</div>
+
+      <div class="disc-card-footer">
+        <button type="button" class="${ctaClass}" ${ctaDisabled ? 'disabled' : ''}>${ctaLabel}</button>
+        <button type="button" class="disc-msg-icon-btn message-btn" data-message-user-id="${escapeHtml(profile.id)}" data-message-user-name="${escapeHtml(profile.name)}" data-is-demo="${profile.isDemo ? '1' : '0'}" aria-label="Message ${escapeHtml(profile.name)}" title="Message">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+        </button>
+      </div>
     `;
 
     card.querySelector('.disc-connect-pill')?.addEventListener('click', e => {
       e.stopPropagation();
+      if (ctaDisabled) return;
       haptic(14);
       openIcebreaker(profile);
     });

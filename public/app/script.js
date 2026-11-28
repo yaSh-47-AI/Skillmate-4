@@ -826,7 +826,7 @@ function createProfileCard(profile) {
   const uname = profile.username || String(profile.email || 'user').split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '');
   const handleEl = document.createElement("div");
   handleEl.className = "profile-card-handle";
-  handleEl.style.cssText = "font-size:12px;color:#c084fc;font-weight:600;margin-top:-6px;margin-bottom:8px;";
+  handleEl.style.cssText = "font-size:12px;color:#C5D9A9;font-weight:600;margin-top:-6px;margin-bottom:8px;";
   handleEl.textContent = `@${uname}`;
   card.appendChild(handleEl);
 
@@ -1342,7 +1342,9 @@ window.switchCommunityTab = function(tab) {
   const btnExplore = $("#commTabBtnExplore");
   if (btnJoined && btnExplore) {
     btnJoined.classList.toggle("active", tab === "joined");
+    btnJoined.setAttribute("aria-selected", tab === "joined" ? "true" : "false");
     btnExplore.classList.toggle("active", tab === "explore");
+    btnExplore.setAttribute("aria-selected", tab === "explore" ? "true" : "false");
   }
 
   const toolbarTitle = $("#communityToolbarTitle");
@@ -1367,12 +1369,16 @@ window.selectCommunityCategory = function(cat) {
 window.handleCommunitySearch = function(val) {
   communitySearchQuery = normalize(val);
   communityVisibleLimit = 6;
+  const clearBtn = $("#communitySearchClear");
+  if (clearBtn) clearBtn.hidden = !communitySearchQuery;
   renderCommunities();
 };
 
 window.clearCommunitySearch = function() {
   const input = $("#communitySearch");
   if (input) input.value = "";
+  const clearBtn = $("#communitySearchClear");
+  if (clearBtn) clearBtn.hidden = true;
   communitySearchQuery = "";
   communityVisibleLimit = 6;
   renderCommunities();
@@ -1387,14 +1393,15 @@ function renderCommunities() {
   const grid = $("#communitiesGrid");
   if (!grid) return;
 
-  const joinedCount = communities.filter(c => c.is_member).length;
+  const joinedCount = communities.filter(c => c.is_member || c.joined).length;
   const countEl = $("#myCirclesCount");
   if (countEl) countEl.textContent = String(joinedCount);
 
   // Filter by Tab (Joined vs Explore)
   let list = communities.filter(c => {
-    if (activeCommunityTab === 'joined') return Boolean(c.is_member);
-    return !c.is_member;
+    const isJoined = Boolean(c.is_member || c.joined);
+    if (activeCommunityTab === 'joined') return isJoined;
+    return !isJoined;
   });
 
   // Filter by Category Chip
@@ -1420,6 +1427,9 @@ function renderCommunities() {
     const top = document.createElement("div");
     top.className = "community-card-top";
 
+    const metaLeft = document.createElement("div");
+    metaLeft.className = "community-card-meta-left";
+
     const emoji = document.createElement("span");
     emoji.className = "community-emoji";
     emoji.textContent = community.emoji || "✦";
@@ -1428,32 +1438,51 @@ function renderCommunities() {
     topic.className = "community-topic-pill";
     topic.textContent = community.topic;
 
-    top.append(emoji, topic);
-
-    const title = document.createElement("h3");
-    title.textContent = community.name;
-
-    const description = document.createElement("p");
-    description.textContent = community.description;
-
-    const bottom = document.createElement("div");
-    bottom.className = "community-card-bottom";
+    metaLeft.append(emoji, topic);
 
     const count = document.createElement("span");
     count.className = "community-member-count";
     const memberCount = Number(community.member_count || 0);
     count.textContent = `${memberCount} ${memberCount === 1 ? "member" : "members"}`;
 
-    const actionWrap = document.createElement("div");
-    actionWrap.style.cssText = "display:flex;align-items:center;gap:6px;";
+    top.append(metaLeft, count);
 
-    if (community.is_member) {
-      const openChatBtn = document.createElement("button");
-      openChatBtn.type = "button";
-      openChatBtn.className = "primary";
-      openChatBtn.style.cssText = "padding:6px 12px;font-size:12px;font-weight:700;";
-      openChatBtn.textContent = "💬 Open Chat";
-      openChatBtn.onclick = (e) => {
+    const title = document.createElement("h3");
+    title.className = "community-card-title";
+    title.textContent = community.name;
+
+    const description = document.createElement("p");
+    description.className = "community-card-desc";
+    description.textContent = community.description;
+
+    const bottom = document.createElement("div");
+    bottom.className = "community-card-bottom";
+
+    const actionWrap = document.createElement("div");
+    actionWrap.className = "community-card-actions";
+
+    const isJoined = Boolean(community.is_member || community.joined);
+    if (isJoined) {
+      const openCircleBtn = document.createElement("button");
+      openCircleBtn.type = "button";
+      openCircleBtn.className = "primary community-open-btn";
+      openCircleBtn.textContent = "Open";
+      openCircleBtn.onclick = (e) => {
+        e.stopPropagation();
+        if (window.GlassChat) {
+          window.GlassChat.open();
+        } else {
+          openChat();
+        }
+      };
+
+      const chatIconBtn = document.createElement("button");
+      chatIconBtn.type = "button";
+      chatIconBtn.className = "secondary community-chat-icon-btn";
+      chatIconBtn.setAttribute("aria-label", `Chat in ${community.name}`);
+      chatIconBtn.title = "Open Circle Chat";
+      chatIconBtn.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>`;
+      chatIconBtn.onclick = (e) => {
         e.stopPropagation();
         if (window.GlassChat) {
           window.GlassChat.open();
@@ -1464,20 +1493,19 @@ function renderCommunities() {
 
       const leaveBtn = document.createElement("button");
       leaveBtn.type = "button";
-      leaveBtn.className = "secondary";
-      leaveBtn.style.cssText = "padding:6px 10px;font-size:12px;";
+      leaveBtn.className = "community-leave-btn";
+      leaveBtn.setAttribute("aria-label", `Leave ${community.name}`);
       leaveBtn.textContent = "Leave";
       leaveBtn.onclick = (e) => {
         e.stopPropagation();
         leaveCommunity(community.id);
       };
 
-      actionWrap.append(openChatBtn, leaveBtn);
+      actionWrap.append(openCircleBtn, chatIconBtn, leaveBtn);
     } else {
       const joinBtn = document.createElement("button");
       joinBtn.type = "button";
-      joinBtn.className = "primary";
-      joinBtn.style.cssText = "padding:6px 14px;font-size:12px;font-weight:700;";
+      joinBtn.className = "primary community-join-cta";
       joinBtn.textContent = "+ Join Circle";
       joinBtn.onclick = (e) => {
         e.stopPropagation();
@@ -1486,7 +1514,7 @@ function renderCommunities() {
       actionWrap.appendChild(joinBtn);
     }
 
-    bottom.append(count, actionWrap);
+    bottom.append(actionWrap);
     card.append(top, title, description, bottom);
     grid.appendChild(card);
   });
@@ -1495,7 +1523,7 @@ function renderCommunities() {
   if (noMsg) {
     noMsg.hidden = total > 0;
     noMsg.textContent = activeCommunityTab === 'joined'
-      ? "You haven't joined any circles yet. Switch to 'Explore Circles' to join!"
+      ? "You haven't joined any circles yet. Switch to Explore to join one."
       : "No explore circles match your search.";
   }
 
@@ -1507,7 +1535,7 @@ function renderCommunities() {
   const moreBtn = $("#showMoreCommunitiesBtn");
   if (moreBtn) {
     moreBtn.style.display = total > communityVisibleLimit ? "inline-block" : "none";
-    moreBtn.textContent = `Show More Circles ↓ (${total - communityVisibleLimit} remaining)`;
+    moreBtn.textContent = `Show More Circles (${total - communityVisibleLimit} remaining)`;
   }
 }
 
@@ -2151,7 +2179,16 @@ function bindAuthModalListeners() {
   $("#mhAvatarBtn")?.addEventListener("click", () => {
     openModal(currentUser ? "signup" : "login");
   });
-  $("#mhSpotlightBtn")?.addEventListener("click", () => {
+  $("#mhSpotlightBtn")?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (!currentUser) {
+      openModal("signup");
+    } else {
+      navigateTo("discover");
+    }
+  });
+  $("#mhSpotlightCard")?.addEventListener("click", (e) => {
+    if (e.target.closest("#mhPulseChips")) return;
     if (!currentUser) {
       openModal("signup");
     } else {
@@ -2168,7 +2205,52 @@ function bindAuthModalListeners() {
     });
   });
 
+  setupMobileKeyboardHandler();
   renderMobileHomeDashboard();
+}
+
+function setupMobileKeyboardHandler() {
+  if (window.__smKeyboardHandlerBound) return;
+  window.__smKeyboardHandlerBound = true;
+
+  let blurTimer = null;
+  let baselineHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+
+  const isTextField = (el) => {
+    if (!el) return false;
+    const tag = el.tagName;
+    if (tag === "TEXTAREA" || tag === "SELECT" || el.isContentEditable) return true;
+    if (tag !== "INPUT") return false;
+    const type = (el.type || "text").toLowerCase();
+    return !["checkbox", "radio", "file", "button", "submit", "reset", "range", "color"].includes(type);
+  };
+
+  const syncKeyboardState = () => {
+    const activeIsInput = isTextField(document.activeElement);
+    let viewportShrunk = false;
+    if (window.visualViewport) {
+      if (!activeIsInput && window.visualViewport.height > baselineHeight) {
+        baselineHeight = window.visualViewport.height;
+      }
+      viewportShrunk = (baselineHeight - window.visualViewport.height) > 120;
+    }
+    document.body.classList.toggle("keyboard-open", Boolean(activeIsInput || viewportShrunk));
+  };
+
+  document.addEventListener("focusin", (e) => {
+    if (!isTextField(e.target)) return;
+    clearTimeout(blurTimer);
+    syncKeyboardState();
+  });
+
+  document.addEventListener("focusout", () => {
+    clearTimeout(blurTimer);
+    blurTimer = setTimeout(syncKeyboardState, 110);
+  });
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", syncKeyboardState);
+  }
 }
 
 function openQuickActionSheet() {
@@ -2193,7 +2275,7 @@ function renderMobileHomeDashboard() {
   if (currentUser) {
     const first = (currentUser.name || "Explorer").trim().split(/\s+/)[0];
     if (firstNameEl) firstNameEl.textContent = first;
-    if (subtitleEl) subtitleEl.textContent = "Connect, build, and grow with your peers.";
+    if (subtitleEl) subtitleEl.textContent = "Connect, build, and swap skills with peers.";
     renderUserAvatar(avatarEl, currentUser);
   } else {
     if (firstNameEl) firstNameEl.textContent = "Explorer";
@@ -2206,7 +2288,7 @@ function renderMobileHomeDashboard() {
     ? connectionRows.filter(r => r.status === "accepted").length
     : 0;
   const circlesCount = Array.isArray(communities)
-    ? communities.filter(cm => cm.joined).length
+    ? communities.filter(cm => cm.is_member || cm.joined).length
     : 0;
 
   let cachedConvs = [];
@@ -2245,6 +2327,28 @@ function renderMobileHomeDashboard() {
       : "Create your profile to unlock live DMs, circles, and peer matching.";
   }
 
+  const pulseChipsEl = $("#mhPulseChips");
+  if (pulseChipsEl) {
+    const focusSkills = Array.isArray(currentUser?.interests) && currentUser.interests.length > 0
+      ? currentUser.interests.slice(0, 6)
+      : ["AI & ML", "Python", "Web Dev", "UI Design", "Startups"];
+    pulseChipsEl.replaceChildren();
+    focusSkills.forEach(skill => {
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "mh-pulse-chip";
+      chip.textContent = skill;
+      chip.addEventListener("click", (e) => {
+        e.stopPropagation();
+        navigateTo("discover");
+        if (window.DiscoverScreen?.setInterestFilter) {
+          window.DiscoverScreen.setInterestFilter(skill);
+        }
+      });
+      pulseChipsEl.appendChild(chip);
+    });
+  }
+
   // Stacked Active Chats & Circles List
   const listEl = $("#mhActivityList");
   if (!listEl) return;
@@ -2264,7 +2368,7 @@ function renderMobileHomeDashboard() {
   });
 
   if (Array.isArray(communities)) {
-    const joinedList = communities.filter(cm => cm.joined).slice(0, 3);
+    const joinedList = communities.filter(cm => cm.is_member || cm.joined).slice(0, 3);
     joinedList.forEach(cm => {
       items.push({
         type: "circle",
@@ -2379,7 +2483,7 @@ function updateNavActiveStates(target) {
   const mobileTitles = {
     home: "SkillMate.",
     discover: "Discover",
-    communities: "Communities",
+    communities: "Circles",
     network: "Network",
     chat: "Chats"
   };

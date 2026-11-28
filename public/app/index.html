@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#0B1410">
+  <meta name="theme-color" content="#080B0A">
   <meta name="description" content="Discover people who share your interests, skills and ambitions.">
   <title>SkillMate — Find Your People</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -108,10 +108,14 @@
     <div class="app-view active" id="view-home">
       <!-- NATIVE MOBILE HOME DASHBOARD (<= 768px) -->
       <section class="mobile-home-dashboard" id="mobileHomeDashboard" aria-label="SkillMate Mobile Home">
-        <!-- 1. Top Utility & Greeting Header -->
+        <!-- 1. Compact Refined Mobile Header -->
         <div class="mh-header">
-          <div class="mh-top-row">
-            <span class="mh-time-greeting" id="mhTimeGreeting">Good Morning</span>
+          <div class="mh-greeting-row">
+            <div class="mh-greeting-copy">
+              <span class="mh-time-greeting" id="mhTimeGreeting">Good Evening</span>
+              <h1 class="mh-hello"><span id="mhFirstName">Explorer</span></h1>
+              <p class="mh-subtitle" id="mhSubtitle">Connect, build, and swap skills with peers.</p>
+            </div>
             <div class="mh-utility-actions">
               <button type="button" class="mh-icon-btn" id="mhSearchBtn" aria-label="Search peers">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -126,74 +130,72 @@
                 </svg>
                 <span class="mh-notif-dot" id="mhNotifDot" hidden></span>
               </button>
+              <button type="button" class="mh-avatar-ring" id="mhAvatarBtn" aria-label="Profile and settings">
+                <span class="mh-avatar-inner" id="mhUserAvatar">✦</span>
+              </button>
             </div>
-          </div>
-
-          <div class="mh-greeting-row">
-            <div class="mh-greeting-copy">
-              <h1 class="mh-hello">Hello, <span id="mhFirstName">Explorer</span></h1>
-              <p class="mh-subtitle" id="mhSubtitle">Connect, build, and grow with your peers.</p>
-            </div>
-            <button type="button" class="mh-avatar-ring" id="mhAvatarBtn" aria-label="Profile and settings">
-              <span class="mh-avatar-inner" id="mhUserAvatar">✦</span>
-            </button>
           </div>
         </div>
 
-        <!-- 2. 3-Column Bento Stat Cards Row -->
-        <div class="mh-bento-row">
+        <!-- 2. Unified Segmented Metric Strip -->
+        <div class="mh-bento-row" role="group" aria-label="Your activity summary">
           <button type="button" class="mh-stat-card" onclick="navigateTo('network')">
-            <span class="mh-stat-icon sage">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8">
-                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                <circle cx="9" cy="7" r="4"></circle>
-                <polyline points="16 11 18 13 22 9"></polyline>
-              </svg>
-            </span>
-            <strong class="mh-stat-val" id="mhStatConnections">0</strong>
+            <div class="mh-stat-head">
+              <span class="mh-stat-icon sage">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <polyline points="16 11 18 13 22 9"></polyline>
+                </svg>
+              </span>
+              <strong class="mh-stat-val" id="mhStatConnections">0</strong>
+            </div>
             <span class="mh-stat-label">Connections</span>
           </button>
 
           <button type="button" class="mh-stat-card" onclick="navigateTo('communities')">
-            <span class="mh-stat-icon emerald">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8">
-                <circle cx="12" cy="12" r="3"></circle>
-                <circle cx="5" cy="7" r="2.5"></circle>
-                <circle cx="19" cy="7" r="2.5"></circle>
-                <circle cx="5" cy="17" r="2.5"></circle>
-                <circle cx="19" cy="17" r="2.5"></circle>
-              </svg>
-            </span>
-            <strong class="mh-stat-val" id="mhStatCircles">0</strong>
+            <div class="mh-stat-head">
+              <span class="mh-stat-icon emerald">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <circle cx="5" cy="7" r="2.2"></circle>
+                  <circle cx="19" cy="7" r="2.2"></circle>
+                  <circle cx="5" cy="17" r="2.2"></circle>
+                  <circle cx="19" cy="17" r="2.2"></circle>
+                </svg>
+              </span>
+              <strong class="mh-stat-val" id="mhStatCircles">0</strong>
+            </div>
             <span class="mh-stat-label">My Circles</span>
           </button>
 
           <button type="button" class="mh-stat-card" onclick="openChat()">
-            <span class="mh-stat-icon mint">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-              </svg>
-            </span>
-            <strong class="mh-stat-val" id="mhStatUnread">0</strong>
+            <div class="mh-stat-head">
+              <span class="mh-stat-icon mint">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+              </span>
+              <strong class="mh-stat-val" id="mhStatUnread">0</strong>
+            </div>
             <span class="mh-stat-label">Unread DMs</span>
           </button>
         </div>
 
-        <!-- 3. Featured Spotlight / Progress Card -->
+        <!-- 3. Flagship Match Pulse Hero Card -->
         <div class="mh-spotlight-card" id="mhSpotlightCard">
           <div class="mh-spotlight-top">
             <div class="mh-spotlight-copy">
               <span class="mh-spotlight-eyebrow">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                </svg>
+                <span class="mh-pulse-dot" aria-hidden="true"></span>
                 <span id="mhSpotlightLabel">Your Match Pulse</span>
               </span>
               <h2 class="mh-spotlight-title" id="mhSpotlightTitle">Keep Building!</h2>
               <p class="mh-spotlight-desc" id="mhSpotlightDesc">Complete your profile to unlock stronger peer matches.</p>
             </div>
-            <button type="button" class="mh-spotlight-cta" id="mhSpotlightBtn" aria-label="Open spotlight action">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <button type="button" class="mh-spotlight-cta" id="mhSpotlightBtn" aria-label="Boost match pulse">
+              <span class="mh-progress-pct" id="mhProgressPct">72%</span>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="9 18 15 12 9 6"></polyline>
               </svg>
             </button>
@@ -202,8 +204,8 @@
             <div class="mh-progress-track">
               <div class="mh-progress-fill" id="mhProgressFill" style="width: 72%"></div>
             </div>
-            <span class="mh-progress-pct" id="mhProgressPct">72%</span>
           </div>
+          <div class="mh-pulse-chips" id="mhPulseChips" aria-label="Active skills"></div>
         </div>
 
         <!-- 4. Horizontal Quick-Filter / Category Tiles -->
@@ -344,34 +346,44 @@
       </div>
 
       <section class="section" id="communities">
-        <div class="section-eyebrow">YOUR PEOPLE, YOUR CIRCLE</div>
-        <h2 class="section-title">Find your corner<br>of the internet.</h2>
-        <p class="section-description">
-          Every passion has a place. Join the circles that match your interests and meet people who are into the same things.
-        </p>
-
-        <!-- Clean Tabs: My Circles vs Explore -->
-        <div class="community-tabs-bar">
-          <button type="button" class="community-tab-btn active" id="commTabBtnJoined" onclick="switchCommunityTab('joined')">
-            ✦ My Circles (<span id="myCirclesCount">0</span>)
-          </button>
-          <button type="button" class="community-tab-btn" id="commTabBtnExplore" onclick="switchCommunityTab('explore')">
-            🧭 Explore Circles
+        <!-- Compact Native Mobile Header + Auto-Join Pill -->
+        <div class="comm-mobile-head">
+          <h1 class="comm-mobile-title">Circles</h1>
+          <button class="comm-autojoin-btn" id="joinInterestCommunities" type="button" onclick="joinMyInterestCommunities()" title="Auto-join circles matching your interests">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            <span>Match My Skills</span>
           </button>
         </div>
 
-        <!-- Search & Filter Chips Bar -->
-        <div class="search-row" style="margin-bottom:12px;">
-          <div class="search-wrap">
-            <span>⌕</span>
-            <input class="search" id="communitySearch" placeholder="Search circles by name, topic or description..." aria-label="Search circles" oninput="handleCommunitySearch(this.value)">
+        <!-- iOS-Style Segmented Control: My Circles | Explore -->
+        <div class="community-tabs-bar" role="tablist" aria-label="Circles view">
+          <button type="button" class="community-tab-btn active" id="commTabBtnJoined" role="tab" aria-selected="true" onclick="switchCommunityTab('joined')">
+            My Circles (<span id="myCirclesCount">0</span>)
+          </button>
+          <button type="button" class="community-tab-btn" id="commTabBtnExplore" role="tab" aria-selected="false" onclick="switchCommunityTab('explore')">
+            Explore
+          </button>
+        </div>
+
+        <!-- Clean Pill Search Bar with Inline Clear Icon -->
+        <div class="search-row comm-search-row">
+          <div class="search-wrap comm-search-pill">
+            <span class="comm-search-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </span>
+            <input class="search" id="communitySearch" placeholder="Search circles, topics..." aria-label="Search circles" oninput="handleCommunitySearch(this.value)">
+            <button type="button" class="comm-search-clear" id="communitySearchClear" onclick="clearCommunitySearch()" aria-label="Clear search" hidden>✕</button>
           </div>
-          <button class="filter" type="button" onclick="clearCommunitySearch()">Clear search</button>
         </div>
 
         <div class="community-chips-bar" id="communityChipsBar">
           <button type="button" class="community-chip active" onclick="selectCommunityCategory('all')">All</button>
-          <button type="button" class="community-chip" onclick="selectCommunityCategory('AI')">AI & ML</button>
+          <button type="button" class="community-chip" onclick="selectCommunityCategory('AI')">AI &amp; ML</button>
           <button type="button" class="community-chip" onclick="selectCommunityCategory('Python')">Python</button>
           <button type="button" class="community-chip" onclick="selectCommunityCategory('Web Development')">Web Dev</button>
           <button type="button" class="community-chip" onclick="selectCommunityCategory('Startups')">Startups</button>
@@ -382,17 +394,6 @@
           <button type="button" class="community-chip" onclick="selectCommunityCategory('Gaming')">Gaming</button>
           <button type="button" class="community-chip" onclick="selectCommunityCategory('Finance')">Finance</button>
           <button type="button" class="community-chip" onclick="selectCommunityCategory('IoT')">IoT</button>
-        </div>
-
-        <div class="community-toolbar">
-          <div class="community-toolbar-copy">
-            <span class="recommendation-icon">✦</span>
-            <div>
-              <strong id="communityToolbarTitle">My Joined Circles</strong>
-              <span id="communitySummary">Choose your interests and join the communities that fit.</span>
-            </div>
-          </div>
-          <button class="primary community-join-all" id="joinInterestCommunities" type="button" onclick="joinMyInterestCommunities()">Join my interest circles ↗</button>
         </div>
 
         <div class="communities-grid" id="communitiesGrid" aria-live="polite"></div>
